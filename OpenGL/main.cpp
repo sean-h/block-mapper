@@ -172,10 +172,15 @@ int main()
 			float angle = 20.0f * i;
 			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 			glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-			glUniform3f(glGetUniformLocation(shader.ID, "objectColor"), 1.0f, 0.5f, 0.31f);
-			glUniform3f(glGetUniformLocation(shader.ID, "lightColor"), 1.0f, 1.0f, 1.0f);
-			glUniform3f(glGetUniformLocation(shader.ID, "lightPos"), lightPosition.x, lightPosition.y, lightPosition.z);
+			glUniform3f(glGetUniformLocation(shader.ID, "light.position"), lightPosition.x, lightPosition.y, lightPosition.z);
 			glUniform3f(glGetUniformLocation(shader.ID, "viewPosition"), camera.Position.x, camera.Position.x, camera.Position.x);
+			shader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+			shader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+			shader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+			shader.setFloat("material.shininess", 32.0f);
+			shader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+			shader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken the light a bit to fit the scene
+			shader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
