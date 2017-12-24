@@ -193,6 +193,9 @@ int main()
 			shader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
 			shader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken the light a bit to fit the scene
 			shader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+			shader.setFloat("light.constant", 1.0f);
+			shader.setFloat("light.linear", 0.09f);
+			shader.setFloat("light.quadratic", 0.032f);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 
