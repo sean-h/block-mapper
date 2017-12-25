@@ -70,7 +70,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>F:\Libraries\glfw\include\;F:\Libraries\glad\include;$(IncludePath)</IncludePath>
+    <IncludePath>F:\Libraries\assimp-4.1.0\build\include;F:\Libraries\assimp-4.1.0\include;F:\Libraries\glfw\include\;F:\Libraries\glad\include;$(IncludePath)</IncludePath>
     <LibraryPath>F:\Libraries\glfw\build\src\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
