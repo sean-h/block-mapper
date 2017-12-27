@@ -10,6 +10,7 @@
 #include "glm\gtc\type_ptr.hpp"
 #include "Camera.h"
 #include "Mesh.h"
+#include "Model.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -83,6 +84,8 @@ int main()
 	shader.setInt("material.specular", 1);
 
 	Mesh cube = Mesh::Cube();
+	std::string monkeyPath = "Monkey.fbx";
+	Model monkey(monkeyPath);
 	
 	while (!glfwWindowShouldClose(window))
 	{
@@ -133,7 +136,7 @@ int main()
 			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 			shader.setMat4("model", glm::value_ptr(model));
 
-			cube.Draw(shader);
+			monkey.Draw(shader);
 		}
 
 		// Draw light
