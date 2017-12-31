@@ -60,6 +60,7 @@ int main()
 	glfwSetCursorPosCallback(window, mouse_callback);
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 
 	Shader shader("VertexShader.glsl", "FragmentShader.glsl");
 	Shader lightShader("VertexShader.glsl", "UnlitFragmentShader.glsl");
