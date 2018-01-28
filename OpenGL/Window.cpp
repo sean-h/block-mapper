@@ -1,0 +1,72 @@
+#include "Window.h"
+#include <iostream>
+
+Window::Window()
+{
+	this->width = 1920;
+	this->height = 1080;
+	this->open = true;
+
+	SetWindowHints();
+	
+	std::unique_ptr<GLFWwindow, DestroyglfwWin> window(glfwCreateWindow(this->width, this->height, "OpenGL", NULL, NULL));
+	
+	if (window == NULL)
+	{
+		std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+		throw;
+	}
+
+	glfwWindow = std::move(window);
+	glfwMakeContextCurrent(glfwWindow.get());
+	glfwSetInputMode(glfwWindow.get(), GLFW_STICKY_KEYS, 1);
+
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		throw;
+	}
+
+	glViewport(0, 0, this->width, this->height);
+	glfwSetFramebufferSizeCallback(glfwWindow.get(), OnFrameBufferSizeChanged);
+	glfwSetInputMode(glfwWindow.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+	SetOpenGLCapabilities();
+}
+
+void Window::EndFrame()
+{
+	glfwSwapBuffers(glfwWindow.get());
+	glfwPollEvents();
+
+	if (glfwWindowShouldClose(glfwWindow.get()))
+	{
+		open = false;
+	}
+}
+
+void Window::Close()
+{
+	open = false;
+}
+
+void Window::SetWindowHints()
+{
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, 4);
+}
+
+void Window::SetOpenGLCapabilities()
+{
+	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+}
+
+void OnFrameBufferSizeChanged(GLFWwindow * window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
