@@ -18,7 +18,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(Input* input);
 unsigned int loadTexture(char const * path);
 

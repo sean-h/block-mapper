@@ -34,5 +34,3 @@ private:
 };
 
 void OnFrameBufferSizeChanged(GLFWwindow * window, int width, int height);
-void OnKeyStateChanged(GLFWwindow* window, int key, int scancode, int action, int mods);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
