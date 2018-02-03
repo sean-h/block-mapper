@@ -6,6 +6,11 @@ bool Input::GetKey(Keys key) const
 	return std::find(keysDown.begin(), keysDown.end(), key) != keysDown.end();
 }
 
+bool Input::GetKeyDown(Keys key) const
+{
+	return std::find(keysDownThisFrame.begin(), keysDownThisFrame.end(), key) != keysDownThisFrame.end();
+}
+
 bool Input::GetKeyUp(Keys key) const
 {
 	return std::find(keysUpThisFrame.begin(), keysUpThisFrame.end(), key) == keysUpThisFrame.end();
@@ -42,6 +47,7 @@ void Input::SetKeyDown(Keys key)
 	if (std::find(keysDown.begin(), keysDown.end(), key) == keysDown.end())
 	{
 		keysDown.push_back(key);
+		keysDownThisFrame.push_back(key);
 	}
 }
 

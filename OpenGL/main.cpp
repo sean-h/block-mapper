@@ -18,16 +18,17 @@ float lastFrame = 0.0f; // Time of last frame
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f);
 Window* window;
+Scene* scene;
 
 int main()
 {
 	glfwInit();
 
 	Input input;
-	window = new Window(1920, 1080);
+	window = new Window(800, 600);
 
 	Renderer renderer;
-	Scene scene;
+	scene = new Scene();
 
 	while (!window->ShouldClose())
 	{
@@ -41,7 +42,7 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		renderer.RenderScene(scene, *window, camera);
+		renderer.RenderScene(*scene, *window, camera);
 
 		window->EndFrame();
 		input.EndFrame();
@@ -75,5 +76,11 @@ void processInput(Input* input)
 	if (input->GetKey(Input::Keys::KEY_D))
 	{
 		camera.ProcessKeyboard(Camera_Movement::RIGHT, deltaTime);
+	}
+	if (input->GetKeyDown(Input::Keys::KEY_F))
+	{
+		Entity* newCube = scene->CreateEntity();
+		newCube->MeshName("Cube");
+		newCube->ObjectTransform().Position(camera.Position + (camera.Front * 5.0f));
 	}
 }

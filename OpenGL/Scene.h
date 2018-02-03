@@ -1,14 +1,16 @@
 #pragma once
 #include "glm\glm.hpp"
 #include "Entity.h"
+#include <memory>
 #include <vector>
 
 class Scene
 {
 public:
 	Scene();
-	std::vector<Entity> Entities() const { return entities; }
+	std::vector<std::unique_ptr<Entity>>& Entities() { return entities; }
+	Entity* CreateEntity();
 
 private:
-	std::vector<Entity> entities;
+	std::vector<std::unique_ptr<Entity>> entities;
 };

@@ -19,9 +19,15 @@ Scene::Scene()
 
 	for (auto p : cubePositions)
 	{
-		Entity entity;
-		entity.ObjectTransform().Position(p);
-		entity.MeshName("Cube");
-		this->entities.push_back(entity);
+		Entity* entity = this->CreateEntity();
+		entity->ObjectTransform().Position(p);
+		entity->MeshName("Cube");
 	}
+}
+
+Entity * Scene::CreateEntity()
+{
+	std::unique_ptr<Entity> entity(new Entity());
+	this->entities.push_back(std::move(entity));
+	return this->entities.back().get();
 }

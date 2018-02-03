@@ -133,6 +133,7 @@ public:
 	};
 
 	bool GetKey(Keys key) const;
+	bool GetKeyDown(Keys key) const;
 	bool GetKeyUp(Keys key) const;
 	double MouseX() const { return this->mouseX; }
 	double MouseY() const { return this->mouseY; }

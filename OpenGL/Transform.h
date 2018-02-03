@@ -12,8 +12,6 @@ public:
 	glm::vec3 Scale() const { return scale; }
 	glm::mat4 Model();
 
-
-
 private:
 	glm::vec3 position;
 	glm::vec3 rotatation;
