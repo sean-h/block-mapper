@@ -14,7 +14,7 @@ struct DestroyglfwWin {
 class Window
 {
 public:
-	Window();
+	Window(int width, int height);
 
 	int Width() const { return width; }
 	int Height() const { return height; }

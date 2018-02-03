@@ -1,10 +1,9 @@
 #include "Window.h"
 #include <iostream>
 
-Window::Window()
+Window::Window(int width, int height)
+	: width(width), height(height)
 {
-	this->width = 1920;
-	this->height = 1080;
 	this->open = true;
 
 	SetWindowHints();
