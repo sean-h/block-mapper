@@ -1,4 +1,5 @@
 #include "Physics.h"
+#include "Scene.h"
 #include <iostream>
 
 Physics::Physics()
@@ -6,7 +7,7 @@ Physics::Physics()
 	LoadColliders();
 }
 
-Entity * Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction, float distance)
+RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction, float distance)
 {
 	std::vector<std::pair<Entity*, float>> hitEntities;
 
@@ -65,20 +66,19 @@ Entity * Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction, 
 			auto triangles = mesh.Triangles();
 			for (auto& triangle : triangles)
 			{
-				if (RayTriIntersect(origin, direction, triangle.p0 + entityPosition, triangle.p1 + entityPosition, triangle.p2 + entityPosition))
+				RaycastHit hit = RayTriIntersect(origin, direction, triangle.p0 + entityPosition, triangle.p1 + entityPosition, triangle.p2 + entityPosition);
+				if (hit.hit)
 				{
-					glm::vec3 e1 = triangle.p1 - triangle.p0;
-					glm::vec3 e2 = triangle.p2 - triangle.p0;
-					glm::vec3 normal = glm::cross(e2, e1);
-					std::cout << "Normal: " << normal.x << ", " << normal.y << ", " << normal.z << std::endl;
+					hit.entity = closestEntity.first;
+					return hit;
 				}
 			}
 		}
-
-		return closestEntity.first;
 	}
 
-	return nullptr;
+	RaycastHit hit;
+	hit.hit = false;
+	return hit;
 }
 
 void Physics::LoadColliders()
@@ -86,15 +86,17 @@ void Physics::LoadColliders()
 	this->colliders["Cube"] = new Model("Cube.fbx");
 }
 
-bool Physics::RayTriIntersect(glm::vec3 origin, glm::vec3 direction, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
+RaycastHit Physics::RayTriIntersect(glm::vec3 origin, glm::vec3 direction, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
 {
+	RaycastHit hit;
 	glm::vec3 e1 = p1 - p0;
 	glm::vec3 e2 = p2 - p0;
 	glm::vec3 normal = glm::cross(e2, e1);
 
 	if (glm::dot(normal, direction) > 0.0f)
 	{
-		return false;
+		hit.hit = false;
+		return hit;
 	}
 
 	glm::vec3 q = glm::cross(direction, e2);
@@ -102,7 +104,8 @@ bool Physics::RayTriIntersect(glm::vec3 origin, glm::vec3 direction, glm::vec3 p
 
 	if (a > -FLT_EPSILON && a < FLT_EPSILON)
 	{
-		return false;
+		hit.hit = false;
+		return hit;
 	}
 
 	float f = 1.0f / a;
@@ -110,15 +113,22 @@ bool Physics::RayTriIntersect(glm::vec3 origin, glm::vec3 direction, glm::vec3 p
 	float u = f * (glm::dot(s, q));
 	if (u < 0.0f)
 	{
-		return false;
+		hit.hit = false;
+		return hit;
 	}
 	glm::vec3 r = glm::cross(s, e1);
 	float v = f * (glm::dot(direction, r));
 	if (v < 0.0f || u + v > 1.0)
 	{
-		return false;
+		hit.hit = false;
+		return hit;
 	}
 	float t = f * (glm::dot(e2, r));
 
-	return true;
+	hit.hit = true;
+	hit.normal = normal;
+	hit.u = u;
+	hit.v = v;
+	hit.t = t;
+	return hit;
 }

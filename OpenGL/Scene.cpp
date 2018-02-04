@@ -23,6 +23,30 @@ Scene::Scene()
 		entity->ObjectTransform().Position(p);
 		entity->MeshName("Cube");
 	}
+
+	camera = std::make_unique<Camera>(Camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f));
+}
+
+void Scene::Update(Input * input, Physics * physics, Time* time)
+{
+	camera->ProcessMouseMovement(input->MouseXDelta(), input->MouseYDelta(), GL_TRUE);
+
+	if (input->GetKey(Input::Keys::KEY_W))
+	{
+		camera->ProcessKeyboard(Camera_Movement::FORWARD, time->DeltaTime());
+	}
+	if (input->GetKey(Input::Keys::KEY_S))
+	{
+		camera->ProcessKeyboard(Camera_Movement::BACKWARD, time->DeltaTime());
+	}
+	if (input->GetKey(Input::Keys::KEY_A))
+	{
+		camera->ProcessKeyboard(Camera_Movement::LEFT, time->DeltaTime());
+	}
+	if (input->GetKey(Input::Keys::KEY_D))
+	{
+		camera->ProcessKeyboard(Camera_Movement::RIGHT, time->DeltaTime());
+	}
 }
 
 Entity * Scene::CreateEntity()
