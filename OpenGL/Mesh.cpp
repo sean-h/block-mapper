@@ -97,6 +97,22 @@ void Mesh::Draw(Shader shader)
 	glBindVertexArray(0);
 }
 
+std::vector<Triangle> Mesh::Triangles()
+{
+	std::vector<Triangle> triangles;
+
+	for (int i = 0; i < this->indices.size(); i += 3)
+	{
+		Triangle triangle;
+		triangle.p0 = this->vertices[this->indices[i]].Position;
+		triangle.p1 = this->vertices[this->indices[i + 1]].Position;
+		triangle.p2 = this->vertices[this->indices[i + 2]].Position;
+		triangles.push_back(triangle);
+	}
+
+	return triangles;
+}
+
 void Mesh::setupMesh()
 {
 	glGenVertexArrays(1, &VAO);

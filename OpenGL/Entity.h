@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "Transform.h"
+#include "Model.h"
 
 class Entity
 {

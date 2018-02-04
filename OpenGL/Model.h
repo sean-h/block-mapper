@@ -14,6 +14,8 @@ public:
 		loadModel(path);
 	}
 	void Draw(Shader shader);
+	std::vector<Mesh> Meshes() const { return meshes; }
+
 private:
 	/*  Model Data  */
 	std::vector<Mesh> meshes;

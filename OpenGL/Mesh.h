@@ -15,6 +15,12 @@ struct Texture {
 	std::string path;
 };
 
+struct Triangle {
+	glm::vec3 p0;
+	glm::vec3 p1;
+	glm::vec3 p2;
+};
+
 class Mesh {
 public:
 	/* Mesh Data */
@@ -26,6 +32,7 @@ public:
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
 	static Mesh Cube();
 	void Draw(Shader shader);
+	std::vector<Triangle> Triangles();
 
 private:
 	/* Render data */

@@ -1,5 +1,6 @@
 #include <glad\glad.h>
 #include <GLFW\glfw3.h>
+#include <iostream>
 #include "Shader.h"
 #include "glm\glm.hpp"
 #include "glm\gtc\matrix_transform.hpp"
@@ -10,6 +11,7 @@
 #include "Input.h"
 #include "Scene.h"
 #include "Renderer.h"
+#include "Physics.h"
 
 void processInput(Input* input);
 
@@ -19,6 +21,7 @@ float lastFrame = 0.0f; // Time of last frame
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f);
 Window* window;
 Scene* scene;
+Physics* physics;
 
 int main()
 {
@@ -28,6 +31,7 @@ int main()
 	window = new Window(800, 600);
 
 	Renderer renderer;
+	physics = new Physics();
 	scene = new Scene();
 
 	while (!window->ShouldClose())
@@ -79,8 +83,10 @@ void processInput(Input* input)
 	}
 	if (input->GetKeyDown(Input::Keys::KEY_F))
 	{
-		Entity* newCube = scene->CreateEntity();
-		newCube->MeshName("Cube");
-		newCube->ObjectTransform().Position(camera.Position + (camera.Front * 5.0f));
+		Entity* entity = physics->Raycast(scene, camera.Position, camera.Front, 100.0f);
+		if (entity != nullptr)
+		{
+			std::cout << "Hit: " << entity->ObjectTransform().Position().x << "," << entity->ObjectTransform().Position().y << "," << entity->ObjectTransform().Position().z << std::endl;
+		}
 	}
 }
