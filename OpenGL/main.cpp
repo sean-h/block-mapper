@@ -19,7 +19,7 @@ int main()
 	Renderer renderer;
 	Physics physics;
 	Scene scene;
-	DrawBlockTool activeTool;
+	DrawBlockTool activeTool(&scene);
 
 	while (!window.ShouldClose())
 	{
