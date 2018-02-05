@@ -91,7 +91,7 @@ RaycastHit Physics::RayTriIntersect(glm::vec3 origin, glm::vec3 direction, glm::
 	RaycastHit hit;
 	glm::vec3 e1 = p1 - p0;
 	glm::vec3 e2 = p2 - p0;
-	glm::vec3 normal = glm::cross(e2, e1);
+	glm::vec3 normal = glm::cross(e1, e2);
 
 	if (glm::dot(normal, direction) > 0.0f)
 	{
