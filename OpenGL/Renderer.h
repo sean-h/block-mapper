@@ -1,15 +1,16 @@
 #pragma once
 #include <unordered_map>
-#include "Scene.h"
 #include "Shader.h"
 #include "Model.h"
 #include "Window.h"
+
+class ApplicationContext;
 
 class Renderer
 {
 public:
 	Renderer();
-	void RenderScene(Scene &scene, Window &window, Camera &camera);
+	void RenderScene(ApplicationContext* context);
 
 private:
 	void LoadShaders();

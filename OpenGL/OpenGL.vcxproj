@@ -121,6 +121,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ApplicationContext.cpp" />
     <ClCompile Include="DrawBlockTool.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Input.cpp" />
@@ -136,7 +137,9 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ApplicationContext.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Component.h" />
     <ClInclude Include="DrawBlockTool.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Input.h" />

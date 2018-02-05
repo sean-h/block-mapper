@@ -1,10 +1,8 @@
 #pragma once
-#include "Scene.h"
-#include "Input.h"
-#include "Physics.h"
+class ApplicationContext;
 
 class Tool
 {
 public:
-	virtual void Update(Scene* scene, Input* input, Physics* physics) { }
+	virtual void Update(ApplicationContext* context) { }
 };

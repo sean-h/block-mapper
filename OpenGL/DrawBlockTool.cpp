@@ -1,13 +1,18 @@
 #include "DrawBlockTool.h"
+#include "ApplicationContext.h"
 #include <iostream>
 
-DrawBlockTool::DrawBlockTool(Scene * scene)
+DrawBlockTool::DrawBlockTool(ApplicationContext* context)
 {
-	hoverBlock = scene->CreateEntity();
+	hoverBlock = context->ApplicationScene()->CreateEntity();
 }
 
-void DrawBlockTool::Update(Scene * scene, Input * input, Physics * physics)
+void DrawBlockTool::Update(ApplicationContext* context)
 {
+	Scene* scene = context->ApplicationScene();
+	Physics* physics = context->ApplicationPhysics();
+	Input* input = context->ApplicationInput();
+
 	glm::vec3 hoverBlockOriginalPosition = hoverBlock->ObjectTransform().Position();
 	hoverBlock->ObjectTransform().Position(glm::vec3(10000, 10000, 10000));
 	Camera* camera = scene->ActiveCamera();

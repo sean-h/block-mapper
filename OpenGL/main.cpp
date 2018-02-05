@@ -1,45 +1,39 @@
 #include <glad\glad.h>
 #include <GLFW\glfw3.h>
 #include "Camera.h"
-#include "Window.h"
-#include "Input.h"
-#include "Scene.h"
-#include "Renderer.h"
-#include "Physics.h"
 #include "DrawBlockTool.h"
-#include "Time.h"
+#include "ApplicationContext.h"
 
 int main()
 {
 	glfwInit();
 
-	Time time;
-	Input input;
-	Window window(800, 600);
-	Renderer renderer;
-	Physics physics;
-	Scene scene;
-	DrawBlockTool activeTool(&scene);
+	ApplicationContext applicationContext;
+	DrawBlockTool activeTool(&applicationContext);
 
-	while (!window.ShouldClose())
+	while (!applicationContext.ApplicationWindow()->ShouldClose())
 	{
-		time.StartFrame();
+		applicationContext.ApplicationTime()->StartFrame();
 
-		input.PollWindowInput(window.GLFWWindow());
-		if (input.GetKey(Input::Keys::KEY_ESCAPE))
+		Window* window = applicationContext.ApplicationWindow();
+		Input* input = applicationContext.ApplicationInput();
+		input->PollWindowInput(window->GLFWWindow());
+		if (input->GetKey(Input::Keys::KEY_ESCAPE))
 		{
-			window.Close();
+			window->Close();
 		}
-		scene.Update(&input, &physics, &time);
-		activeTool.Update(&scene, &input, &physics);
+
+		Scene* scene = applicationContext.ApplicationScene();
+		scene->Update(&applicationContext);
+		activeTool.Update(&applicationContext);
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		renderer.RenderScene(scene, window, *scene.ActiveCamera());
+		applicationContext.ApplicationRenderer()->RenderScene(&applicationContext);
 
-		window.EndFrame();
-		input.EndFrame();
+		window->EndFrame();
+		input->EndFrame();
 	}
 
 	glfwTerminate();

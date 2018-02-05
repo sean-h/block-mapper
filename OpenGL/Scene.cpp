@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "ApplicationContext.h"
 
 Scene::Scene()
 {
@@ -27,8 +28,11 @@ Scene::Scene()
 	camera = std::make_unique<Camera>(Camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f));
 }
 
-void Scene::Update(Input * input, Physics * physics, Time* time)
+void Scene::Update(ApplicationContext* context)
 {
+	Input* input = context->ApplicationInput();
+	Time* time = context->ApplicationTime();
+
 	camera->ProcessMouseMovement(input->MouseXDelta(), input->MouseYDelta(), GL_TRUE);
 
 	if (input->GetKey(Input::Keys::KEY_W))

@@ -1,5 +1,5 @@
 #include "Camera.h"
-#include "Renderer.h"
+#include "ApplicationContext.h"
 #include "glm\gtc\matrix_transform.hpp"
 #include "glm\gtc\type_ptr.hpp"
 #define STB_IMAGE_IMPLEMENTATION
@@ -12,15 +12,19 @@ Renderer::Renderer()
 	this->LoadModels();
 }
 
-void Renderer::RenderScene(Scene &scene, Window &window, Camera &camera)
+void Renderer::RenderScene(ApplicationContext* context)
 {
+	Scene* scene = context->ApplicationScene();
+	Window* window = context->ApplicationWindow();
+	Camera* camera = scene->ActiveCamera();
+
 	Shader* defaultShader = this->shaders["Default"];
 	defaultShader->use();
 
-	glm::mat4 view = camera.GetViewMatrix();
+	glm::mat4 view = camera->GetViewMatrix();
 	glUniformMatrix4fv(glGetUniformLocation(defaultShader->ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)window.Width() / (float)window.Height(), 0.1f, 100.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)window->Width() / (float)window->Height(), 0.1f, 100.0f);
 	glUniformMatrix4fv(glGetUniformLocation(defaultShader->ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
 	glm::mat4 lightModel;
@@ -37,9 +41,9 @@ void Renderer::RenderScene(Scene &scene, Window &window, Camera &camera)
 	defaultShader->setFloat("light.linear", 0.09f);
 	defaultShader->setFloat("light.quadratic", 0.032f);
 	defaultShader->setVec3("light.position", lightPosition.x, lightPosition.y, lightPosition.z);
-	defaultShader->setVec3("viewPosition", camera.Position.x, camera.Position.x, camera.Position.x);
+	defaultShader->setVec3("viewPosition", camera->Position.x, camera->Position.x, camera->Position.x);
 
-	for (auto &e : scene.Entities())
+	for (auto &e : scene->Entities())
 	{
 		glm::mat4 model = e->ObjectTransform().Model();
 		defaultShader->setMat4("model", glm::value_ptr(model));

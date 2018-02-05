@@ -1,11 +1,12 @@
 #pragma once
 #include "Tool.h"
+#include "Entity.h"
 
 class DrawBlockTool : public Tool
 {
 public:
-	DrawBlockTool(Scene* scene);
-	void Update(Scene* scene, Input* input, Physics* physics);
+	DrawBlockTool(ApplicationContext* context);
+	void Update(ApplicationContext* context);
 
 private:
 	Entity *hoverBlock;

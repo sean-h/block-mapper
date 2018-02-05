@@ -2,17 +2,16 @@
 #include "glm\glm.hpp"
 #include "Entity.h"
 #include "Camera.h"
-#include "Input.h"
-#include "Physics.h"
-#include "Time.h"
 #include <memory>
 #include <vector>
+
+class ApplicationContext;
 
 class Scene
 {
 public:
 	Scene();
-	void Update(Input* input, Physics* physics, Time* time);
+	void Update(ApplicationContext* context);
 	std::vector<std::unique_ptr<Entity>>& Entities() { return entities; }
 	Entity* CreateEntity();
 	Camera* ActiveCamera() { return this->camera.get(); }
