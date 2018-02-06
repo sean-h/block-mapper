@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "ApplicationContext.h"
+#include "OrbitController.h"
 
 Scene::Scene()
 {
@@ -26,12 +27,22 @@ Scene::Scene()
 	}
 
 	camera = std::make_unique<Camera>(Camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f));
+
+	Entity* orbitEntity = this->CreateEntity();
+	orbitEntity->MeshName("Cube");
+	orbitEntity->ObjectTransform().Position(glm::vec3(5.0f, 0.0f, 0.0f));
+	Component* orbitComponent = AddComponentToEntity(orbitEntity, std::unique_ptr<Component>(new OrbitController()));
 }
 
 void Scene::Update(ApplicationContext* context)
 {
 	Input* input = context->ApplicationInput();
 	Time* time = context->ApplicationTime();
+
+	for (auto &c : components)
+	{
+		c->Update(context);
+	}
 
 	camera->ProcessMouseMovement(input->MouseXDelta(), input->MouseYDelta(), GL_TRUE);
 
@@ -58,4 +69,11 @@ Entity * Scene::CreateEntity()
 	std::unique_ptr<Entity> entity(new Entity());
 	this->entities.push_back(std::move(entity));
 	return this->entities.back().get();
+}
+
+Component * Scene::AddComponentToEntity(Entity * entity, std::unique_ptr<Component> component)
+{
+	this->components.push_back(std::move(component));
+	this->components.back()->Owner(entity);
+	return this->components.back().get();
 }

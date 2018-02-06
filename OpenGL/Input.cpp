@@ -18,6 +18,7 @@ bool Input::GetKeyUp(Keys key) const
 
 void Input::PollWindowInput(GLFWwindow * window)
 {
+	// Keyboard Input
 	for (int i = (int)Input::Keys::KEY_FIRST; i <= (int)Input::Keys::KEY_LAST; i++)
 	{
 		int state = glfwGetKey(window, i);
@@ -31,6 +32,7 @@ void Input::PollWindowInput(GLFWwindow * window)
 		}
 	}
 
+	// Mouse Position
 	double xpos, ypos;
 	glfwGetCursorPos(window, &xpos, &ypos);
 	double xoffset = xpos - this->mouseX;
