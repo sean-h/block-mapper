@@ -8,6 +8,14 @@ public:
 	enum class Keys
 	{
 		KEY_UNKNOWN = -1,
+		MOUSE_1 = 0,
+		MOUSE_2 = 1,
+		MOUSE_3 = 2,
+		MOUSE_4 = 3,
+		MOUSE_5 = 4,
+		MOUSE_6 = 5,
+		MOUSE_7 = 6,
+		MOUSE_8 = 7,
 		KEY_SPACE = 32,
 		KEY_APOSTROPHE = 39 /* ' */,
 		KEY_COMMA = 44 /* , */,
@@ -128,8 +136,10 @@ public:
 		KEY_RIGHT_ALT = 346,
 		KEY_RIGHT_SUPER = 347,
 		KEY_MENU = 348,
-		KEY_FIRST = KEY_UNKNOWN,
+		KEY_FIRST = KEY_SPACE,
 		KEY_LAST = KEY_MENU,
+		MOUSE_FIRST = MOUSE_1,
+		MOUSE_LAST = MOUSE_8,
 	};
 
 	bool GetKey(Keys key) const;

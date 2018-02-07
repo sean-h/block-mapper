@@ -37,11 +37,24 @@ void Input::PollWindowInput(GLFWwindow * window)
 	glfwGetCursorPos(window, &xpos, &ypos);
 	double xoffset = xpos - this->mouseX;
 	double yoffset = this->mouseY - ypos;
-
 	this->mouseX = xpos;
 	this->mouseY = ypos;
 	this->mouseXDelta = xoffset;
 	this->mouseYDelta = yoffset;
+
+	// Mouse Buttons
+	for (int i = (int)Input::Keys::MOUSE_FIRST; i <= (int)Input::Keys::MOUSE_LAST; i++)
+	{
+		int state = glfwGetMouseButton(window, i);
+		if (state == GLFW_PRESS)
+		{
+			SetKeyDown((Keys)i);
+		}
+		else if (state == GLFW_RELEASE)
+		{
+			SetKeyUp((Keys)i);
+		}
+	}
 }
 
 void Input::SetKeyDown(Keys key)

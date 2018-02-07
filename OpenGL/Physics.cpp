@@ -14,7 +14,7 @@ RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction
 	// See Real-Time Rendering Third Edition 16.7.2
 	for (auto &e : scene->Entities())
 	{
-		glm::vec3 entityPosition = e->ObjectTransform().Position();
+		glm::vec3 entityPosition = e->ObjectTransform()->Position();
 		glm::vec3 endPoint0 = origin - entityPosition;
 		glm::vec3 endPoint1 = origin - entityPosition + (direction * distance);
 		glm::vec3 c = (endPoint0 + endPoint1) / 2.0f;
@@ -60,7 +60,7 @@ RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction
 		}
 
 		Model* model = this->colliders["Cube"];
-		glm::vec3 entityPosition = closestEntity.first->ObjectTransform().Position();
+		glm::vec3 entityPosition = closestEntity.first->ObjectTransform()->Position();
 		for (auto& mesh : model->Meshes())
 		{
 			auto triangles = mesh.Triangles();

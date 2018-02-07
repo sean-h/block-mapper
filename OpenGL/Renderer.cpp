@@ -41,11 +41,10 @@ void Renderer::RenderScene(ApplicationContext* context)
 	defaultShader->setFloat("light.linear", 0.09f);
 	defaultShader->setFloat("light.quadratic", 0.032f);
 	defaultShader->setVec3("light.position", lightPosition.x, lightPosition.y, lightPosition.z);
-	defaultShader->setVec3("viewPosition", camera->Position.x, camera->Position.x, camera->Position.x);
 
 	for (auto &e : scene->Entities())
 	{
-		glm::mat4 model = e->ObjectTransform().Model();
+		glm::mat4 model = e->ObjectTransform()->Model();
 		defaultShader->setMat4("model", glm::value_ptr(model));
 		models["Cube"]->Draw(*defaultShader);
 	}

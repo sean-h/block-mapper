@@ -6,7 +6,7 @@
 class Entity
 {
 public:
-	Transform& ObjectTransform() { return transform; }
+	Transform* ObjectTransform() { return &transform; }
 	std::string MeshName() const { return meshName; }
 	void MeshName(std::string meshName) { this->meshName = meshName; }
 

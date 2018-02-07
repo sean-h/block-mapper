@@ -26,8 +26,6 @@ struct Light {
 
 uniform Light light;
 
-uniform vec3 viewPosition;
-
 out vec4 FragColor;
 
 void main()

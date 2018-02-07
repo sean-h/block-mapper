@@ -22,15 +22,20 @@ Scene::Scene()
 	for (auto p : cubePositions)
 	{
 		Entity* entity = this->CreateEntity();
-		entity->ObjectTransform().Position(p);
+		entity->ObjectTransform()->Position(p);
 		entity->MeshName("Cube");
 	}
 
-	camera = std::make_unique<Camera>(Camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f));
+	//camera = std::make_unique<Camera>(Camera(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.0f, 0.0f));
+	Entity* cameraEntity = this->CreateEntity();
+	cameraEntity->ObjectTransform()->Position(glm::vec3(0.0f, 0.0f, -10.0f));
+	cameraEntity->ObjectTransform()->Rotation(glm::vec3(0.0f, 90.0f, 0.0f));
+	AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new OrbitController()));
+	camera = (Camera*)AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new Camera()));
 
 	Entity* orbitEntity = this->CreateEntity();
 	orbitEntity->MeshName("Cube");
-	orbitEntity->ObjectTransform().Position(glm::vec3(5.0f, 0.0f, 0.0f));
+	orbitEntity->ObjectTransform()->Position(glm::vec3(5.0f, 0.0f, 0.0f));
 	Component* orbitComponent = AddComponentToEntity(orbitEntity, std::unique_ptr<Component>(new OrbitController()));
 }
 
@@ -44,7 +49,7 @@ void Scene::Update(ApplicationContext* context)
 		c->Update(context);
 	}
 
-	camera->ProcessMouseMovement(input->MouseXDelta(), input->MouseYDelta(), GL_TRUE);
+	/*camera->ProcessMouseMovement(input->MouseXDelta(), input->MouseYDelta(), GL_TRUE);
 
 	if (input->GetKey(Input::Keys::KEY_W))
 	{
@@ -61,7 +66,7 @@ void Scene::Update(ApplicationContext* context)
 	if (input->GetKey(Input::Keys::KEY_D))
 	{
 		camera->ProcessKeyboard(Camera_Movement::RIGHT, time->DeltaTime());
-	}
+	}*/
 }
 
 Entity * Scene::CreateEntity()

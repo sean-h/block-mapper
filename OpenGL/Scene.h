@@ -17,10 +17,10 @@ public:
 	std::vector<std::unique_ptr<Entity>>& Entities() { return entities; }
 	Entity* CreateEntity();
 	Component* AddComponentToEntity(Entity* entity, std::unique_ptr<Component> component);
-	Camera* ActiveCamera() { return this->camera.get(); }
+	Camera* ActiveCamera() { return camera; }
 
 private:
 	std::vector<std::unique_ptr<Entity>> entities;
 	std::vector<std::unique_ptr<Component>> components;
-	std::unique_ptr<Camera> camera;
+	Camera* camera;
 };
