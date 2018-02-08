@@ -9,7 +9,6 @@ public:
 	void Update(ApplicationContext* context);
 
 private:
-	float orbitDistance;
 	glm::vec3 orbitPoint;
-	float yAxisRotation;
+	const float clampRotation = 0.9f;
 };

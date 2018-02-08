@@ -9,12 +9,7 @@ glm::mat4 Transform::Model()
 
 glm::vec3 Transform::Forward() const
 {
-	glm::vec3 forward;
-	forward.x = cos(glm::radians(rotation.y)) * cos(glm::radians(rotation.x));
-	forward.y = sin(glm::radians(rotation.x));
-	forward.z = sin(glm::radians(rotation.y)) * cos(glm::radians(rotation.x));
-	forward = glm::normalize(forward);
-	return forward;
+	return this->rotation * glm::vec3(0.0f, 0.0f, 1.0f);
 }
 
 glm::vec3 Transform::Right() const
@@ -25,4 +20,30 @@ glm::vec3 Transform::Right() const
 glm::vec3 Transform::Up() const
 {
 	return glm::normalize(glm::cross(Right(), Forward()));
+}
+
+void Transform::Rotate(glm::vec3 axis, float angle)
+{
+	rotation = glm::rotate(rotation, glm::radians(angle), axis);
+}
+
+void Transform::LookAt(glm::vec3 direction, glm::vec3 up)
+{
+	glm::mat3x3 mat;
+
+	mat[2] = direction;
+	mat[0] = glm::normalize(glm::cross(up, mat[2]));
+	mat[1] = glm::cross(mat[2], mat[0]);
+
+	this->rotation = glm::quat_cast(mat);
+}
+
+void Transform::RotateAroundPoint(glm::vec3 point, glm::vec3 axis, float degrees)
+{
+	glm::vec3 p = position - point;
+	glm::quat q(glm::vec3(axis.x * glm::radians(degrees),
+		axis.y * glm::radians(degrees),
+		axis.z * glm::radians(degrees)));
+	p = q * p;
+	position = p + point;
 }
