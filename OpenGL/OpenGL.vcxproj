@@ -145,6 +145,7 @@
     <ClInclude Include="DrawBlockTool.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="OrbitController.h" />

@@ -6,6 +6,8 @@
 DrawBlockTool::DrawBlockTool(ApplicationContext* context)
 {
 	hoverBlock = context->ApplicationScene()->CreateEntity();
+	hoverBlock->MeshName("Cube");
+	hoverBlock->MaterialName("Hover");
 }
 
 void DrawBlockTool::Update(ApplicationContext* context)
@@ -36,5 +38,8 @@ void DrawBlockTool::Update(ApplicationContext* context)
 	{
 		Entity* newCube = scene->CreateEntity();
 		newCube->ObjectTransform()->Position(hoverBlock->ObjectTransform()->Position());
+		newCube->MeshName("Cube");
+		newCube->ColliderMeshName("Cube");
+		newCube->MaterialName("Solid");
 	}
 }

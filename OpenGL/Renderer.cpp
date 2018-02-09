@@ -10,6 +10,7 @@ Renderer::Renderer()
 {
 	this->LoadShaders();
 	this->LoadModels();
+	this->LoadMaterials();
 }
 
 void Renderer::RenderScene(ApplicationContext* context)
@@ -34,6 +35,7 @@ void Renderer::RenderScene(ApplicationContext* context)
 	glm::vec3 lightPosition = lightModel * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	defaultShader->setFloat("material.shininess", 32.0f);
+	defaultShader->setFloat("material.opacity", 1.0f);
 	defaultShader->setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
 	defaultShader->setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken the light a bit to fit the scene
 	defaultShader->setVec3("light.specular", 1.0f, 1.0f, 1.0f);
@@ -42,8 +44,30 @@ void Renderer::RenderScene(ApplicationContext* context)
 	defaultShader->setFloat("light.quadratic", 0.032f);
 	defaultShader->setVec3("light.position", lightPosition.x, lightPosition.y, lightPosition.z);
 
+	std::vector<Entity*> transparentEntities;
+
 	for (auto &e : scene->Entities())
 	{
+		if (e->MeshName().length() == 0)
+		{
+			continue;
+		}
+
+		if (materials[e->MaterialName()]->Opacity() < 1.0f)
+		{
+			transparentEntities.push_back(e.get());
+			continue;
+		}
+
+		glm::mat4 model = e->ObjectTransform()->Model();
+		defaultShader->setMat4("model", glm::value_ptr(model));
+		models["Cube"]->Draw(*defaultShader);
+	}
+
+	// Draw transparent entities
+	for (auto &e : transparentEntities)
+	{
+		defaultShader->setFloat("material.opacity", materials[e->MaterialName()]->Opacity());
 		glm::mat4 model = e->ObjectTransform()->Model();
 		defaultShader->setMat4("model", glm::value_ptr(model));
 		models["Cube"]->Draw(*defaultShader);
@@ -77,6 +101,18 @@ void Renderer::LoadShaders()
 void Renderer::LoadModels()
 {
 	this->models["Cube"] = new Model("Cube.fbx");
+}
+
+void Renderer::LoadMaterials()
+{
+	std::unique_ptr<Material> solidMaterial(new Material());
+	solidMaterial->Opacity(1.0f);
+
+	std::unique_ptr<Material> hoverMaterial(new Material());
+	hoverMaterial->Opacity(0.5f);
+
+	this->materials["Solid"] = std::move(solidMaterial);
+	this->materials["Hover"] = std::move(hoverMaterial);
 }
 
 unsigned int Renderer::loadTexture(char const * path)
