@@ -55,6 +55,10 @@ void Input::PollWindowInput(GLFWwindow * window)
 			SetKeyUp((Keys)i);
 		}
 	}
+
+	// Scroll Wheel
+	this->scrollWheel = this->pendingScrollWheel;
+	this->pendingScrollWheel = 0.0;
 }
 
 void Input::SetKeyDown(Keys key)
@@ -86,4 +90,5 @@ void Input::EndFrame()
 	keysUpThisFrame.clear();
 	this->mouseXDelta = 0;
 	this->mouseYDelta = 0;
+	this->scrollWheel = 0.0f;
 }

@@ -31,4 +31,19 @@ void OrbitController::Update(ApplicationContext * context)
 		glm::vec3 lookDirection = glm::normalize(this->orbitPoint - transform->Position());
 		transform->LookAt(lookDirection, glm::vec3(0.0f, 1.0f, 0.0f));
 	}
+
+	if (input->ScrollWheel() != 0.0f)
+	{
+		Transform* transform = this->Owner()->ObjectTransform();
+		glm::vec3 displacement = this->orbitPoint - transform->Position();
+		float distance = glm::length(displacement);
+
+		if (distance > maxZoomDistance || input->ScrollWheel() < 0.0f)
+		{
+			glm::vec3 lookDirection = glm::normalize(displacement);
+			float zoomSpeed = distance * (float)input->ScrollWheel() / zoomSpeedDistanceModifier;
+			glm::vec3 newPos = transform->Position() + (lookDirection * zoomSpeed);
+			transform->Position(newPos);
+		}
+	}
 }

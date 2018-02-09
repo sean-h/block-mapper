@@ -11,4 +11,6 @@ public:
 private:
 	glm::vec3 orbitPoint;
 	const float clampRotation = 0.9f;
+	const float maxZoomDistance = 5.0f;
+	const float zoomSpeedDistanceModifier = 10.0f;
 };

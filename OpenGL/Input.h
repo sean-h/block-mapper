@@ -149,12 +149,14 @@ public:
 	double MouseY() const { return this->mouseY; }
 	double MouseXDelta() const { return this->mouseXDelta; }
 	double MouseYDelta() const { return this->mouseYDelta; }
+	double ScrollWheel() const { return this->scrollWheel; }
 	bool FirstMouse() const { return this->firstMouse; }
 	void SetFirstMouse() { this->firstMouse = true; }
 	void SetMouseX(double x) { this->mouseX = x; }
 	void SetMouseY(double y) { this->mouseY = y; }
 	void SetMouseXDelta(double xDelta) { this->mouseXDelta = xDelta; }
 	void SetMouseYDelta(double yDelta) { this->mouseYDelta = yDelta; }
+	void SetScrollWheel(double scrollWheel) { this->pendingScrollWheel = scrollWheel; }
 	void PollWindowInput(GLFWwindow* window);
 	void EndFrame();
 
@@ -166,6 +168,8 @@ private:
 	double mouseY;
 	double mouseXDelta;
 	double mouseYDelta;
+	double scrollWheel;
+	double pendingScrollWheel;
 	bool firstMouse;
 
 	void SetKeyDown(Keys key);

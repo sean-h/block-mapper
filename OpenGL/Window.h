@@ -22,6 +22,7 @@ public:
 	bool ShouldClose() const { return !open; }
 	void EndFrame();
 	void Close();
+	void SetCallbackInput(Input* input);
 
 private:
 	int width;
@@ -34,3 +35,4 @@ private:
 };
 
 void OnFrameBufferSizeChanged(GLFWwindow * window, int width, int height);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);

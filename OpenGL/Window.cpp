@@ -1,6 +1,8 @@
 #include "Window.h"
 #include <iostream>
 
+Input* callbackInput;
+
 Window::Window(int width, int height)
 	: width(width), height(height)
 {
@@ -29,6 +31,7 @@ Window::Window(int width, int height)
 
 	glViewport(0, 0, this->width, this->height);
 	glfwSetFramebufferSizeCallback(glfwWindow.get(), OnFrameBufferSizeChanged);
+	glfwSetScrollCallback(glfwWindow.get(), scroll_callback);
 
 	SetOpenGLCapabilities();
 }
@@ -47,6 +50,11 @@ void Window::EndFrame()
 void Window::Close()
 {
 	open = false;
+}
+
+void Window::SetCallbackInput(Input * input)
+{
+	callbackInput = input;
 }
 
 void Window::SetWindowHints()
@@ -69,4 +77,12 @@ void Window::SetOpenGLCapabilities()
 void OnFrameBufferSizeChanged(GLFWwindow * window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	if (callbackInput != nullptr)
+	{
+		callbackInput->SetScrollWheel(yoffset);
+	}
 }
