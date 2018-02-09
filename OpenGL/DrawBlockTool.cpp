@@ -34,7 +34,7 @@ void DrawBlockTool::Update(ApplicationContext* context)
 		hoverBlock->ObjectTransform()->Position(hoverBlockOriginalPosition);
 	}
 
-	if (input->GetKeyDown(Input::Keys::KEY_F))
+	if (input->GetKeyDown(Input::Keys::MOUSE_1))
 	{
 		Entity* newCube = scene->CreateEntity();
 		newCube->ObjectTransform()->Position(hoverBlock->ObjectTransform()->Position());
