@@ -17,6 +17,7 @@ public:
 	glm::vec3 RotationRadians() const { return glm::eulerAngles(rotation); }
 	void Rotation(glm::vec3 rotation) { this->rotation = glm::quat(rotation); }
 	void Rotation(glm::quat rotation) { this->rotation = rotation; }
+	glm::quat RotationQuaternion() const { return rotation; }
 
 	glm::vec3 Scale() const { return scale; }
 	glm::mat4 Model();

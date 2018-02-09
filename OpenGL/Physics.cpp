@@ -14,6 +14,11 @@ RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction
 	// See Real-Time Rendering Third Edition 16.7.2
 	for (auto &e : scene->Entities())
 	{
+		if (e->ColliderMeshName().length() == 0)
+		{
+			continue;
+		}
+
 		glm::vec3 entityPosition = e->ObjectTransform()->Position();
 		glm::vec3 endPoint0 = origin - entityPosition;
 		glm::vec3 endPoint1 = origin - entityPosition + (direction * distance);

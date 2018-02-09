@@ -29,7 +29,6 @@ Window::Window(int width, int height)
 
 	glViewport(0, 0, this->width, this->height);
 	glfwSetFramebufferSizeCallback(glfwWindow.get(), OnFrameBufferSizeChanged);
-	glfwSetInputMode(glfwWindow.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	SetOpenGLCapabilities();
 }

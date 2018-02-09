@@ -24,6 +24,7 @@ Scene::Scene()
 		Entity* entity = this->CreateEntity();
 		entity->ObjectTransform()->Position(p);
 		entity->MeshName("Cube");
+		entity->ColliderMeshName("Cube");
 	}
 
 	Entity* cameraEntity = this->CreateEntity();
