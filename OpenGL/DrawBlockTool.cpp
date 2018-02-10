@@ -6,8 +6,7 @@
 DrawBlockTool::DrawBlockTool(ApplicationContext* context)
 {
 	hoverBlock = context->ApplicationScene()->CreateEntity();
-	hoverBlock->MeshName("Cube");
-	hoverBlock->MaterialName("Hover");
+	this->RefreshHoverBlock(context);
 }
 
 void DrawBlockTool::Update(ApplicationContext* context)
@@ -36,10 +35,33 @@ void DrawBlockTool::Update(ApplicationContext* context)
 
 	if (input->GetKeyDown(Input::Keys::MOUSE_1))
 	{
-		Entity* newCube = scene->CreateEntity();
-		newCube->ObjectTransform()->Position(hoverBlock->ObjectTransform()->Position());
-		newCube->MeshName("Cube");
-		newCube->ColliderMeshName("Cube");
-		newCube->MaterialName("Solid");
+		this->PlaceBlock(scene);
 	}
+
+	if (input->GetKeyDown(Input::Keys::KEY_PERIOD))
+	{
+		context->ApplicationBlockManager()->SelectNextBlock();
+		this->RefreshHoverBlock(context);
+	}
+	if (input->GetKeyDown(Input::Keys::KEY_COMMA))
+	{
+		context->ApplicationBlockManager()->SelectPreviousBlock();
+		this->RefreshHoverBlock(context);
+	}
+}
+
+void DrawBlockTool::PlaceBlock(Scene* scene)
+{
+	Entity* newCube = scene->CreateEntity();
+	newCube->ObjectTransform()->Position(hoverBlock->ObjectTransform()->Position());
+	newCube->MeshName(hoverBlock->MeshName());
+	newCube->ColliderMeshName(hoverBlock->ColliderMeshName());
+	newCube->MaterialName("Solid");
+}
+
+void DrawBlockTool::RefreshHoverBlock(ApplicationContext * context)
+{
+	hoverBlock->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
+	hoverBlock->MaterialName("Hover");
+	hoverBlock->ColliderMeshName("Cube");
 }

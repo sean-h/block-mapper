@@ -6,10 +6,10 @@
 #include "stb_image.h"
 #include <iostream>
 
-Renderer::Renderer()
+Renderer::Renderer(FileManager* fileManager)
 {
 	this->LoadShaders();
-	this->LoadModels();
+	this->LoadModels(fileManager);
 	this->LoadMaterials();
 }
 
@@ -36,7 +36,7 @@ void Renderer::RenderScene(ApplicationContext* context)
 
 	defaultShader->setFloat("material.shininess", 32.0f);
 	defaultShader->setFloat("material.opacity", 1.0f);
-	defaultShader->setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+	defaultShader->setVec3("light.ambient", 1.0f, 1.0f, 1.0f);
 	defaultShader->setVec3("light.diffuse", 0.5f, 0.5f, 0.5f); // darken the light a bit to fit the scene
 	defaultShader->setVec3("light.specular", 1.0f, 1.0f, 1.0f);
 	defaultShader->setFloat("light.constant", 1.0f);
@@ -61,7 +61,7 @@ void Renderer::RenderScene(ApplicationContext* context)
 
 		glm::mat4 model = e->ObjectTransform()->Model();
 		defaultShader->setMat4("model", glm::value_ptr(model));
-		models["Cube"]->Draw(*defaultShader);
+		models[e->MeshName()]->Draw(*defaultShader);
 	}
 
 	// Draw transparent entities
@@ -70,7 +70,7 @@ void Renderer::RenderScene(ApplicationContext* context)
 		defaultShader->setFloat("material.opacity", materials[e->MaterialName()]->Opacity());
 		glm::mat4 model = e->ObjectTransform()->Model();
 		defaultShader->setMat4("model", glm::value_ptr(model));
-		models["Cube"]->Draw(*defaultShader);
+		models[e->MeshName()]->Draw(*defaultShader);
 	}
 
 	// Draw light
@@ -98,9 +98,14 @@ void Renderer::LoadShaders()
 	glBindTexture(GL_TEXTURE_2D, specularMap);
 }
 
-void Renderer::LoadModels()
+void Renderer::LoadModels(FileManager* fileManager)
 {
 	this->models["Cube"] = new Model("Cube.fbx");
+
+	for (auto &block : fileManager->BlockPaths())
+	{
+		this->models[block.first] = new Model(block.second);
+	}
 }
 
 void Renderer::LoadMaterials()

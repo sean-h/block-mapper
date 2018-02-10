@@ -4,18 +4,19 @@
 #include "Model.h"
 #include "Material.h"
 #include "Window.h"
+#include "FileManager.h"
 
 class ApplicationContext;
 
 class Renderer
 {
 public:
-	Renderer();
+	Renderer(FileManager* fileManager);
 	void RenderScene(ApplicationContext* context);
 
 private:
 	void LoadShaders();
-	void LoadModels();
+	void LoadModels(FileManager* fileManager);
 	void LoadMaterials();
 	unsigned int loadTexture(char const * path);
 

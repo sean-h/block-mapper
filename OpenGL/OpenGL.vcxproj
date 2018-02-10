@@ -122,8 +122,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ApplicationContext.cpp" />
+    <ClCompile Include="BlockManager.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="DrawBlockTool.cpp" />
+    <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
@@ -140,10 +142,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationContext.h" />
+    <ClInclude Include="BlockManager.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="DrawBlockTool.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="FileManager.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />

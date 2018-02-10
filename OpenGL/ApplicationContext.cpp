@@ -6,7 +6,9 @@ ApplicationContext::ApplicationContext()
 	input = std::make_unique<Input>(Input());
 	window = std::make_unique<Window>(Window(800, 600));
 	window->SetCallbackInput(input.get());
-	renderer = std::make_unique<Renderer>(Renderer());
+	fileManager = std::make_unique<FileManager>(FileManager());
+	renderer = std::make_unique<Renderer>(Renderer(fileManager.get()));
 	physics = std::make_unique<Physics>(Physics());
 	scene = std::make_unique<Scene>(Scene());
+	blockManager = std::make_unique<BlockManager>(BlockManager(fileManager.get()));
 }
