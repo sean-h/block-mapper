@@ -28,6 +28,7 @@ public:
 	void Rotate(glm::vec3 axis, float angle);
 	void LookAt(glm::vec3 direction, glm::vec3 up);
 	void RotateAroundPoint(glm::vec3 point, glm::vec3 axis, float degrees);
+	void Translate(glm::vec3 translation) { this->position += translation; }
 
 private:
 	glm::vec3 position;
