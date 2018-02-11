@@ -6,6 +6,8 @@
 class Transform
 {
 public:
+	Transform();
+
 	glm::vec3 Position() const { return position; }
 	void Position(glm::vec3 position) { this->position = position; }
 
@@ -15,11 +17,13 @@ public:
 		return glm::vec3(glm::degrees(r.x), glm::degrees(r.y), glm::degrees(r.z));
 	}
 	glm::vec3 RotationRadians() const { return glm::eulerAngles(rotation); }
-	void Rotation(glm::vec3 rotation) { this->rotation = glm::quat(rotation); }
+	void Rotation(glm::vec3 rotation) { this->rotation = glm::quat(glm::vec3(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z))); }
 	void Rotation(glm::quat rotation) { this->rotation = rotation; }
 	glm::quat RotationQuaternion() const { return rotation; }
 
 	glm::vec3 Scale() const { return scale; }
+	void Scale(glm::vec3 scale) { this->scale = scale; }
+
 	glm::mat4 Model();
 	glm::vec3 Forward() const;
 	glm::vec3 Right() const;

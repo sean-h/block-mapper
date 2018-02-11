@@ -23,13 +23,18 @@ void Renderer::RenderScene(ApplicationContext* context)
 	defaultShader->use();
 
 	glm::mat4 view = camera->GetViewMatrix();
-	glUniformMatrix4fv(glGetUniformLocation(defaultShader->ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)window->Width() / (float)window->Height(), 0.1f, 1000.0f);
-	glUniformMatrix4fv(glGetUniformLocation(defaultShader->ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+	for (auto &shader : this->shaders)
+	{
+		shader.second->use();
+		shader.second->setMat4("view", glm::value_ptr(view));
+		shader.second->setMat4("projection", glm::value_ptr(projection));
+	}
 
 	std::vector<Entity*> transparentEntities;
 
+	defaultShader->use();
 	defaultShader->setVec3("cameraPosition", camera->Owner()->ObjectTransform()->Position());
 	for (auto &e : scene->Entities())
 	{
@@ -38,29 +43,32 @@ void Renderer::RenderScene(ApplicationContext* context)
 			continue;
 		}
 
-		if (materials[e->MaterialName()]->Opacity() < 1.0f)
+		Material* material = materials[e->MaterialName()].get();
+		if (material->Opacity() < 1.0f)
 		{
 			transparentEntities.push_back(e.get());
 			continue;
 		}
 
 		glm::mat4 model = e->ObjectTransform()->Model();
-		defaultShader->setMat4("model", glm::value_ptr(model));
-		defaultShader->setVec3("objectColor", 0.6f, 0.2f, 0.2f);
-		models[e->MeshName()]->Draw(*defaultShader);
+		
+		Shader* shader = this->shaders[material->ShaderName()];
+		shader->use();
+		shader->setMat4("model", glm::value_ptr(model));
+		shader->setVec3("objectColor", material->Color());
+		models[e->MeshName()]->Draw(*shader);
 	}
 
 	// Draw transparent entities
 	Shader* transparentShader = this->shaders["Transparent"];
 	transparentShader->use();
-	glUniformMatrix4fv(glGetUniformLocation(transparentShader->ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(glGetUniformLocation(transparentShader->ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 	for (auto &e : transparentEntities)
 	{
+		Material* material = materials[e->MaterialName()].get();
 		glm::mat4 model = e->ObjectTransform()->Model();
 		transparentShader->setMat4("model", glm::value_ptr(model));
-		transparentShader->setVec3("objectColor", 0.2f, 0.2f, 0.6f);
-		transparentShader->setFloat("opacity", materials[e->MaterialName()]->Opacity());
+		transparentShader->setVec3("objectColor", material->Color());
+		transparentShader->setFloat("opacity", material->Opacity());
 		models[e->MeshName()]->Draw(*transparentShader);
 	}
 }
@@ -71,6 +79,7 @@ void Renderer::LoadShaders()
 	shaders["Unlit"] = new Shader("VertexShader.glsl", "UnlitFragmentShader.glsl");
 	shaders["CameraLit"] = new Shader("VertexShader.glsl", "CameraLitFragmentShader.glsl");
 	shaders["Transparent"] = new Shader("VertexShader.glsl", "TransparentFragmentShader.glsl");
+	shaders["Grid"] = new Shader("VertexShader.glsl", "GridFragmentShader.glsl");
 
 	unsigned int diffuseMap = loadTexture("container2.png");
 	unsigned int specularMap = loadTexture("container2_specular.png");
@@ -84,6 +93,7 @@ void Renderer::LoadShaders()
 void Renderer::LoadModels(FileManager* fileManager)
 {
 	this->models["Cube"] = new Model("Cube.fbx");
+	this->models["Plane"] = new Model("Plane.fbx");
 
 	for (auto &block : fileManager->BlockPaths())
 	{
@@ -93,14 +103,21 @@ void Renderer::LoadModels(FileManager* fileManager)
 
 void Renderer::LoadMaterials()
 {
-	std::unique_ptr<Material> solidMaterial(new Material());
+	std::unique_ptr<Material> solidMaterial(new Material("CameraLit"));
+	solidMaterial->Color(glm::vec3(0.6f, 0.2f, 0.2f));
 	solidMaterial->Opacity(1.0f);
 
-	std::unique_ptr<Material> hoverMaterial(new Material());
+	std::unique_ptr<Material> hoverMaterial(new Material("Transparent"));
+	hoverMaterial->Color(glm::vec3(0.2f, 0.2f, 0.6f));
 	hoverMaterial->Opacity(0.5f);
+
+	std::unique_ptr<Material> gridMaterial(new Material("Grid"));
+	gridMaterial->Color(glm::vec3(0.0f, 0.0f, 0.0f));
+	gridMaterial->Opacity(1.0f);
 
 	this->materials["Solid"] = std::move(solidMaterial);
 	this->materials["Hover"] = std::move(hoverMaterial);
+	this->materials["Grid"] = std::move(gridMaterial);
 }
 
 unsigned int Renderer::loadTexture(char const * path)

@@ -1,9 +1,17 @@
 #include "Transform.h"
 
+Transform::Transform()
+{
+	this->position = glm::vec3(0.0f, 0.0f, 0.0f);
+	this->scale = glm::vec3(1.0f, 1.0f, 1.0f);
+}
+
 glm::mat4 Transform::Model()
 {
 	glm::mat4 model;
 	model = glm::translate(model, position);
+	model = model * glm::mat4_cast(rotation);
+	model = glm::scale(model, scale);
 	return model;
 }
 

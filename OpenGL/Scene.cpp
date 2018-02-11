@@ -33,6 +33,21 @@ Scene::Scene()
 	cameraEntity->ObjectTransform()->Rotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new OrbitController()));
 	camera = (Camera*)AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new Camera()));
+
+	Entity* planeEntity = this->CreateEntity();
+	planeEntity->ObjectTransform()->Position(glm::vec3(0.0f, -0.5f, 0.0f));
+	planeEntity->ObjectTransform()->Scale(glm::vec3(100.0f, 1.0f, 100.0f));
+	planeEntity->MeshName("Plane");
+	planeEntity->ColliderMeshName("Cube");
+	planeEntity->MaterialName("Grid");
+
+	Entity* planeEntityBottom = this->CreateEntity();
+	planeEntityBottom->ObjectTransform()->Position(glm::vec3(0.0f, -0.5f, 0.0f));
+	planeEntityBottom->ObjectTransform()->Rotation(glm::vec3(180.0f, 0.0f, 0.0f));
+	planeEntityBottom->ObjectTransform()->Scale(glm::vec3(100.0f, 1.0f, 100.0f));
+	planeEntityBottom->MeshName("Plane");
+	planeEntityBottom->ColliderMeshName("Cube");
+	planeEntityBottom->MaterialName("Grid");
 }
 
 void Scene::Update(ApplicationContext* context)
