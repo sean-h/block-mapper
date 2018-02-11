@@ -94,6 +94,7 @@ void Renderer::LoadModels(FileManager* fileManager)
 {
 	this->models["Cube"] = new Model("Cube.fbx");
 	this->models["Plane"] = new Model("Plane.fbx");
+	this->models["PlaneBottom"] = new Model("PlaneBottom.fbx");
 
 	for (auto &block : fileManager->BlockPaths())
 	{

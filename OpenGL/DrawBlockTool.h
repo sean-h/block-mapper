@@ -13,5 +13,7 @@ public:
 	void RefreshHoverBlock(ApplicationContext* context);
 
 private:
-	Entity *hoverBlock;
+	Entity* hoverBlock;
+	Entity* gridPlane;
+	Entity* gridPlaneBottom;
 };

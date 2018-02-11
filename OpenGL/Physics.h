@@ -12,6 +12,7 @@ struct RaycastHit
 	float u;
 	float v;
 	float t;
+	glm::vec3 point;
 };
 
 class Physics

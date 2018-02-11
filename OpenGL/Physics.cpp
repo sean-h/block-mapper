@@ -27,27 +27,31 @@ RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction
 		float vx = abs(w.x);
 		float vy = abs(w.y);
 		float vz = abs(w.z);
+		glm::vec3 entityScale = e->ObjectTransform()->Scale();
+		float hx = entityScale.x / 2.0f;
+		float hy = entityScale.y / 2.0f;
+		float hz = entityScale.z / 2.0f;
 
-		if (abs(c.x) > vx + 0.5f || abs(c.y) > vy + 0.5f || abs(c.z) > vz + 0.5f)
+		if (abs(c.x) > vx + hx || abs(c.y) > vy + hy || abs(c.z) > vz + hz)
 		{
 			continue;
 		}
 
-		if (abs(c.y * w.z - c.z * w.y) > (0.5f * vz) + (0.5f * vy))
+		if (abs(c.y * w.z - c.z * w.y) > (hy * vz) + (hz * vy))
 		{
 			continue;
 		}
 
-		if (abs(c.x * w.z - c.z * w.x) > (0.5f * vz) + (0.5f * vx))
+		if (abs(c.x * w.z - c.z * w.x) > (hx * vz) + (hz * vx))
 		{
 			continue;
 		}
 
-		if (abs(c.x * w.y - c.y * w.x) > (0.5f * vy) + (0.5f * vx))
+		if (abs(c.x * w.y - c.y * w.x) > (hx * vy) + (hy * vx))
 		{
 			continue;
 		}
-		
+
 		float entityDistance = glm::distance(origin, entityPosition);
 		hitEntities.push_back(std::make_pair<Entity*, float>(e.get(), (float)entityDistance));
 	}
@@ -64,14 +68,19 @@ RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction
 			}
 		}
 
-		Model* model = this->colliders["Cube"];
+		Model* model = this->colliders[closestEntity.first->ColliderMeshName()];
 		glm::vec3 entityPosition = closestEntity.first->ObjectTransform()->Position();
+		glm::mat4 modelMatrix = closestEntity.first->ObjectTransform()->Model();
 		for (auto& mesh : model->Meshes())
 		{
 			auto triangles = mesh.Triangles();
 			for (auto& triangle : triangles)
 			{
-				RaycastHit hit = RayTriIntersect(origin, direction, triangle.p0 + entityPosition, triangle.p1 + entityPosition, triangle.p2 + entityPosition);
+				RaycastHit hit = RayTriIntersect(origin,
+					                             direction,
+					                             modelMatrix * glm::vec4(triangle.p0, 1.0f),
+					                             modelMatrix * glm::vec4(triangle.p1, 1.0f),
+					                             modelMatrix * glm::vec4(triangle.p2, 1.0f));
 				if (hit.hit)
 				{
 					hit.entity = closestEntity.first;
@@ -89,6 +98,8 @@ RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction
 void Physics::LoadColliders()
 {
 	this->colliders["Cube"] = new Model("Cube.fbx");
+	this->colliders["Plane"] = new Model("Plane.fbx");
+	this->colliders["PlaneBottom"] = new Model("PlaneBottom.fbx");
 }
 
 RaycastHit Physics::RayTriIntersect(glm::vec3 origin, glm::vec3 direction, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)
@@ -96,7 +107,7 @@ RaycastHit Physics::RayTriIntersect(glm::vec3 origin, glm::vec3 direction, glm::
 	RaycastHit hit;
 	glm::vec3 e1 = p1 - p0;
 	glm::vec3 e2 = p2 - p0;
-	glm::vec3 normal = glm::cross(e1, e2);
+	glm::vec3 normal = glm::normalize(glm::cross(e1, e2));
 
 	if (glm::dot(normal, direction) > 0.0f)
 	{
@@ -135,5 +146,6 @@ RaycastHit Physics::RayTriIntersect(glm::vec3 origin, glm::vec3 direction, glm::
 	hit.u = u;
 	hit.v = v;
 	hit.t = t;
+	hit.point = (1 - u - v) * p0 + u * p1 + v * p2;
 	return hit;
 }
