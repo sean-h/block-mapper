@@ -2,6 +2,7 @@
 #include <iostream>
 
 Input* callbackInput;
+Window* callbackWindow;
 
 Window::Window(int width, int height)
 	: width(width), height(height)
@@ -57,6 +58,21 @@ void Window::SetCallbackInput(Input * input)
 	callbackInput = input;
 }
 
+void Window::SetCallbackWindow(Window * window)
+{
+	callbackWindow = window;
+}
+
+void Window::UpdateWindowDimensions()
+{
+	int width;
+	int height;
+
+	glfwGetWindowSize(this->GLFWWindow(), &width, &height);
+	this->width = width;
+	this->height = height;
+}
+
 void Window::SetWindowHints()
 {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -77,6 +93,11 @@ void Window::SetOpenGLCapabilities()
 void OnFrameBufferSizeChanged(GLFWwindow * window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+
+	if (callbackWindow != nullptr)
+	{
+		callbackWindow->UpdateWindowDimensions();
+	}
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)

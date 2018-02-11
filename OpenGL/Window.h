@@ -23,6 +23,8 @@ public:
 	void EndFrame();
 	void Close();
 	void SetCallbackInput(Input* input);
+	void SetCallbackWindow(Window* window);
+	void UpdateWindowDimensions();
 
 private:
 	int width;
