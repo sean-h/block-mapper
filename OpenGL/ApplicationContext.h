@@ -8,6 +8,7 @@
 #include "Time.h"
 #include "FileManager.h"
 #include "BlockManager.h"
+#include "GUIManager.h"
 
 class ApplicationContext
 {
@@ -22,6 +23,7 @@ public:
 	Scene* ApplicationScene() const { return scene.get(); }
 	BlockManager* ApplicationBlockManager() const { return blockManager.get(); }
 	FileManager* ApplicationFileManager() const { return fileManager.get(); }
+	GUIManager* ApplicationGUIManager() const { return guiManager.get(); }
 
 private:
 	std::unique_ptr<Time> time;
@@ -32,4 +34,5 @@ private:
 	std::unique_ptr<Scene> scene;
 	std::unique_ptr<FileManager> fileManager;
 	std::unique_ptr<BlockManager> blockManager;
+	std::unique_ptr<GUIManager> guiManager;
 };

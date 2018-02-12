@@ -12,4 +12,5 @@ ApplicationContext::ApplicationContext()
 	physics = std::make_unique<Physics>(Physics());
 	scene = std::make_unique<Scene>(Scene());
 	blockManager = std::make_unique<BlockManager>(BlockManager(fileManager.get()));
+	guiManager = std::make_unique<GUIManager>(GUIManager(window.get()));
 }

@@ -27,10 +27,13 @@ int main()
 		scene->Update(&applicationContext);
 		activeTool.Update(&applicationContext);
 
+		applicationContext.ApplicationGUIManager()->StartFrame();
+
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		applicationContext.ApplicationRenderer()->RenderScene(&applicationContext);
+		applicationContext.ApplicationGUIManager()->Draw();
 
 		window->EndFrame();
 		input->EndFrame();
