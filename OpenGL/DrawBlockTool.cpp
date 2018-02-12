@@ -112,6 +112,11 @@ void DrawBlockTool::Update(ApplicationContext* context)
 		gridPlane->ObjectTransform()->Translate(glm::vec3(0.0f, -1.0f, 0.0f));
 		gridPlaneBottom->ObjectTransform()->Translate(glm::vec3(0.0f, -1.0f, 0.0f));
 	}
+
+	if (input->GetKeyDown(Input::Keys::KEY_P))
+	{
+		context->ApplicationScene()->Export(context);
+	}
 }
 
 void DrawBlockTool::PlaceBlock(Scene* scene)

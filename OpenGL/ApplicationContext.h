@@ -21,6 +21,7 @@ public:
 	Physics* ApplicationPhysics() const { return physics.get(); }
 	Scene* ApplicationScene() const { return scene.get(); }
 	BlockManager* ApplicationBlockManager() const { return blockManager.get(); }
+	FileManager* ApplicationFileManager() const { return fileManager.get(); }
 
 private:
 	std::unique_ptr<Time> time;

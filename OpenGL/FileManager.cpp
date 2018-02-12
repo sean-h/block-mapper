@@ -10,11 +10,19 @@ FileManager::FileManager()
 	{
 		this->applicationFolderPath = std::string(my_documents) + "/" + applicationFolderName;
 		this->blockFolderPath = this->applicationFolderPath + "/blocks";
-	}
 
-	for (auto &file : std::experimental::filesystem::directory_iterator(this->blockFolderPath))
-	{
-		this->blockPaths.push_back(file.path());
+		for (auto &file : std::experimental::filesystem::directory_iterator(this->blockFolderPath))
+		{
+			this->blockPaths.push_back(file.path());
+		}
+
+		this->exportFileName = "Export.dae";
+		this->exportFolderPath = this->applicationFolderPath + "/" + "Export";
+
+		if (!std::experimental::filesystem::exists(this->exportFolderPath))
+		{
+			std::experimental::filesystem::create_directory(this->exportFolderPath);
+		}
 	}
 }
 

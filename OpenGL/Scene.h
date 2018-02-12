@@ -8,16 +8,18 @@
 
 class ApplicationContext;
 
-
 class Scene
 {
 public:
 	Scene();
 	void Update(ApplicationContext* context);
 	std::vector<std::unique_ptr<Entity>>& Entities() { return entities; }
+	int EntityCount() { return entities.size(); }
+
 	Entity* CreateEntity();
 	Component* AddComponentToEntity(Entity* entity, std::unique_ptr<Component> component);
 	Camera* ActiveCamera() { return camera; }
+	void Export(ApplicationContext* context);
 
 private:
 	std::vector<std::unique_ptr<Entity>> entities;

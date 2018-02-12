@@ -1,6 +1,7 @@
 #include "Scene.h"
 #include "ApplicationContext.h"
 #include "OrbitController.h"
+#include "SceneExporter.h"
 
 Scene::Scene()
 {
@@ -55,4 +56,10 @@ Component * Scene::AddComponentToEntity(Entity * entity, std::unique_ptr<Compone
 	this->components.push_back(std::move(component));
 	this->components.back()->Owner(entity);
 	return this->components.back().get();
+}
+
+void Scene::Export(ApplicationContext * context)
+{
+	SceneExporter exporter;
+	exporter.Export(context);
 }

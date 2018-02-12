@@ -30,7 +30,6 @@ public:
 
 	/* Functions */
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-	static Mesh Cube();
 	void Draw(Shader shader);
 	std::vector<Triangle> Triangles();
 

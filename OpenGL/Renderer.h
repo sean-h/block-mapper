@@ -13,6 +13,9 @@ class Renderer
 public:
 	Renderer(FileManager* fileManager);
 	void RenderScene(ApplicationContext* context);
+	Model* GetModel(std::string modelName) { return models[modelName]; }
+	int ModelCount() const { return models.size(); }
+	std::unordered_map<std::string, Model*> Models() const { return models; }
 
 private:
 	void LoadShaders();

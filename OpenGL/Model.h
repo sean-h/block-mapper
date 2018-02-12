@@ -16,6 +16,8 @@ public:
 	void Draw(Shader shader);
 	std::vector<Mesh> Meshes() const { return meshes; }
 
+	Mesh* GetMesh(int meshIndex) { return &meshes[meshIndex]; }
+
 private:
 	/*  Model Data  */
 	std::vector<Mesh> meshes;
