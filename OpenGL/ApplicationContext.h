@@ -9,6 +9,7 @@
 #include "FileManager.h"
 #include "BlockManager.h"
 #include "GUIManager.h"
+#include "ToolManager.h"
 
 class ApplicationContext
 {
@@ -24,6 +25,7 @@ public:
 	BlockManager* ApplicationBlockManager() const { return blockManager.get(); }
 	FileManager* ApplicationFileManager() const { return fileManager.get(); }
 	GUIManager* ApplicationGUIManager() const { return guiManager.get(); }
+	ToolManager* ApplicationToolManager() const { return toolManager.get(); }
 
 private:
 	std::unique_ptr<Time> time;
@@ -35,4 +37,5 @@ private:
 	std::unique_ptr<FileManager> fileManager;
 	std::unique_ptr<BlockManager> blockManager;
 	std::unique_ptr<GUIManager> guiManager;
+	std::unique_ptr<ToolManager> toolManager;
 };

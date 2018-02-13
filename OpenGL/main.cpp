@@ -9,7 +9,6 @@ int main()
 	glfwInit();
 
 	ApplicationContext applicationContext;
-	DrawBlockTool activeTool(&applicationContext);
 
 	while (!applicationContext.ApplicationWindow()->ShouldClose())
 	{
@@ -25,7 +24,7 @@ int main()
 
 		Scene* scene = applicationContext.ApplicationScene();
 		scene->Update(&applicationContext);
-		activeTool.Update(&applicationContext);
+		applicationContext.ApplicationToolManager()->Update(&applicationContext);
 
 		applicationContext.ApplicationGUIManager()->StartFrame();
 
@@ -33,7 +32,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		applicationContext.ApplicationRenderer()->RenderScene(&applicationContext);
-		applicationContext.ApplicationGUIManager()->Draw();
+		applicationContext.ApplicationGUIManager()->Draw(&applicationContext);
 
 		window->EndFrame();
 		input->EndFrame();

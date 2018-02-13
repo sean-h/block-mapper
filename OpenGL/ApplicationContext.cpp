@@ -13,4 +13,5 @@ ApplicationContext::ApplicationContext()
 	scene = std::make_unique<Scene>(Scene());
 	blockManager = std::make_unique<BlockManager>(BlockManager(fileManager.get()));
 	guiManager = std::make_unique<GUIManager>(GUIManager(window.get()));
+	toolManager = std::make_unique<ToolManager>(ToolManager(this));
 }

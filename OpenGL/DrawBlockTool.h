@@ -9,6 +9,7 @@ class DrawBlockTool : public Tool
 public:
 	DrawBlockTool(ApplicationContext* context);
 	void Update(ApplicationContext* context);
+	void DrawGUI(ApplicationContext* context);
 	void PlaceBlock(Scene* scene);
 	void RefreshHoverBlock(ApplicationContext* context);
 

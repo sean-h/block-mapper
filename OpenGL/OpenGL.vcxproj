@@ -141,8 +141,10 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneExporter.cpp" />
+    <ClCompile Include="SelectTool.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Time.cpp" />
+    <ClCompile Include="ToolManager.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
@@ -168,6 +170,7 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneExporter.h" />
+    <ClInclude Include="SelectTool.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_rect_pack.h" />
@@ -175,6 +178,7 @@
     <ClInclude Include="stb_truetype.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Tool.h" />
+    <ClInclude Include="ToolManager.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
