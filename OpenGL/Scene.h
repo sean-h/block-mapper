@@ -16,7 +16,8 @@ public:
 	std::vector<std::unique_ptr<Entity>>& Entities() { return entities; }
 	int EntityCount() { return entities.size(); }
 
-	Entity* CreateEntity();
+	std::shared_ptr<EntityHandle> CreateEntity();
+	void DestroyEntity(std::shared_ptr<EntityHandle> entityHandle);
 	Component* AddComponentToEntity(Entity* entity, std::unique_ptr<Component> component);
 	Camera* ActiveCamera() { return camera; }
 	void Export(ApplicationContext* context);

@@ -12,9 +12,10 @@ public:
 	void DrawGUI(ApplicationContext* context);
 	void PlaceBlock(Scene* scene);
 	void RefreshHoverBlock(ApplicationContext* context);
+	void DisableTool(ApplicationContext* context);
 
 private:
-	Entity* hoverBlock;
-	Entity* gridPlane;
-	Entity* gridPlaneBottom;
+	std::shared_ptr<EntityHandle> hoverBlock;
+	std::shared_ptr<EntityHandle> gridPlane;
+	std::shared_ptr<EntityHandle> gridPlaneBottom;
 };

@@ -26,11 +26,15 @@ void ToolManager::DrawGUI(ApplicationContext * context)
 
 	if (this->ToggleButton("Select", 0, selectedToolButtonIndex))
 	{
+		activeTool->DisableTool(context);
+		activeTool.reset();
 		activeTool = std::make_unique<SelectTool>(SelectTool(context));
 	}
 
 	if (this->ToggleButton("Draw", 1, selectedToolButtonIndex))
 	{
+		activeTool->DisableTool(context);
+		activeTool.reset();
 		activeTool = std::make_unique<DrawBlockTool>(DrawBlockTool(context));
 	}
 

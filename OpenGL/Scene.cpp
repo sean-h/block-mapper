@@ -22,14 +22,16 @@ Scene::Scene()
 
 	for (auto p : cubePositions)
 	{
-		Entity* entity = this->CreateEntity();
+		auto entityHandle = this->CreateEntity();
+		Entity* entity = entityHandle->TargetEntity();
 		entity->ObjectTransform()->Position(p);
 		entity->MeshName("Cube");
 		entity->ColliderMeshName("Cube");
 		entity->MaterialName("Solid");
 	}
 
-	Entity* cameraEntity = this->CreateEntity();
+	auto cameraEntityHandle = this->CreateEntity();
+	Entity* cameraEntity = cameraEntityHandle->TargetEntity();
 	cameraEntity->ObjectTransform()->Position(glm::vec3(0.0f, 0.0f, -10.0f));
 	cameraEntity->ObjectTransform()->Rotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new OrbitController()));
@@ -44,11 +46,17 @@ void Scene::Update(ApplicationContext* context)
 	}
 }
 
-Entity * Scene::CreateEntity()
+std::shared_ptr<EntityHandle> Scene::CreateEntity()
 {
 	std::unique_ptr<Entity> entity(new Entity());
 	this->entities.push_back(std::move(entity));
-	return this->entities.back().get();
+	return this->entities.back()->Handle();
+}
+
+void Scene::DestroyEntity(std::shared_ptr<EntityHandle> entityHandle)
+{
+	auto entity = std::find_if(entities.begin(), entities.end(), [&entityHandle](const std::unique_ptr<Entity>& entityObj) { return entityObj.get() == entityHandle->TargetEntity(); });
+	entities.erase(entity);
 }
 
 Component * Scene::AddComponentToEntity(Entity * entity, std::unique_ptr<Component> component)

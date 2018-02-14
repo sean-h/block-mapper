@@ -10,18 +10,20 @@ DrawBlockTool::DrawBlockTool(ApplicationContext* context)
 	this->RefreshHoverBlock(context);
 
 	gridPlane = context->ApplicationScene()->CreateEntity();
-	gridPlane->ObjectTransform()->Position(glm::vec3(0.0f, 0.0f, 0.0f));
-	gridPlane->ObjectTransform()->Scale(glm::vec3(25.0f, 1.0f, 25.0f));
-	gridPlane->MeshName("Plane");
-	gridPlane->ColliderMeshName("Plane");
-	gridPlane->MaterialName("Grid");
+	Entity* gridPlaneEntity = gridPlane->TargetEntity();
+	gridPlaneEntity->ObjectTransform()->Position(glm::vec3(0.0f, 0.0f, 0.0f));
+	gridPlaneEntity->ObjectTransform()->Scale(glm::vec3(25.0f, 1.0f, 25.0f));
+	gridPlaneEntity->MeshName("Plane");
+	gridPlaneEntity->ColliderMeshName("Plane");
+	gridPlaneEntity->MaterialName("Grid");
 
 	gridPlaneBottom = context->ApplicationScene()->CreateEntity();
-	gridPlaneBottom->ObjectTransform()->Position(glm::vec3(0.0f, 0.0f, 0.0f));
-	gridPlaneBottom->ObjectTransform()->Scale(glm::vec3(25.0f, 1.0f, 25.0f));
-	gridPlaneBottom->MeshName("PlaneBottom");
-	gridPlaneBottom->ColliderMeshName("PlaneBottom");
-	gridPlaneBottom->MaterialName("Grid");
+	Entity* gridPlaneBottomEntity = gridPlaneBottom->TargetEntity();
+	gridPlaneBottomEntity->ObjectTransform()->Position(glm::vec3(0.0f, 0.0f, 0.0f));
+	gridPlaneBottomEntity->ObjectTransform()->Scale(glm::vec3(25.0f, 1.0f, 25.0f));
+	gridPlaneBottomEntity->MeshName("PlaneBottom");
+	gridPlaneBottomEntity->ColliderMeshName("PlaneBottom");
+	gridPlaneBottomEntity->MaterialName("Grid");
 }
 
 void DrawBlockTool::Update(ApplicationContext* context)
@@ -31,8 +33,10 @@ void DrawBlockTool::Update(ApplicationContext* context)
 	Input* input = context->ApplicationInput();
 	Window* window = context->ApplicationWindow();
 
-	glm::vec3 hoverBlockOriginalPosition = hoverBlock->ObjectTransform()->Position();
-	hoverBlock->ObjectTransform()->Position(glm::vec3(10000, 10000, 10000));
+	Entity* hoverBlockEntity = hoverBlock->TargetEntity();
+
+	glm::vec3 hoverBlockOriginalPosition = hoverBlockEntity->ObjectTransform()->Position();
+	hoverBlockEntity->ObjectTransform()->Position(glm::vec3(10000, 10000, 10000));
 	Camera* camera = scene->ActiveCamera();
 	Transform* cameraTransform = camera->Owner()->ObjectTransform();
 
@@ -49,17 +53,17 @@ void DrawBlockTool::Update(ApplicationContext* context)
 				newPos.y = hit.entity->ObjectTransform()->Position().y;
 				newPos.z = glm::round(newPos.z);
 			}
-			hoverBlock->ObjectTransform()->Position(newPos);
+			hoverBlockEntity->ObjectTransform()->Position(newPos);
 		}
 		else
 		{
 			glm::vec3 newPos = hit.entity->ObjectTransform()->Position() + hit.normal;
-			hoverBlock->ObjectTransform()->Position(newPos);
+			hoverBlockEntity->ObjectTransform()->Position(newPos);
 		}
 	}
 	else
 	{
-		hoverBlock->ObjectTransform()->Position(hoverBlockOriginalPosition);
+		hoverBlockEntity->ObjectTransform()->Position(hoverBlockOriginalPosition);
 	}
 
 	if (input->GetKeyDown(Input::Keys::MOUSE_1))
@@ -80,38 +84,38 @@ void DrawBlockTool::Update(ApplicationContext* context)
 
 	if (input->GetKeyDown(Input::Keys::KEY_E))
 	{
-		hoverBlock->ObjectTransform()->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), -90.0f);
+		hoverBlockEntity->ObjectTransform()->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), -90.0f);
 	}
 	if (input->GetKeyDown(Input::Keys::KEY_Q))
 	{
-		hoverBlock->ObjectTransform()->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 90.0f);
+		hoverBlockEntity->ObjectTransform()->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 90.0f);
 	}
 	if (input->GetKeyDown(Input::Keys::KEY_W))
 	{
-		hoverBlock->ObjectTransform()->Rotate(glm::vec3(1.0f, 0.0f, 0.0f), 90.0f);
+		hoverBlockEntity->ObjectTransform()->Rotate(glm::vec3(1.0f, 0.0f, 0.0f), 90.0f);
 	}
 	if (input->GetKeyDown(Input::Keys::KEY_S))
 	{
-		hoverBlock->ObjectTransform()->Rotate(glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
+		hoverBlockEntity->ObjectTransform()->Rotate(glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
 	}
 	if (input->GetKeyDown(Input::Keys::KEY_A))
 	{
-		hoverBlock->ObjectTransform()->Rotate(glm::vec3(0.0f, 0.0f, 1.0f), 90.0f);
+		hoverBlockEntity->ObjectTransform()->Rotate(glm::vec3(0.0f, 0.0f, 1.0f), 90.0f);
 	}
 	if (input->GetKeyDown(Input::Keys::KEY_D))
 	{
-		hoverBlock->ObjectTransform()->Rotate(glm::vec3(0.0f, 0.0f, 1.0f), -90.0f);
+		hoverBlockEntity->ObjectTransform()->Rotate(glm::vec3(0.0f, 0.0f, 1.0f), -90.0f);
 	}
 
 	if (input->GetKeyDown(Input::Keys::KEY_EQUAL))
 	{
-		gridPlane->ObjectTransform()->Translate(glm::vec3(0.0f, 1.0f, 0.0f));
-		gridPlaneBottom->ObjectTransform()->Translate(glm::vec3(0.0f, 1.0f, 0.0f));
+		gridPlane->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, 1.0f, 0.0f));
+		gridPlaneBottom->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, 1.0f, 0.0f));
 	}
 	else if (input->GetKeyDown(Input::Keys::KEY_MINUS))
 	{
-		gridPlane->ObjectTransform()->Translate(glm::vec3(0.0f, -1.0f, 0.0f));
-		gridPlaneBottom->ObjectTransform()->Translate(glm::vec3(0.0f, -1.0f, 0.0f));
+		gridPlane->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, -1.0f, 0.0f));
+		gridPlaneBottom->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, -1.0f, 0.0f));
 	}
 
 	if (input->GetKeyDown(Input::Keys::KEY_P))
@@ -135,17 +139,30 @@ void DrawBlockTool::DrawGUI(ApplicationContext * context)
 
 void DrawBlockTool::PlaceBlock(Scene* scene)
 {
-	Entity* newCube = scene->CreateEntity();
-	newCube->ObjectTransform()->Position(hoverBlock->ObjectTransform()->Position());
-	newCube->ObjectTransform()->Rotation(hoverBlock->ObjectTransform()->Rotation());
-	newCube->MeshName(hoverBlock->MeshName());
-	newCube->ColliderMeshName(hoverBlock->ColliderMeshName());
+	auto newCubeHandle = scene->CreateEntity();
+	Entity* newCube = newCubeHandle->TargetEntity();
+	newCube->ObjectTransform()->Position(hoverBlock->TargetEntity()->ObjectTransform()->Position());
+	newCube->ObjectTransform()->Rotation(hoverBlock->TargetEntity()->ObjectTransform()->Rotation());
+	newCube->MeshName(hoverBlock->TargetEntity()->MeshName());
+	newCube->ColliderMeshName(hoverBlock->TargetEntity()->ColliderMeshName());
 	newCube->MaterialName("Solid");
 }
 
 void DrawBlockTool::RefreshHoverBlock(ApplicationContext * context)
 {
-	hoverBlock->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
-	hoverBlock->MaterialName("Hover");
-	hoverBlock->ColliderMeshName("Cube");
+	hoverBlock->TargetEntity()->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
+	hoverBlock->TargetEntity()->MaterialName("Hover");
+	hoverBlock->TargetEntity()->ColliderMeshName("Cube");
+}
+
+void DrawBlockTool::DisableTool(ApplicationContext * context)
+{
+	Scene* scene = context->ApplicationScene();
+	scene->DestroyEntity(hoverBlock);
+	scene->DestroyEntity(gridPlane);
+	scene->DestroyEntity(gridPlaneBottom);
+
+	hoverBlock.reset();
+	gridPlane.reset();
+	gridPlaneBottom.reset();
 }
