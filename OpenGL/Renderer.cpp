@@ -11,6 +11,8 @@ Renderer::Renderer(FileManager* fileManager)
 	this->LoadShaders();
 	this->LoadModels(fileManager);
 	this->LoadMaterials();
+
+	this->SetUpModelPreview();
 }
 
 void Renderer::RenderScene(ApplicationContext* context)
@@ -18,6 +20,9 @@ void Renderer::RenderScene(ApplicationContext* context)
 	Scene* scene = context->ApplicationScene();
 	Window* window = context->ApplicationWindow();
 	Camera* camera = scene->ActiveCamera();
+
+	glViewport(0, 0, window->Width(), window->Height());
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	Shader* defaultShader = this->shaders["CameraLit"];
 	defaultShader->use();
@@ -156,4 +161,49 @@ unsigned int Renderer::loadTexture(char const * path)
 	}
 
 	return textureID;
+}
+
+void Renderer::SetUpModelPreview()
+{
+	glGenFramebuffers(1, &this->modelPreviewFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, this->modelPreviewFBO);
+
+	glGenTextures(1, &this->modelPreviewTextureID);
+	glBindTexture(GL_TEXTURE_2D, this->modelPreviewTextureID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, modelPreviewTextureSize, modelPreviewTextureSize, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->modelPreviewTextureID, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Renderer::RenderModelPreview(std::string modelName)
+{
+	glViewport(0, 0, modelPreviewTextureSize, modelPreviewTextureSize);
+	glBindFramebuffer(GL_FRAMEBUFFER, this->modelPreviewFBO);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	Shader* defaultShader = this->shaders["CameraLit"];
+	defaultShader->use();
+
+	glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
+
+	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 3.0f));
+	model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+	defaultShader->setMat4("view", glm::value_ptr(view));
+	defaultShader->setMat4("projection", glm::value_ptr(projection));
+	defaultShader->setMat4("model", glm::value_ptr(model));
+	defaultShader->setVec3("objectColor", glm::vec3(0.2f, 0.2f, 0.8f));
+	defaultShader->setVec3("cameraPosition", glm::vec3(0.0f, 0.0f, 0.0f));
+	models[modelName]->Draw(*defaultShader);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

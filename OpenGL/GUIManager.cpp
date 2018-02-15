@@ -22,6 +22,10 @@ void GUIManager::StartFrame()
 void GUIManager::Draw(ApplicationContext* context)
 {
 	context->ApplicationToolManager()->DrawGUI(context);
+	context->ApplicationBlockManager()->DrawGUI(context);
+
+	bool show = true;
+	ImGui::ShowDemoWindow(&show);
 
 	ImGui::Render();
 }
