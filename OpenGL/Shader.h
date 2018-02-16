@@ -16,4 +16,7 @@ public:
 	void setVec3(const std::string &name, float x, float y, float z) const;
 	void setVec3(const std::string &name, glm::vec3 vec3) const;
 	void setMat4(const std::string &name, float* mat) const;
+	void setMat4(int locationID, float* mat) const;
+
+	GLint UniformLocation(const std::string &name) const;
 };
