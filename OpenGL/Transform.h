@@ -9,7 +9,7 @@ public:
 	Transform();
 
 	glm::vec3 Position() const { return position; }
-	void Position(glm::vec3 position) { this->position = position; }
+	void Position(glm::vec3 position);
 
 	glm::vec3 Rotation() const
 	{ 
@@ -17,12 +17,12 @@ public:
 		return glm::vec3(glm::degrees(r.x), glm::degrees(r.y), glm::degrees(r.z));
 	}
 	glm::vec3 RotationRadians() const { return glm::eulerAngles(rotation); }
-	void Rotation(glm::vec3 rotation) { this->rotation = glm::quat(glm::vec3(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z))); }
-	void Rotation(glm::quat rotation) { this->rotation = rotation; }
+	void Rotation(glm::vec3 rotation);
+	void Rotation(glm::quat rotation);
 	glm::quat RotationQuaternion() const { return rotation; }
 
 	glm::vec3 Scale() const { return scale; }
-	void Scale(glm::vec3 scale) { this->scale = scale; }
+	void Scale(glm::vec3 scale);
 
 	glm::mat4 Model();
 	glm::vec3 Forward() const;
@@ -32,10 +32,13 @@ public:
 	void Rotate(glm::vec3 axis, float angle);
 	void LookAt(glm::vec3 direction, glm::vec3 up);
 	void RotateAroundPoint(glm::vec3 point, glm::vec3 axis, float degrees);
-	void Translate(glm::vec3 translation) { this->position += translation; }
+	void Translate(glm::vec3 translation);
 
 private:
 	glm::vec3 position;
 	glm::quat rotation;
 	glm::vec3 scale;
+	glm::mat4 model;
+
+	void UpdateModel();
 };
