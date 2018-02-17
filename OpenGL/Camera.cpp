@@ -22,3 +22,35 @@ glm::vec3 Camera::ScreenToWorldDirection(float screenX, float screenY, float win
 	glm::vec3 mouseVector = glm::normalize(glm::vec3(rayWorld.x, rayWorld.y, rayWorld.z));
 	return mouseVector;
 }
+
+glm::vec3 Camera::WorldAxisForward()
+{
+	glm::vec3 cameraForward = this->Owner()->ObjectTransform()->Forward();
+
+	glm::vec3 positiveX = glm::vec3(1.0f, 0.0f, 0.0f);
+	float dot = glm::dot(cameraForward, positiveX);
+	if (dot >= 0.5f)
+	{
+		return positiveX;
+	}
+	else if (dot <= -0.5f)
+	{
+		return -positiveX;
+	}
+
+	glm::vec3 positiveZ = glm::vec3(0.0f, 0.0f, 1.0f);
+	dot = glm::dot(cameraForward, positiveZ);
+	if (dot >= 0.5f)
+	{
+		return positiveZ;
+	}
+	else
+	{
+		return -positiveZ;
+	}
+}
+
+glm::vec3 Camera::WorldAxisRight()
+{
+	return glm::cross(this->WorldAxisForward(), glm::vec3(0.0f, 1.0f, 0.0f));
+}

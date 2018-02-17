@@ -17,19 +17,19 @@ void GridBlockTool::Update(ApplicationContext * context)
 
 	if (input->GetKeyDown(Input::Keys::KEY_W))
 	{
-		this->MoveBlock(context, glm::vec3(0.0f, 0.0f, 1.0f));
+		this->MoveBlock(context, context->ApplicationScene()->ActiveCamera()->WorldAxisForward());
 	}
 	else if (input->GetKeyDown(Input::Keys::KEY_S))
 	{
-		this->MoveBlock(context, glm::vec3(0.0f, 0.0f, -1.0f));
+		this->MoveBlock(context, -context->ApplicationScene()->ActiveCamera()->WorldAxisForward());
 	}
 	else if (input->GetKeyDown(Input::Keys::KEY_A))
 	{
-		this->MoveBlock(context, glm::vec3(1.0f, 0.0f, 0.0f));
+		this->MoveBlock(context, -context->ApplicationScene()->ActiveCamera()->WorldAxisRight());
 	}
 	else if (input->GetKeyDown(Input::Keys::KEY_D))
 	{
-		this->MoveBlock(context, glm::vec3(-1.0f, 0.0f, 0.0f));
+		this->MoveBlock(context, context->ApplicationScene()->ActiveCamera()->WorldAxisRight());
 	}
 	else if (input->GetKeyDown(Input::Keys::KEY_Q))
 	{
