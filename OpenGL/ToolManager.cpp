@@ -6,8 +6,8 @@
 
 ToolManager::ToolManager(ApplicationContext* context)
 {
-	activeTool = std::make_unique<SelectTool>(SelectTool(context));
-	this->selectedToolButtonIndex = 0;
+	activeTool = std::make_unique<DrawBlockTool>(DrawBlockTool(context));
+	this->selectedToolButtonIndex = 1;
 }
 
 void ToolManager::Update(ApplicationContext * context)
