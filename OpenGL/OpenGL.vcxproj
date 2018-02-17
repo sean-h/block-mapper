@@ -123,6 +123,7 @@
   <ItemGroup>
     <ClCompile Include="ApplicationContext.cpp" />
     <ClCompile Include="BlockManager.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="DrawBlockTool.cpp" />
     <ClCompile Include="FileManager.cpp" />
