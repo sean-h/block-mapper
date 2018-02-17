@@ -126,15 +126,7 @@ void DrawBlockTool::Update(ApplicationContext* context)
 
 void DrawBlockTool::DrawGUI(ApplicationContext * context)
 {
-	bool drawToolWindowOpen = true;
-	ImGui::Begin("Draw", &drawToolWindowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
-
-	ImGui::SetWindowPos(ImVec2(10.0f, 250.0f));
-	ImGui::SetWindowSize(ImVec2(150.0f, 200.0f));
-
 	ImGui::Text("Draw");
-
-	ImGui::End();
 }
 
 void DrawBlockTool::PlaceBlock(Scene* scene)

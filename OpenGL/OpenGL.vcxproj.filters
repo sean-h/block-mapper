@@ -93,6 +93,9 @@
     <ClCompile Include="SelectTool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GridBlockTool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -189,6 +192,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SelectTool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GridBlockTool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

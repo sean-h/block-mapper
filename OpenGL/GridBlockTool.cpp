@@ -1,0 +1,138 @@
+#include "GridBlockTool.h"
+#include "ApplicationContext.h"
+
+GridBlockTool::GridBlockTool(ApplicationContext * context)
+{
+	this->firstBlockPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+	this->lastBlockPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+	drawShape = Shapes::HollowCube;
+	buildStep = BuildSteps::PlaceFirstBlock;
+
+	this->PlaceHoverBlocks(context);
+}
+
+void GridBlockTool::Update(ApplicationContext * context)
+{
+	Input* input = context->ApplicationInput();
+
+	if (input->GetKeyDown(Input::Keys::KEY_W))
+	{
+		this->MoveBlock(context, glm::vec3(0.0f, 0.0f, 1.0f));
+	}
+	else if (input->GetKeyDown(Input::Keys::KEY_S))
+	{
+		this->MoveBlock(context, glm::vec3(0.0f, 0.0f, -1.0f));
+	}
+	else if (input->GetKeyDown(Input::Keys::KEY_A))
+	{
+		this->MoveBlock(context, glm::vec3(1.0f, 0.0f, 0.0f));
+	}
+	else if (input->GetKeyDown(Input::Keys::KEY_D))
+	{
+		this->MoveBlock(context, glm::vec3(-1.0f, 0.0f, 0.0f));
+	}
+	else if (input->GetKeyDown(Input::Keys::KEY_Q))
+	{
+		this->MoveBlock(context, glm::vec3(0.0f, -1.0f, 0.0f));
+	}
+	else if (input->GetKeyDown(Input::Keys::KEY_E))
+	{
+		this->MoveBlock(context, glm::vec3(0.0f, 1.0f, 0.0f));
+	}
+	
+	if (input->GetKeyDown(Input::Keys::MOUSE_1))
+	{
+		this->AdvanceBuildStep(context);
+	}
+}
+
+void GridBlockTool::DrawGUI(ApplicationContext * context)
+{
+}
+
+void GridBlockTool::RefreshHoverBlock(ApplicationContext * context)
+{
+}
+
+void GridBlockTool::DisableTool(ApplicationContext * context)
+{
+}
+
+void GridBlockTool::PlaceHoverBlocks(ApplicationContext * context)
+{
+	for (int i = 0; i < this->hoverBlocks.size(); i++)
+	{
+		context->ApplicationScene()->DestroyEntity(hoverBlocks[i]);
+	}
+	this->hoverBlocks.clear();
+
+	glm::vec3 buildVector = this->lastBlockPosition - this->firstBlockPosition;
+
+	int endX = glm::abs((int)buildVector.x);
+	int endY = glm::abs((int)buildVector.y);
+	int endZ = glm::abs((int)buildVector.z);
+
+	for (int x = 0; x <= endX; x++)
+	{
+		for (int y = 0; y <= endY; y++)
+		{
+			for (int z = 0; z <= endZ; z++)
+			{
+				if (drawShape == Shapes::FilledCube || x == 0 || x == endX || y == 0 || y == endY || z == 0 || z == endZ)
+				{
+					glm::vec3 blockPosition = glm::vec3(
+						this->firstBlockPosition.x + (x * glm::sign(this->lastBlockPosition.x - this->firstBlockPosition.x)),
+						this->firstBlockPosition.y + (y * glm::sign(this->lastBlockPosition.y - this->firstBlockPosition.y)),
+						this->firstBlockPosition.z + (z * glm::sign(this->lastBlockPosition.z - this->firstBlockPosition.z)));
+
+					auto hoverBlock = context->ApplicationScene()->CreateEntity();
+					hoverBlock->TargetEntity()->MaterialName("Hover");
+					hoverBlock->TargetEntity()->ObjectTransform()->Position(blockPosition);
+					hoverBlock->TargetEntity()->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
+
+					this->hoverBlocks.push_back(hoverBlock);
+				}
+			}
+		}
+	}
+}
+
+void GridBlockTool::MoveBlock(ApplicationContext * context, glm::vec3 moveDirection)
+{
+	if (buildStep == BuildSteps::PlaceFirstBlock)
+	{
+		this->firstBlockPosition += moveDirection;
+		this->lastBlockPosition += moveDirection;
+		
+	}
+	else if (buildStep == BuildSteps::PlaceLastBlock)
+	{
+		this->lastBlockPosition += moveDirection;
+	}
+
+	this->PlaceHoverBlocks(context);
+}
+
+void GridBlockTool::Apply(ApplicationContext * context)
+{
+	for (auto& block : hoverBlocks)
+	{
+		block->TargetEntity()->MaterialName("Solid");
+	}
+	this->hoverBlocks.clear();
+
+	this->buildStep = BuildSteps::PlaceFirstBlock;
+	this->firstBlockPosition = this->lastBlockPosition;
+}
+
+void GridBlockTool::AdvanceBuildStep(ApplicationContext * context)
+{
+	if (buildStep == BuildSteps::PlaceFirstBlock)
+	{
+		buildStep = BuildSteps::PlaceLastBlock;
+	}
+	else if (buildStep == BuildSteps::PlaceLastBlock)
+	{
+		this->Apply(context);
+	}
+}

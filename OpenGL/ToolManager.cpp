@@ -1,6 +1,7 @@
 #include "ToolManager.h"
 #include "DrawBlockTool.h"
 #include "SelectTool.h"
+#include "GridBlockTool.h"
 #include "imgui.h"
 
 ToolManager::ToolManager(ApplicationContext* context)
@@ -40,7 +41,9 @@ void ToolManager::DrawGUI(ApplicationContext * context)
 
 	if (this->ToggleButton("Grid", 2, selectedToolButtonIndex))
 	{
-
+		activeTool->DisableTool(context);
+		activeTool.reset();
+		activeTool = std::make_unique<GridBlockTool>(GridBlockTool(context));
 	}
 
 	if (this->ToggleButton("Fill", 3, selectedToolButtonIndex))
@@ -50,7 +53,12 @@ void ToolManager::DrawGUI(ApplicationContext * context)
 
 	ImGui::End();
 
+	bool activeToolWindowOpen = true;
+	ImGui::Begin(activeTool->Name().c_str(), &activeToolWindowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+	ImGui::SetWindowPos(ImVec2(10.0f, 250.0f));
+	ImGui::SetWindowSize(ImVec2(150.0f, 200.0f));
 	activeTool->DrawGUI(context);
+	ImGui::End();
 }
 
 bool ToolManager::ToggleButton(std::string text, int id, int & selectedButton)
