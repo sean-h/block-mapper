@@ -2,15 +2,20 @@
 #include "Transform.h"
 #include "Entity.h"
 
-glm::mat4 Camera::GetViewMatrix()
+glm::mat4 Camera::ViewMatrix()
 {
 	Transform* transform = this->Owner()->ObjectTransform();
 	return glm::lookAt(transform->Position(), transform->Position() + transform->Forward(), transform->Up());
 }
 
+glm::mat4 Camera::ProjectionMatrix(float windowWidth, float windowHeight)
+{
+	return glm::perspective(verticalFOV, windowWidth / windowHeight, nearClipDistance, farClipDistance);
+}
+
 glm::vec3 Camera::ScreenToWorldDirection(float screenX, float screenY, float windowWidth, float windowHeight)
 {
-	glm::mat4 view = GetViewMatrix();
+	glm::mat4 view = ViewMatrix();
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), windowWidth / windowHeight, 0.1f, 100.0f);
 
 	glm::vec4 screenRay = glm::vec4((2.0f * screenX) / windowWidth - 1.0f,

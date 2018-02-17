@@ -27,8 +27,8 @@ void Renderer::RenderScene(ApplicationContext* context)
 	Shader* defaultShader = this->shaders["CameraLit"];
 	defaultShader->use();
 
-	glm::mat4 view = camera->GetViewMatrix();
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)window->Width() / (float)window->Height(), 0.1f, 1000.0f);
+	glm::mat4 view = camera->ViewMatrix();
+	glm::mat4 projection = camera->ProjectionMatrix((float)window->Width(), (float)window->Height());
 
 	for (auto &shader : this->shaders)
 	{
