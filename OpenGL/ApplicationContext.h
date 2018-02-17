@@ -10,6 +10,7 @@
 #include "BlockManager.h"
 #include "GUIManager.h"
 #include "ToolManager.h"
+#include "EntitySelectionManager.h"
 
 class ApplicationContext
 {
@@ -26,6 +27,7 @@ public:
 	FileManager* ApplicationFileManager() const { return fileManager.get(); }
 	GUIManager* ApplicationGUIManager() const { return guiManager.get(); }
 	ToolManager* ApplicationToolManager() const { return toolManager.get(); }
+	EntitySelectionManager* ApplicationEntitySelectionManager() const { return entitySelectionManager.get(); }
 
 private:
 	std::unique_ptr<Time> time;
@@ -38,4 +40,5 @@ private:
 	std::unique_ptr<BlockManager> blockManager;
 	std::unique_ptr<GUIManager> guiManager;
 	std::unique_ptr<ToolManager> toolManager;
+	std::unique_ptr<EntitySelectionManager> entitySelectionManager;
 };

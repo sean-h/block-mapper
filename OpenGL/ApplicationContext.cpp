@@ -14,4 +14,5 @@ ApplicationContext::ApplicationContext()
 	blockManager = std::make_unique<BlockManager>(BlockManager(fileManager.get()));
 	guiManager = std::make_unique<GUIManager>(GUIManager(window.get()));
 	toolManager = std::make_unique<ToolManager>(ToolManager(this));
+	entitySelectionManager = std::make_unique<EntitySelectionManager>(EntitySelectionManager());
 }

@@ -126,6 +126,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="DrawBlockTool.cpp" />
+    <ClCompile Include="EntitySelectionManager.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GridBlockTool.cpp" />
@@ -152,6 +153,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationContext.h" />
+    <ClInclude Include="EntitySelectionManager.h" />
     <ClInclude Include="GridBlockTool.h" />
     <ClInclude Include="BlockManager.h" />
     <ClInclude Include="Camera.h" />

@@ -113,6 +113,10 @@ void Renderer::LoadMaterials()
 	solidMaterial->Color(glm::vec3(0.6f, 0.2f, 0.2f));
 	solidMaterial->Opacity(1.0f);
 
+	std::unique_ptr<Material> selectedMaterial(new Material("CameraLit"));
+	selectedMaterial->Color(glm::vec3(0.2f, 0.8f, 0.2f));
+	selectedMaterial->Opacity(1.0f);
+
 	std::unique_ptr<Material> hoverMaterial(new Material("Transparent"));
 	hoverMaterial->Color(glm::vec3(0.2f, 0.2f, 0.6f));
 	hoverMaterial->Opacity(0.5f);
@@ -122,6 +126,7 @@ void Renderer::LoadMaterials()
 	gridMaterial->Opacity(1.0f);
 
 	this->materials["Solid"] = std::move(solidMaterial);
+	this->materials["Selected"] = std::move(selectedMaterial);
 	this->materials["Hover"] = std::move(hoverMaterial);
 	this->materials["Grid"] = std::move(gridMaterial);
 }
