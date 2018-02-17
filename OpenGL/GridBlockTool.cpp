@@ -86,9 +86,12 @@ void GridBlockTool::PlaceHoverBlocks(ApplicationContext * context)
 						this->firstBlockPosition.z + (z * glm::sign(this->lastBlockPosition.z - this->firstBlockPosition.z)));
 
 					auto hoverBlock = context->ApplicationScene()->CreateEntity();
-					hoverBlock->TargetEntity()->MaterialName("Hover");
-					hoverBlock->TargetEntity()->ObjectTransform()->Position(blockPosition);
-					hoverBlock->TargetEntity()->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
+					Entity* hoverBlockEntity = hoverBlock->TargetEntity();
+
+					hoverBlockEntity->MaterialName("Hover");
+					hoverBlockEntity->ObjectTransform()->Position(blockPosition);
+					hoverBlockEntity->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
+					hoverBlockEntity->ColliderMeshName("Cube");
 
 					this->hoverBlocks.push_back(hoverBlock);
 				}
