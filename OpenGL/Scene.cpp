@@ -7,7 +7,7 @@ Scene::Scene()
 {
 	auto cameraEntityHandle = this->CreateEntity();
 	Entity* cameraEntity = cameraEntityHandle->TargetEntity();
-	cameraEntity->ObjectTransform()->Position(glm::vec3(0.0f, 0.0f, -10.0f));
+	cameraEntity->ObjectTransform()->Position(glm::vec3(0.0f, 20.0f, -20.0f));
 	cameraEntity->ObjectTransform()->Rotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new OrbitController()));
 	camera = (Camera*)AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new Camera()));
@@ -38,6 +38,7 @@ Component * Scene::AddComponentToEntity(Entity * entity, std::unique_ptr<Compone
 {
 	this->components.push_back(std::move(component));
 	this->components.back()->Owner(entity);
+	this->components.back()->OnAttachToEntity();
 	return this->components.back().get();
 }
 

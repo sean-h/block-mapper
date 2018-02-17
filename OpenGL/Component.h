@@ -9,6 +9,7 @@ public:
 	Entity* Owner() const { return entity; }
 	void Owner(Entity* entity) { this->entity = entity; }
 	virtual void Update(ApplicationContext* context);
+	virtual void OnAttachToEntity() { }
 
 private:
 	Entity* entity;

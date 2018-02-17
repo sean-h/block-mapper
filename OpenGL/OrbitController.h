@@ -6,6 +6,7 @@ class OrbitController : public Component
 {
 public:
 	OrbitController();
+	void OnAttachToEntity();
 	void Update(ApplicationContext* context);
 
 private:

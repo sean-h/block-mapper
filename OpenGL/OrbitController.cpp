@@ -11,6 +11,11 @@ OrbitController::OrbitController()
 	this->orbitPoint = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
+void OrbitController::OnAttachToEntity()
+{
+	this->Rotate(0.0f, 0.0f);
+}
+
 void OrbitController::Update(ApplicationContext * context)
 {
 	Input* input = context->ApplicationInput();
