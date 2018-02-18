@@ -3,6 +3,7 @@
 #include "SelectBlockTool.h"
 #include "GridBlockTool.h"
 #include "MoveBlockTool.h"
+#include "ApplicationContext.h"
 #include "imgui.h"
 
 ToolManager::ToolManager(ApplicationContext* context)
@@ -13,7 +14,29 @@ ToolManager::ToolManager(ApplicationContext* context)
 
 void ToolManager::Update(ApplicationContext * context)
 {
-	activeTool->Update(context);
+	Input* input = context->ApplicationInput();
+
+	if (input->GetKeyDown(Input::Keys::KEY_1))
+	{
+		this->SelectTool(context, 0);
+	}
+	else if (input->GetKeyDown(Input::Keys::KEY_2))
+	{
+		this->SelectTool(context, 1);
+	}
+	else if (input->GetKeyDown(Input::Keys::KEY_3))
+	{
+		this->SelectTool(context, 2);
+	}
+	else if (input->GetKeyDown(Input::Keys::KEY_4))
+	{
+		this->SelectTool(context, 3);
+	}
+
+	if (activeTool)
+	{
+		activeTool->Update(context);
+	}
 }
 
 void ToolManager::DrawGUI(ApplicationContext * context)
@@ -44,10 +67,6 @@ void ToolManager::DrawGUI(ApplicationContext * context)
 	if (this->ToggleButton("Grid", 3, selectedToolButtonIndex))
 	{
 		this->SelectTool(context, 3);
-	}
-
-	if (this->ToggleButton("Fill", 4, selectedToolButtonIndex))
-	{
 	}
 
 	ImGui::End();
@@ -108,4 +127,6 @@ void ToolManager::SelectTool(ApplicationContext* context, int toolIndex)
 	default:
 		break;
 	}
+
+	selectedToolButtonIndex = toolIndex;
 }
