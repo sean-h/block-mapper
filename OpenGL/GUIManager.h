@@ -31,4 +31,5 @@ public:
 private:
 	ImGuiContext* imGuiContext;
 	std::unordered_map<std::string, GUILocation> windowLocations;
+	bool mainMenuOpen;
 };

@@ -8,9 +8,12 @@ GUIManager::GUIManager(Window* window)
 {
 	ImGui_ImplGlfwGL3_Init(window->GLFWWindow(), true);
 
-	windowLocations["Tools"] = GUILocation(10.0f, 10.0f, 150.0f, 200.0f);
+	windowLocations["MainMenuBar"] = GUILocation(0.0f, 0.0f, 1000.0f, 10.0f);
+	windowLocations["Tools"] = GUILocation(10.0f, 40.0f, 150.0f, 200.0f);
 	windowLocations["ActiveTool"] = GUILocation(10.0f, 250.0f, 150.0f, 200.0f);
-	windowLocations["BlockManager"] = GUILocation(10.0f, 500.0f, 275.0f, 300.0f);
+	windowLocations["BlockManager"] = GUILocation(10.0f, 550.0f, 275.0f, 300.0f);
+
+	mainMenuOpen = false;
 }
 
 GUIManager::~GUIManager()
@@ -25,6 +28,39 @@ void GUIManager::StartFrame()
 
 void GUIManager::Draw(ApplicationContext* context)
 {
+	float windowWidth = (float)context->ApplicationWindow()->Width();
+	float windowHeight = (float)context->ApplicationWindow()->Height();
+	windowLocations["BlockManager"] = GUILocation(10.0f, windowHeight - 310.0f, 275.0f, 300.0f);
+	windowLocations["MainMenuBar"] = GUILocation(0.0f, 0.0f, windowWidth, 20.0f);
+
+	mainMenuOpen = false;
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			mainMenuOpen = true;
+			if (ImGui::MenuItem("New", "Ctrl+N"))
+			{
+
+			}
+			if (ImGui::MenuItem("Open..", "Ctrl+O"))
+			{
+
+			}
+			if (ImGui::MenuItem("Save", "Ctrl+S"))
+			{
+
+			}
+			ImGui::Separator();
+			if (ImGui::MenuItem("Exit", "Ctrl+Q"))
+			{
+
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+
 	context->ApplicationToolManager()->DrawGUI(context);
 	context->ApplicationBlockManager()->DrawGUI(context);
 	ImGui::Render();
@@ -43,7 +79,7 @@ bool GUIManager::MouseOverGUIElement(float mouseX, float mouseY)
 		}
 	}
 
-	return false;
+	return mainMenuOpen;
 }
 
 GUILocation GUIManager::WindowLocation(std::string windowName)
