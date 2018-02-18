@@ -56,6 +56,12 @@ void GridBlockTool::RefreshHoverBlock(ApplicationContext * context)
 
 void GridBlockTool::DisableTool(ApplicationContext * context)
 {
+	Scene* scene = context->ApplicationScene();
+	for (auto& block : hoverBlocks)
+	{
+		scene->DestroyEntity(block);
+	}
+	hoverBlocks.clear();
 }
 
 void GridBlockTool::PlaceHoverBlocks(ApplicationContext * context)
