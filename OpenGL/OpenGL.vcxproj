@@ -87,6 +87,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>GLFW_INCLUDE_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -139,12 +140,13 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="MoveBlockTool.cpp" />
     <ClCompile Include="OrbitController.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneExporter.cpp" />
-    <ClCompile Include="SelectTool.cpp" />
+    <ClCompile Include="SelectBlockTool.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="ToolManager.cpp" />
@@ -170,12 +172,13 @@
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="MoveBlockTool.h" />
     <ClInclude Include="OrbitController.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneExporter.h" />
-    <ClInclude Include="SelectTool.h" />
+    <ClInclude Include="SelectBlockTool.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_rect_pack.h" />

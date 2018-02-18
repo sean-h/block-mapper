@@ -3,10 +3,10 @@
 
 class ApplicationContext;
 
-class SelectTool : public Tool
+class SelectBlockTool : public Tool
 {
 public:
-	SelectTool(ApplicationContext* context);
+	SelectBlockTool(ApplicationContext* context);
 	void Update(ApplicationContext* context);
 	void DrawGUI(ApplicationContext* context);
 

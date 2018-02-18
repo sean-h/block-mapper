@@ -90,9 +90,6 @@
     <ClCompile Include="ToolManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SelectTool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GridBlockTool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -100,6 +97,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EntitySelectionManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SelectBlockTool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MoveBlockTool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -197,13 +200,16 @@
     <ClInclude Include="ToolManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SelectTool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GridBlockTool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EntitySelectionManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MoveBlockTool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SelectBlockTool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

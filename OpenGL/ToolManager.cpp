@@ -1,7 +1,8 @@
 #include "ToolManager.h"
 #include "DrawBlockTool.h"
-#include "SelectTool.h"
+#include "SelectBlockTool.h"
 #include "GridBlockTool.h"
+#include "MoveBlockTool.h"
 #include "imgui.h"
 
 ToolManager::ToolManager(ApplicationContext* context)
@@ -27,28 +28,26 @@ void ToolManager::DrawGUI(ApplicationContext * context)
 
 	if (this->ToggleButton("Select", 0, selectedToolButtonIndex))
 	{
-		activeTool->DisableTool(context);
-		activeTool.reset();
-		activeTool = std::make_unique<SelectTool>(SelectTool(context));
+		this->SelectTool(context, 0);
 	}
 
-	if (this->ToggleButton("Draw", 1, selectedToolButtonIndex))
+	if (this->ToggleButton("Move", 1, selectedToolButtonIndex))
 	{
-		activeTool->DisableTool(context);
-		activeTool.reset();
-		activeTool = std::make_unique<DrawBlockTool>(DrawBlockTool(context));
+		this->SelectTool(context, 1);
 	}
 
-	if (this->ToggleButton("Grid", 2, selectedToolButtonIndex))
+	if (this->ToggleButton("Draw", 2, selectedToolButtonIndex))
 	{
-		activeTool->DisableTool(context);
-		activeTool.reset();
-		activeTool = std::make_unique<GridBlockTool>(GridBlockTool(context));
+		this->SelectTool(context, 2);
 	}
 
-	if (this->ToggleButton("Fill", 3, selectedToolButtonIndex))
+	if (this->ToggleButton("Grid", 3, selectedToolButtonIndex))
 	{
+		this->SelectTool(context, 3);
+	}
 
+	if (this->ToggleButton("Fill", 4, selectedToolButtonIndex))
+	{
 	}
 
 	ImGui::End();
@@ -83,4 +82,30 @@ bool ToolManager::ToggleButton(std::string text, int id, int & selectedButton)
 	}
 
 	return clicked;
+}
+
+void ToolManager::SelectTool(ApplicationContext* context, int toolIndex)
+{
+	activeTool->DisableTool(context);
+	activeTool.reset();
+
+	switch (toolIndex)
+	{
+	case 0:
+		activeTool = std::make_unique<SelectBlockTool>(SelectBlockTool(context));
+		break;
+	case 1:
+		activeTool = std::make_unique<MoveBlockTool>(MoveBlockTool(context));
+		break;
+	case 2:
+		activeTool = std::make_unique<DrawBlockTool>(DrawBlockTool(context));
+		break;
+	case 3:
+		activeTool = std::make_unique<GridBlockTool>(GridBlockTool(context));
+		break;
+	case 4:
+		break;
+	default:
+		break;
+	}
 }

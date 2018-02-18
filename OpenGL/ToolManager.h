@@ -17,4 +17,5 @@ private:
 	int selectedToolButtonIndex;
 
 	bool ToggleButton(std::string text, int id, int& selectedButton);
+	void SelectTool(ApplicationContext* context, int toolIndex);
 };

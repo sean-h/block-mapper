@@ -33,3 +33,8 @@ void EntitySelectionManager::DeselectAll()
 
 	selectedEntities.clear();
 }
+
+std::vector<std::shared_ptr<EntityHandle>>& EntitySelectionManager::SelectedEntities()
+{
+	return selectedEntities;
+}

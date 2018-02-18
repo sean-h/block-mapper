@@ -1,13 +1,13 @@
-#include "SelectTool.h"
+#include "SelectBlockTool.h"
 #include "imgui.h"
 #include "ApplicationContext.h"
 #include "glm\glm.hpp"
 
-SelectTool::SelectTool(ApplicationContext * context)
+SelectBlockTool::SelectBlockTool(ApplicationContext * context)
 {
 }
 
-void SelectTool::Update(ApplicationContext * context)
+void SelectBlockTool::Update(ApplicationContext * context)
 {
 	Input* input = context->ApplicationInput();
 	if (input->GetKeyDown(Input::Keys::MOUSE_1))
@@ -33,7 +33,7 @@ void SelectTool::Update(ApplicationContext * context)
 	}
 }
 
-void SelectTool::DrawGUI(ApplicationContext * context)
+void SelectBlockTool::DrawGUI(ApplicationContext * context)
 {
 	ImGui::Text("Select");
 }
