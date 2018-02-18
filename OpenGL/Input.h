@@ -159,6 +159,8 @@ public:
 	void SetScrollWheel(double scrollWheel) { this->pendingScrollWheel = scrollWheel; }
 	void PollWindowInput(GLFWwindow* window);
 	void EndFrame();
+	bool MouseOverGUIElement() const { return this->mouseOverGUIElement; }
+	void MouseOverGUIElement(bool overGUIElement) { this->mouseOverGUIElement = overGUIElement; }
 
 private:
 	std::vector<Keys> keysDown;
@@ -171,6 +173,7 @@ private:
 	double scrollWheel;
 	double pendingScrollWheel;
 	bool firstMouse;
+	bool mouseOverGUIElement;
 
 	void SetKeyDown(Keys key);
 	void SetKeyUp(Keys key);

@@ -20,8 +20,9 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 	bool drawBlockWindowOpen = true;
 	ImGui::Begin("Blocks", &drawBlockWindowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar);
 
-	ImGui::SetWindowPos(ImVec2(10.0f, 500.0f));
-	ImGui::SetWindowSize(ImVec2(275.0f, 300.0f));
+	GUILocation windowLocation = context->ApplicationGUIManager()->WindowLocation("BlockManager");
+	ImGui::SetWindowPos(ImVec2(windowLocation.xPosition, windowLocation.yPosition));
+	ImGui::SetWindowSize(ImVec2(windowLocation.width, windowLocation.height));
 
 	ImGui::Text(this->SelectedBlockName().c_str());
 

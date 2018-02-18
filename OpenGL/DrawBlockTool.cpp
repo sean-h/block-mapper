@@ -28,10 +28,27 @@ DrawBlockTool::DrawBlockTool(ApplicationContext* context)
 
 void DrawBlockTool::Update(ApplicationContext* context)
 {
+	Input* input = context->ApplicationInput();
+	
+	if (input->GetKeyDown(Input::Keys::KEY_PERIOD))
+	{
+		context->ApplicationBlockManager()->SelectNextBlock();
+		this->RefreshHoverBlock(context);
+	}
+	if (input->GetKeyDown(Input::Keys::KEY_COMMA))
+	{
+		context->ApplicationBlockManager()->SelectPreviousBlock();
+		this->RefreshHoverBlock(context);
+	}
+
+	if (input->MouseOverGUIElement())
+	{
+		return;
+	}
+
+	Window* window = context->ApplicationWindow();
 	Scene* scene = context->ApplicationScene();
 	Physics* physics = context->ApplicationPhysics();
-	Input* input = context->ApplicationInput();
-	Window* window = context->ApplicationWindow();
 
 	Entity* hoverBlockEntity = hoverBlock->TargetEntity();
 
@@ -69,17 +86,6 @@ void DrawBlockTool::Update(ApplicationContext* context)
 	if (input->GetKeyDown(Input::Keys::MOUSE_1))
 	{
 		this->PlaceBlock(scene);
-	}
-
-	if (input->GetKeyDown(Input::Keys::KEY_PERIOD))
-	{
-		context->ApplicationBlockManager()->SelectNextBlock();
-		this->RefreshHoverBlock(context);
-	}
-	if (input->GetKeyDown(Input::Keys::KEY_COMMA))
-	{
-		context->ApplicationBlockManager()->SelectPreviousBlock();
-		this->RefreshHoverBlock(context);
 	}
 
 	if (input->GetKeyDown(Input::Keys::KEY_E))

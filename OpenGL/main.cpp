@@ -19,6 +19,7 @@ int main()
 		{
 			window->Close();
 		}
+		input->MouseOverGUIElement(applicationContext.ApplicationGUIManager()->MouseOverGUIElement(input->MouseX(), input->MouseY()));
 
 		Scene* scene = applicationContext.ApplicationScene();
 		scene->Update(&applicationContext);

@@ -10,6 +10,12 @@ SelectBlockTool::SelectBlockTool(ApplicationContext * context)
 void SelectBlockTool::Update(ApplicationContext * context)
 {
 	Input* input = context->ApplicationInput();
+
+	if (input->MouseOverGUIElement())
+	{
+		return;
+	}
+
 	if (input->GetKeyDown(Input::Keys::MOUSE_1))
 	{
 		Window* window = context->ApplicationWindow();

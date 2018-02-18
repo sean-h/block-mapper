@@ -44,8 +44,10 @@ void ToolManager::DrawGUI(ApplicationContext * context)
 	bool toolsWindowOpen = true;
 	ImGui::Begin("Tools", &toolsWindowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
-	ImGui::SetWindowPos(ImVec2(10.0f, 10.0f));
-	ImGui::SetWindowSize(ImVec2(150.0f, 200.0f));
+	GUILocation toolsWindowLocation = context->ApplicationGUIManager()->WindowLocation("Tools");
+
+	ImGui::SetWindowPos(ImVec2(toolsWindowLocation.xPosition, toolsWindowLocation.yPosition));
+	ImGui::SetWindowSize(ImVec2(toolsWindowLocation.width, toolsWindowLocation.height));
 
 	ImGui::Text("Tools");
 
@@ -73,8 +75,9 @@ void ToolManager::DrawGUI(ApplicationContext * context)
 
 	bool activeToolWindowOpen = true;
 	ImGui::Begin(activeTool->Name().c_str(), &activeToolWindowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
-	ImGui::SetWindowPos(ImVec2(10.0f, 250.0f));
-	ImGui::SetWindowSize(ImVec2(150.0f, 200.0f));
+	GUILocation activeToolWindowLocation = context->ApplicationGUIManager()->WindowLocation("ActiveTool");
+	ImGui::SetWindowPos(ImVec2(activeToolWindowLocation.xPosition, activeToolWindowLocation.yPosition));
+	ImGui::SetWindowSize(ImVec2(activeToolWindowLocation.width, activeToolWindowLocation.height));
 	activeTool->DrawGUI(context);
 	ImGui::End();
 }
