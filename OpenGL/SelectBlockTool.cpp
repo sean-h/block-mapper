@@ -19,15 +19,15 @@ void SelectBlockTool::Update(ApplicationContext * context)
 
 		glm::vec3 mouseDirection = camera->ScreenToWorldDirection(input->MouseX(), input->MouseY(), window->Width(), window->Height());
 		RaycastHit hit = physics->Raycast(scene, camera->Owner()->ObjectTransform()->Position(), mouseDirection, 100.0f);
+
+		EntitySelectionManager* selectionManager = context->ApplicationEntitySelectionManager();
+		if (!input->GetKey(Input::Keys::KEY_LEFT_SHIFT))
+		{
+			selectionManager->DeselectAll();
+		}
+
 		if (hit.hit)
 		{
-			EntitySelectionManager* selectionManager = context->ApplicationEntitySelectionManager();
-
-			if (!input->GetKey(Input::Keys::KEY_LEFT_SHIFT))
-			{
-				selectionManager->DeselectAll();
-			}
-
 			selectionManager->SelectEntity(hit.entity->Handle());
 		}
 	}
