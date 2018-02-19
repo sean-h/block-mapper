@@ -3,7 +3,7 @@
 #include "OrbitController.h"
 #include "SceneExporter.h"
 #include "imgui.h"
-#include <string.h>
+#include <string>
 
 Scene::Scene()
 {
@@ -29,6 +29,9 @@ void Scene::DrawGUI(ApplicationContext * context)
 	ImGui::Text("Scene");
 
 	ImGui::InputText("Scene Name", this->sceneName, IM_ARRAYSIZE(this->sceneName));
+
+	std::string entityCount = "Entity Count: " + std::to_string(entities.size());
+	ImGui::Text(entityCount.c_str());
 }
 
 std::shared_ptr<EntityHandle> Scene::CreateEntity()
