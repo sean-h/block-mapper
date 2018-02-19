@@ -16,7 +16,6 @@ FileManager::FileManager()
 			this->blockPaths.push_back(file.path());
 		}
 
-		this->exportFileName = "Export.dae";
 		this->exportFolderPath = this->applicationFolderPath + "/" + "Export";
 
 		if (!std::experimental::filesystem::exists(this->exportFolderPath))

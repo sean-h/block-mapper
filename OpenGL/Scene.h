@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include <memory>
 #include <vector>
+#include <string>
 
 class ApplicationContext;
 
@@ -13,6 +14,7 @@ class Scene
 public:
 	Scene();
 	void Update(ApplicationContext* context);
+	void DrawGUI(ApplicationContext* context);
 	std::vector<std::unique_ptr<Entity>>& Entities() { return entities; }
 	int EntityCount() { return entities.size(); }
 
@@ -21,9 +23,11 @@ public:
 	Component* AddComponentToEntity(Entity* entity, std::unique_ptr<Component> component);
 	Camera* ActiveCamera() { return camera; }
 	void Export(ApplicationContext* context);
+	std::string SceneName() const { return std::string(sceneName); }
 
 private:
 	std::vector<std::unique_ptr<Entity>> entities;
 	std::vector<std::unique_ptr<Component>> components;
 	Camera* camera;
+	char sceneName[64] = { 0 };
 };

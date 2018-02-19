@@ -2,6 +2,8 @@
 #include "ApplicationContext.h"
 #include "OrbitController.h"
 #include "SceneExporter.h"
+#include "imgui.h"
+#include <string.h>
 
 Scene::Scene()
 {
@@ -11,6 +13,7 @@ Scene::Scene()
 	cameraEntity->ObjectTransform()->Rotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new OrbitController()));
 	camera = (Camera*)AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new Camera()));
+	strcpy_s(this->sceneName, 64, "Scene");
 }
 
 void Scene::Update(ApplicationContext* context)
@@ -19,6 +22,13 @@ void Scene::Update(ApplicationContext* context)
 	{
 		c->Update(context);
 	}
+}
+
+void Scene::DrawGUI(ApplicationContext * context)
+{
+	ImGui::Text("Scene");
+
+	ImGui::InputText("Scene Name", this->sceneName, IM_ARRAYSIZE(this->sceneName));
 }
 
 std::shared_ptr<EntityHandle> Scene::CreateEntity()

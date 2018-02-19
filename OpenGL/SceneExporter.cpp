@@ -3,7 +3,7 @@
 
 void SceneExporter::Export(ApplicationContext * context)
 {
-	std::string exportFilePath = context->ApplicationFileManager()->ExportFilePath();
+	std::string exportFilePath = context->ApplicationFileManager()->ExportFilePath() + context->ApplicationScene()->SceneName() + ".dae";
 	aiScene exportScene;
 
 	exportScene.mRootNode = new aiNode();
