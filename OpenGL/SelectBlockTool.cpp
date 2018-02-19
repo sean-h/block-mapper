@@ -55,6 +55,17 @@ void SelectBlockTool::Update(ApplicationContext * context)
 			}
 		}
 	}
+
+	if (input->GetKeyDown(Input::Keys::KEY_X))
+	{
+		EntitySelectionManager* selectionManager = context->ApplicationEntitySelectionManager();
+		Scene* scene = context->ApplicationScene();
+		for (auto& block : selectionManager->SelectedEntities())
+		{
+			scene->DestroyEntity(block);
+		}
+		selectionManager->DeselectAll();
+	}
 }
 
 void SelectBlockTool::DrawGUI(ApplicationContext * context)
