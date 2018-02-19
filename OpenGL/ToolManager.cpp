@@ -3,6 +3,7 @@
 #include "SelectBlockTool.h"
 #include "GridBlockTool.h"
 #include "MoveBlockTool.h"
+#include "ExtrudeBlockTool.h"
 #include "ApplicationContext.h"
 #include "imgui.h"
 
@@ -31,6 +32,10 @@ void ToolManager::Update(ApplicationContext * context)
 	else if (input->GetKeyDown(Input::Keys::KEY_4))
 	{
 		this->SelectTool(context, 3);
+	}
+	else if (input->GetKeyDown(Input::Keys::KEY_5))
+	{
+		this->SelectTool(context, 4);
 	}
 
 	if (activeTool)
@@ -69,6 +74,11 @@ void ToolManager::DrawGUI(ApplicationContext * context)
 	if (this->ToggleButton("Grid", 3, selectedToolButtonIndex))
 	{
 		this->SelectTool(context, 3);
+	}
+
+	if (this->ToggleButton("Extrude", 4, selectedToolButtonIndex))
+	{
+		this->SelectTool(context, 4);
 	}
 
 	ImGui::End();
@@ -126,6 +136,7 @@ void ToolManager::SelectTool(ApplicationContext* context, int toolIndex)
 		activeTool = std::make_unique<GridBlockTool>(GridBlockTool(context));
 		break;
 	case 4:
+		activeTool = std::make_unique<ExtrudeBlockTool>(ExtrudeBlockTool(context));
 		break;
 	default:
 		break;
