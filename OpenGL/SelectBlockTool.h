@@ -26,7 +26,7 @@ private:
 
 	void SelectSingle(EntitySelectionManager* selectionManager, std::shared_ptr<EntityHandle> hitEntity);
 	void SelectRegion(EntitySelectionManager* selectionManager, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap);
-	void SelectBorder(EntitySelectionManager* selectionManager, std::shared_ptr<EntityHandle> hitEntity);
+	void SelectBorder(EntitySelectionManager* selectionManager, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap);
 
 	SelectionModes selectionMode;
 	int selectionModeIndex;
