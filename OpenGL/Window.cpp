@@ -73,6 +73,11 @@ void Window::UpdateWindowDimensions()
 	this->height = height;
 }
 
+bool Window::IsWindowMinimized() const
+{
+	return glfwGetWindowAttrib(glfwWindow.get(), GLFW_ICONIFIED);
+}
+
 void Window::SetWindowHints()
 {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);

@@ -25,6 +25,7 @@ public:
 	void SetCallbackInput(Input* input);
 	void SetCallbackWindow(Window* window);
 	void UpdateWindowDimensions();
+	bool IsWindowMinimized() const;
 
 private:
 	int width;
