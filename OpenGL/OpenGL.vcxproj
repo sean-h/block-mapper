@@ -163,6 +163,7 @@
     <ClInclude Include="DrawBlockTool.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="FileManager.h" />
+    <ClInclude Include="GUI.h" />
     <ClInclude Include="GUIManager.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />

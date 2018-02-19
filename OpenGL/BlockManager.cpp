@@ -1,4 +1,5 @@
 #include "BlockManager.h"
+#include "Entity.h"
 #include "imgui.h"
 #include "ApplicationContext.h"
 
@@ -42,4 +43,19 @@ void BlockManager::SelectPreviousBlock()
 {
 	selectedBlockIndex = (selectedBlockIndex - 1) % blockNames.size();
 	selectedBlockPreviewDirty = true;
+}
+
+BlockMap BlockManager::BlockPositionMap(Scene * scene)
+{
+	BlockMap blockMap;
+
+	for (auto& e : scene->Entities())
+	{
+		if (e->IsBlock())
+		{
+			blockMap[e->ObjectTransform()->GridPosition()] = e->Handle();
+		}
+	}
+
+	return blockMap;
 }

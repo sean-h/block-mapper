@@ -83,7 +83,7 @@ RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction
 					                             modelMatrix * glm::vec4(triangle.p2, 1.0f));
 				if (hit.hit)
 				{
-					hit.entity = closestEntity.first;
+					hit.entity = closestEntity.first->Handle();
 					return hit;
 				}
 			}

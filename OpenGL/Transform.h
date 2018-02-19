@@ -11,6 +11,8 @@ public:
 	glm::vec3 Position() const { return position; }
 	void Position(glm::vec3 position);
 
+	glm::ivec3 GridPosition() const { return glm::ivec3(glm::round(position.x), glm::round(position.y), glm::round(position.z)); }
+
 	glm::vec3 Rotation() const
 	{ 
 		glm::vec3 r = glm::eulerAngles(rotation);

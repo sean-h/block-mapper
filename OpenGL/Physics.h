@@ -7,7 +7,7 @@ class Scene;
 struct RaycastHit
 {
 	bool hit;
-	Entity* entity;
+	std::shared_ptr<EntityHandle> entity;
 	glm::vec3 normal;
 	float u;
 	float v;

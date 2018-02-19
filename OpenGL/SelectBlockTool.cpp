@@ -1,10 +1,17 @@
 #include "SelectBlockTool.h"
-#include "imgui.h"
+#include "GUI.h"
 #include "ApplicationContext.h"
+#include "Entity.h"
+#include "BlockManager.h"
+#include "imgui.h"
 #include "glm\glm.hpp"
+#include <stack>
+#include <set>
 
 SelectBlockTool::SelectBlockTool(ApplicationContext * context)
 {
+	selectionMode = SelectionModes::Single;
+	selectionModeIndex = 0;
 }
 
 void SelectBlockTool::Update(ApplicationContext * context)
@@ -34,7 +41,18 @@ void SelectBlockTool::Update(ApplicationContext * context)
 
 		if (hit.hit)
 		{
-			selectionManager->SelectEntity(hit.entity->Handle());
+			if (selectionMode == SelectionModes::Single)
+			{
+				this->SelectSingle(selectionManager, hit.entity);
+			}
+			else if (selectionMode == SelectionModes::Region)
+			{
+				this->SelectRegion(selectionManager, hit.entity, context->ApplicationBlockManager()->BlockPositionMap(scene));
+			}
+			else if (selectionMode == SelectionModes::Border)
+			{
+
+			}
 		}
 	}
 }
@@ -42,4 +60,75 @@ void SelectBlockTool::Update(ApplicationContext * context)
 void SelectBlockTool::DrawGUI(ApplicationContext * context)
 {
 	ImGui::Text("Select");
+
+
+	if (GUI::ToggleButton("Single", 0, selectionModeIndex))
+	{
+		selectionMode = SelectionModes::Single;
+	}
+
+	if (GUI::ToggleButton("Region", 1, selectionModeIndex))
+	{
+		selectionMode = SelectionModes::Region;
+	}
+
+	if (GUI::ToggleButton("Border", 2, selectionModeIndex))
+	{
+		selectionMode = SelectionModes::Border;
+	}
+}
+
+void SelectBlockTool::SelectSingle(EntitySelectionManager * selectionManager, std::shared_ptr<EntityHandle> hitEntity)
+{
+	selectionManager->SelectEntity(hitEntity);
+}
+
+void SelectBlockTool::SelectRegion(EntitySelectionManager * selectionManager, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap)
+{
+	selectionManager->SelectEntity(hitEntity);
+	glm::ivec3 gridPosition = hitEntity->TargetEntity()->ObjectTransform()->GridPosition();
+
+	std::set<glm::ivec3> visited;
+	std::stack<glm::ivec3> searchFrom;
+	searchFrom.push(gridPosition);
+
+	while (searchFrom.size() > 0)
+	{
+		auto adjacent = AdjacentPositions(searchFrom.top());
+		searchFrom.pop();
+
+		for (auto& pos : adjacent)
+		{
+			if (visited.find(pos) != visited.end())
+			{
+				continue;
+			}
+
+			visited.insert(pos);
+
+			auto adjacentBlock = blockMap[pos];
+			if (adjacentBlock)
+			{
+				selectionManager->SelectEntity(adjacentBlock);
+				searchFrom.push(pos);
+			}
+		}
+	}
+}
+
+void SelectBlockTool::SelectBorder(EntitySelectionManager * selectionManager, std::shared_ptr<EntityHandle> hitEntity)
+{
+
+}
+
+std::vector<glm::ivec3> AdjacentPositions(glm::ivec3 position)
+{
+	std::vector<glm::ivec3> adjacent;
+	adjacent.push_back(position + glm::ivec3(1, 0, 0));
+	adjacent.push_back(position + glm::ivec3(-1, 0, 0));
+	adjacent.push_back(position + glm::ivec3(0, 1, 0));
+	adjacent.push_back(position + glm::ivec3(0, -1, 0));
+	adjacent.push_back(position + glm::ivec3(0, 0, 1));
+	adjacent.push_back(position + glm::ivec3(0, 0, -1));
+	return adjacent;
 }

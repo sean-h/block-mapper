@@ -36,6 +36,9 @@ public:
 	std::string MaterialName() const { return materialName; }
 	void MaterialName(std::string materialName) { this->materialName = materialName; }
 
+	bool IsBlock() const { return isBlock; }
+	void IsBlock(bool isBlock) { this->isBlock = isBlock; }
+
 	std::shared_ptr<EntityHandle> Handle() const { return entityHandle; }
 
 private:
@@ -44,5 +47,6 @@ private:
 	std::string materialName;
 	std::string colliderMeshName;
 	std::shared_ptr<EntityHandle> entityHandle;
+	bool isBlock;
 };
 

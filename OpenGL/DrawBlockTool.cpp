@@ -61,20 +61,21 @@ void DrawBlockTool::Update(ApplicationContext* context)
 	RaycastHit hit = physics->Raycast(scene, cameraTransform->Position(), mouseDirection, 100.0f);
 	if (hit.hit)
 	{
-		if (hit.entity->ColliderMeshName() == "Plane" || hit.entity->ColliderMeshName() == "PlaneBottom")
+		Entity* hitEntity = hit.entity->TargetEntity();
+		if (hitEntity->ColliderMeshName() == "Plane" || hitEntity->ColliderMeshName() == "PlaneBottom")
 		{
 			glm::vec3 newPos = hit.point;
 			if (hit.normal.y != 0.0f)
 			{
 				newPos.x = glm::round(newPos.x);
-				newPos.y = hit.entity->ObjectTransform()->Position().y;
+				newPos.y = hitEntity->ObjectTransform()->Position().y;
 				newPos.z = glm::round(newPos.z);
 			}
 			hoverBlockEntity->ObjectTransform()->Position(newPos);
 		}
 		else
 		{
-			glm::vec3 newPos = hit.entity->ObjectTransform()->Position() + hit.normal;
+			glm::vec3 newPos = hitEntity->ObjectTransform()->Position() + hit.normal;
 			hoverBlockEntity->ObjectTransform()->Position(newPos);
 		}
 	}
@@ -144,6 +145,7 @@ void DrawBlockTool::PlaceBlock(Scene* scene)
 	newCube->MeshName(hoverBlock->TargetEntity()->MeshName());
 	newCube->ColliderMeshName(hoverBlock->TargetEntity()->ColliderMeshName());
 	newCube->MaterialName("Solid");
+	newCube->IsBlock(true);
 }
 
 void DrawBlockTool::RefreshHoverBlock(ApplicationContext * context)
