@@ -15,4 +15,5 @@ ApplicationContext::ApplicationContext()
 	guiManager = std::make_unique<GUIManager>(GUIManager(window.get()));
 	toolManager = std::make_unique<ToolManager>(ToolManager(this));
 	entitySelectionManager = std::make_unique<EntitySelectionManager>(EntitySelectionManager());
+	debug = std::make_unique<Debug>(Debug());
 }

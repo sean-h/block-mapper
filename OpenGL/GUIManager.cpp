@@ -73,7 +73,16 @@ void GUIManager::Draw(ApplicationContext* context)
 	context->ApplicationScene()->DrawGUI(context);
 	ImGui::End();
 
-	ImGui::ShowDemoWindow(&sceneWindowOpen);
+	if (context->ApplicationDebug()->ItemCount() > 0)
+	{
+		bool showDebugWindow = true;
+		ImGui::Begin("Debug", &showDebugWindow, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+		float height = context->ApplicationDebug()->ItemCount() * 20.0f;
+		ImGui::SetWindowPos(ImVec2(windowWidth - 410.0f, windowHeight - height - 10.0f));
+		ImGui::SetWindowSize(ImVec2(400.0f, height));
+		context->ApplicationDebug()->DrawGUI(context);
+		ImGui::End();
+	}
 
 	ImGui::Render();
 }

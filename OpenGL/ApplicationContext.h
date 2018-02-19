@@ -11,6 +11,7 @@
 #include "GUIManager.h"
 #include "ToolManager.h"
 #include "EntitySelectionManager.h"
+#include "Debug.h"
 
 class ApplicationContext
 {
@@ -28,6 +29,7 @@ public:
 	GUIManager* ApplicationGUIManager() const { return guiManager.get(); }
 	ToolManager* ApplicationToolManager() const { return toolManager.get(); }
 	EntitySelectionManager* ApplicationEntitySelectionManager() const { return entitySelectionManager.get(); }
+	Debug* ApplicationDebug() const { return debug.get(); }
 
 private:
 	std::unique_ptr<Time> time;
@@ -41,4 +43,5 @@ private:
 	std::unique_ptr<GUIManager> guiManager;
 	std::unique_ptr<ToolManager> toolManager;
 	std::unique_ptr<EntitySelectionManager> entitySelectionManager;
+	std::unique_ptr<Debug> debug;
 };

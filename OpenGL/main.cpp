@@ -39,6 +39,7 @@ int main()
 
 		window->EndFrame();
 		input->EndFrame();
+		applicationContext.ApplicationDebug()->Clear();
 	}
 
 	glfwTerminate();

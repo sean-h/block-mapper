@@ -76,6 +76,7 @@ void DrawBlockTool::Update(ApplicationContext* context)
 		else
 		{
 			glm::vec3 newPos = hitEntity->ObjectTransform()->Position() + hit.normal;
+			context->ApplicationDebug()->LogToUI("Draw Position", newPos);
 			hoverBlockEntity->ObjectTransform()->Position(newPos);
 		}
 	}
