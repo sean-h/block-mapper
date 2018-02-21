@@ -13,7 +13,7 @@ bool Input::GetKeyDown(Keys key) const
 
 bool Input::GetKeyUp(Keys key) const
 {
-	return std::find(keysUpThisFrame.begin(), keysUpThisFrame.end(), key) == keysUpThisFrame.end();
+	return std::find(keysUpThisFrame.begin(), keysUpThisFrame.end(), key) != keysUpThisFrame.end();
 }
 
 void Input::PollWindowInput(GLFWwindow * window)
