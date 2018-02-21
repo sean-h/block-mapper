@@ -1,5 +1,6 @@
 #include "Physics.h"
 #include "Scene.h"
+#include "Debug.h"
 #include <iostream>
 
 Physics::Physics()
@@ -95,6 +96,54 @@ RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction
 	return hit;
 }
 
+std::vector<std::shared_ptr<EntityHandle>> Physics::FrustumIntersect(Debug* debug, Scene * scene, Frustum frustum)
+{
+	std::vector<std::shared_ptr<EntityHandle>> intersected;
+
+	for (auto& entity : scene->Entities())
+	{
+		if (entity->ColliderMeshName().length() == 0)
+		{
+			continue;
+		}
+
+		glm::vec3 entityPosition = entity->ObjectTransform()->Position();
+
+		glm::vec3 topLeftPos = frustum.cameraPosition + (frustum.topLeft * frustum.nearPlaneDistance);
+		glm::vec3 topRightPos = frustum.cameraPosition + (frustum.topRight * frustum.nearPlaneDistance);
+		glm::vec3 bottomLeftPos = frustum.cameraPosition + (frustum.bottomLeft * frustum.nearPlaneDistance);
+		glm::vec3 bottomRightPos = frustum.cameraPosition + (frustum.bottomRight * frustum.nearPlaneDistance);
+
+		Plane frontPlane(frustum.nearPlanePosition, frustum.nearPlaneNormal);
+		Plane backPlane(frustum.nearPlanePosition + (-frustum.nearPlaneNormal * frustum.farPlaneDistance), -frustum.nearPlaneNormal);
+		Plane topPlane(topLeftPos, glm::normalize(glm::cross(topRightPos - topLeftPos, frustum.topLeft)));
+		Plane bottomPlane(bottomLeftPos, glm::normalize(glm::cross(frustum.bottomLeft, bottomRightPos - bottomLeftPos)));
+		Plane leftPlane(topLeftPos, glm::normalize(glm::cross(frustum.topLeft, bottomLeftPos - topLeftPos)));
+		Plane rightPlane(topRightPos, glm::normalize(glm::cross(bottomRightPos - topRightPos, frustum.topRight)));
+
+		Plane frustumPlanes[6] = { frontPlane, backPlane, topPlane, bottomPlane, leftPlane, rightPlane };
+
+		glm::vec3 AABBMax = entityPosition - glm::vec3(0.5f, 0.5f, 0.5f);
+		glm::vec3 AABBMin = entityPosition + glm::vec3(0.5f, 0.5f, 0.5f);
+
+		int planesWithin = 0;
+		for (int i = 0; i < 6; i++)
+		{
+			if (this->PlaneAABIntersectOrInside(AABBMax, AABBMin, frustumPlanes[i]))
+			{
+				planesWithin++;
+			}
+		}
+
+		if (planesWithin == 6)
+		{
+			intersected.push_back(entity->Handle());
+		}
+	}
+
+	return intersected;
+}
+
 void Physics::LoadColliders()
 {
 	this->colliders["Cube"] = new Model("Cube.fbx");
@@ -148,4 +197,28 @@ RaycastHit Physics::RayTriIntersect(glm::vec3 origin, glm::vec3 direction, glm::
 	hit.t = t;
 	hit.point = (1 - u - v) * p0 + u * p1 + v * p2;
 	return hit;
+}
+
+bool Physics::PlaneAABIntersectOrInside(glm::vec3 AABBMin, glm::vec3 AABBMax, Plane plane)
+{
+	glm::vec3 c = (AABBMax + AABBMin) / 2.0f;
+	glm::vec3 h = (AABBMax - AABBMin) / 2.0f;
+	float e = h.x * glm::abs(plane.normal.x) + h.y * glm::abs(plane.normal.y) + h.z * glm::abs(plane.normal.z);
+
+	/*float d = glm::length(plane.position);
+	if (glm::dot(glm::normalize(plane.position), plane.normal) > 0)
+	{
+		d *= -1.0f;
+	}*/
+
+	float d = -glm::dot(plane.position, plane.normal);
+
+	float s = glm::dot(c, plane.normal) + d;
+
+	if (s - e > 0)
+	{
+		return false;
+	}
+
+	return true;
 }

@@ -22,6 +22,7 @@ private:
 		Single,
 		Region,
 		Border,
+		Box,
 	};
 
 	void SelectSingle(EntitySelectionManager* selectionManager, std::shared_ptr<EntityHandle> hitEntity);
@@ -30,6 +31,8 @@ private:
 
 	SelectionModes selectionMode;
 	int selectionModeIndex;
+	glm::vec2 selectBoxBegin;
+	glm::vec2 selectBoxEnd;
 };
 
 std::vector<glm::ivec3> AdjacentPositions(glm::ivec3 position);

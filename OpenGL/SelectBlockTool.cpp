@@ -23,6 +23,78 @@ void SelectBlockTool::Update(ApplicationContext * context)
 		return;
 	}
 
+	if (input->GetKeyDown(Input::Keys::KEY_X))
+	{
+		EntitySelectionManager* selectionManager = context->ApplicationEntitySelectionManager();
+		Scene* scene = context->ApplicationScene();
+		for (auto& block : selectionManager->SelectedEntities())
+		{
+			scene->DestroyEntity(block);
+		}
+		selectionManager->DeselectAll();
+	}
+
+	if (selectionMode == SelectionModes::Box)
+	{
+		if (input->GetKeyDown(Input::Keys::MOUSE_1))
+		{
+			selectBoxBegin = glm::vec2(input->MouseX(), input->MouseY());
+
+			EntitySelectionManager* selectionManager = context->ApplicationEntitySelectionManager();
+			if (!input->GetKey(Input::Keys::KEY_LEFT_SHIFT))
+			{
+				selectionManager->DeselectAll();
+			}
+		}
+		
+		if (input->GetKeyUp(Input::Keys::MOUSE_1))
+		{
+			selectBoxEnd = glm::vec2(input->MouseX(), input->MouseY());
+
+			// Check if selection box begin and end are the same. If they are, move the end to make the frustum calculations work.
+			if (selectBoxEnd.x == selectBoxBegin.x)
+			{
+				selectBoxEnd.x += 1.0f;
+			}
+
+			if (selectBoxEnd.y == selectBoxBegin.y)
+			{
+				selectBoxEnd.y += 1.0f;
+			}
+
+			Window* window = context->ApplicationWindow();
+			Scene* scene = context->ApplicationScene();
+			Camera* camera = scene->ActiveCamera();
+			Physics* physics = context->ApplicationPhysics();
+			float screenWidth = window->Width();
+			float screenHeight = window->Height();
+
+			float minX = glm::min(selectBoxBegin.x, selectBoxEnd.x);
+			float maxX = glm::max(selectBoxBegin.x, selectBoxEnd.x);
+			float minY = glm::min(selectBoxBegin.y, selectBoxEnd.y);
+			float maxY = glm::max(selectBoxBegin.y, selectBoxEnd.y);
+
+			Frustum frustum;
+			frustum.cameraPosition = camera->Owner()->ObjectTransform()->Position();
+			frustum.nearPlaneDistance = camera->NearClipDistance();
+			frustum.nearPlanePosition = camera->Owner()->ObjectTransform()->Position() + (camera->NearClipDistance() * camera->Owner()->ObjectTransform()->Forward());
+			frustum.nearPlaneNormal = -camera->Owner()->ObjectTransform()->Forward();
+			frustum.farPlaneDistance = camera->FarClipDistance();
+			frustum.topLeft = camera->ScreenToWorldDirection(minX, minY, screenWidth, screenHeight);
+			frustum.topRight = camera->ScreenToWorldDirection(maxX, minY, screenWidth, screenHeight);
+			frustum.bottomLeft = camera->ScreenToWorldDirection(minX, maxY, screenWidth, screenHeight);
+			frustum.bottomRight = camera->ScreenToWorldDirection(maxX, maxY, screenWidth, screenHeight);
+
+			EntitySelectionManager* selectionManager = context->ApplicationEntitySelectionManager();
+			auto enclosedEntites = context->ApplicationPhysics()->FrustumIntersect(context->ApplicationDebug(), scene, frustum);
+			for (auto& entity : enclosedEntites)
+			{
+				selectionManager->SelectEntity(entity);
+			}
+		}
+		return;
+	}
+
 	if (input->GetKeyDown(Input::Keys::MOUSE_1))
 	{
 		Window* window = context->ApplicationWindow();
@@ -55,17 +127,6 @@ void SelectBlockTool::Update(ApplicationContext * context)
 			}
 		}
 	}
-
-	if (input->GetKeyDown(Input::Keys::KEY_X))
-	{
-		EntitySelectionManager* selectionManager = context->ApplicationEntitySelectionManager();
-		Scene* scene = context->ApplicationScene();
-		for (auto& block : selectionManager->SelectedEntities())
-		{
-			scene->DestroyEntity(block);
-		}
-		selectionManager->DeselectAll();
-	}
 }
 
 void SelectBlockTool::DrawGUI(ApplicationContext * context)
@@ -86,6 +147,11 @@ void SelectBlockTool::DrawGUI(ApplicationContext * context)
 	if (GUI::ToggleButton("Border", 2, selectionModeIndex))
 	{
 		selectionMode = SelectionModes::Border;
+	}
+
+	if (GUI::ToggleButton("Box", 3, selectionModeIndex))
+	{
+		selectionMode = SelectionModes::Box;
 	}
 }
 
