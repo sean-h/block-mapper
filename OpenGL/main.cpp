@@ -34,6 +34,7 @@ int main()
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			applicationContext.ApplicationRenderer()->RenderScene(&applicationContext);
+			applicationContext.ApplicationDebug()->Render(&applicationContext);
 			applicationContext.ApplicationGUIManager()->Draw(&applicationContext);
 		}
 

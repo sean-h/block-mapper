@@ -78,6 +78,39 @@ void Renderer::RenderScene(ApplicationContext* context)
 	}
 }
 
+void Renderer::DrawLine(ApplicationContext* context, glm::vec3 start, glm::vec3 end)
+{
+	Window* window = context->ApplicationWindow();
+	Camera* camera = context->ApplicationScene()->ActiveCamera();
+
+	glm::mat4 view = camera->ViewMatrix();
+	glm::mat4 projection = camera->ProjectionMatrix((float)window->Width(), (float)window->Height());
+	glm::mat4 model;
+
+	Transform transform;
+	transform.Position(start);
+	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 look = glm::normalize(end - start);
+	if (look == up)
+	{
+		up = glm::vec3(1.0f, 0.0f, 0.0f);
+	}
+
+	transform.LookAt(look, up);
+	transform.Scale(glm::vec3(1.0f, 1.0f, glm::distance(start, end)));
+
+	model = transform.Model();
+
+	Shader* shader = this->shaders["Unlit"];
+	shader->use();
+	shader->setMat4("view", glm::value_ptr(view));
+	shader->setMat4("projection", glm::value_ptr(projection));
+	shader->setMat4("model", glm::value_ptr(model));
+	shader->setVec3("objectColor", glm::vec3(1.0f, 0.0f, 0.0f));
+
+	models["Line"]->Draw(*shader);
+}
+
 void Renderer::LoadShaders()
 {
 	shaders["Default"] = new Shader("VertexShader.glsl", "FragmentShader.glsl");
@@ -100,6 +133,7 @@ void Renderer::LoadModels(FileManager* fileManager)
 	this->models["Cube"] = new Model("Cube.fbx");
 	this->models["Plane"] = new Model("Plane.fbx");
 	this->models["PlaneBottom"] = new Model("PlaneBottom.fbx");
+	this->models["Line"] = new Model("Line.fbx");
 
 	for (auto &block : fileManager->BlockPaths())
 	{

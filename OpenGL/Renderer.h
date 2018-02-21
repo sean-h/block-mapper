@@ -13,6 +13,7 @@ class Renderer
 public:
 	Renderer(FileManager* fileManager);
 	void RenderScene(ApplicationContext* context);
+	void DrawLine(ApplicationContext* context, glm::vec3 start, glm::vec3 end);
 	Model* GetModel(std::string modelName) { return models[modelName]; }
 	int ModelCount() const { return models.size(); }
 	std::unordered_map<std::string, Model*> Models() const { return models; }

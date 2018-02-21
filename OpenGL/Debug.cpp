@@ -1,5 +1,6 @@
 #include "Debug.h"
 #include "imgui.h"
+#include "ApplicationContext.h"
 #include <sstream>
 #include <iomanip>
 
@@ -26,4 +27,21 @@ void Debug::DrawGUI(ApplicationContext * context)
 	{
 		ImGui::Text(item.c_str());
 	}
+}
+
+void Debug::Render(ApplicationContext * context)
+{
+	Renderer* renderer = context->ApplicationRenderer();
+	for (auto& line : debugLines)
+	{
+		renderer->DrawLine(context, line.start, line.end);
+	}
+}
+
+void Debug::DrawLine(glm::vec3 start, glm::vec3 end)
+{
+	Line line;
+	line.start = start;
+	line.end = end;
+	debugLines.push_back(line);
 }
