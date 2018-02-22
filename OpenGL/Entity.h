@@ -22,8 +22,10 @@ private:
 class Entity
 {
 public:
-	Entity() { entityHandle = std::make_shared<EntityHandle>(EntityHandle(this)); }
+	Entity(int id);
 	~Entity() { entityHandle->DeleteEntity(); }
+
+	int ID() const { return id; }
 
 	Transform* ObjectTransform() { return &transform; }
 
@@ -42,6 +44,7 @@ public:
 	std::shared_ptr<EntityHandle> Handle() const { return entityHandle; }
 
 private:
+	int id;
 	Transform transform;
 	std::string meshName;
 	std::string materialName;

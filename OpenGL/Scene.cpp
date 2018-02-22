@@ -7,6 +7,7 @@
 
 Scene::Scene()
 {
+	entityCounter = 0;
 	auto cameraEntityHandle = this->CreateEntity();
 	Entity* cameraEntity = cameraEntityHandle->TargetEntity();
 	cameraEntity->ObjectTransform()->Position(glm::vec3(0.0f, 20.0f, -20.0f));
@@ -36,7 +37,7 @@ void Scene::DrawGUI(ApplicationContext * context)
 
 std::shared_ptr<EntityHandle> Scene::CreateEntity()
 {
-	std::unique_ptr<Entity> entity(new Entity());
+	std::unique_ptr<Entity> entity(new Entity(++entityCounter));
 	this->entities.push_back(std::move(entity));
 	return this->entities.back()->Handle();
 }

@@ -39,6 +39,8 @@ void SceneExporter::Export(ApplicationContext * context)
 		children[entityIndex]->mMeshes[0] = meshIndexes[e->MeshName()];
 		children[entityIndex]->mNumMeshes = 1;
 
+		children[entityIndex]->mName = e->MeshName() + "_" + std::to_string(e->ID());
+
 		aiMatrix4x4 translationMatrix;
 		glm::vec3 position = e->ObjectTransform()->Position();
 		aiVector3D entityPosition(position.x, position.y, position.z);

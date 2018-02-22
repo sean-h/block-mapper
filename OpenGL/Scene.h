@@ -27,6 +27,7 @@ public:
 
 private:
 	std::vector<std::unique_ptr<Entity>> entities;
+	int entityCounter;
 	std::vector<std::unique_ptr<Component>> components;
 	Camera* camera;
 	char sceneName[64] = { 0 };
