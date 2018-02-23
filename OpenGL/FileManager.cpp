@@ -17,10 +17,16 @@ FileManager::FileManager()
 		}
 
 		this->exportFolderPath = this->applicationFolderPath + "/" + "Export";
-
+		
 		if (!std::experimental::filesystem::exists(this->exportFolderPath))
 		{
 			std::experimental::filesystem::create_directory(this->exportFolderPath);
+		}
+
+		this->saveFolderPath = this->applicationFolderPath + "/" + "Scenes";
+		if (!std::experimental::filesystem::exists(this->saveFolderPath))
+		{
+			std::experimental::filesystem::create_directory(this->saveFolderPath);
 		}
 	}
 }

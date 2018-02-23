@@ -3,6 +3,7 @@
 #include "OrbitController.h"
 #include "SceneExporter.h"
 #include "imgui.h"
+#include "tinyxml2.h"
 #include <string>
 
 Scene::Scene()
@@ -60,4 +61,90 @@ void Scene::Export(ApplicationContext * context)
 {
 	SceneExporter exporter;
 	exporter.Export(context);
+}
+
+void Scene::SaveScene(ApplicationContext * context) const
+{
+	tinyxml2::XMLDocument xmlDoc;
+
+	auto sceneNode = xmlDoc.NewElement("Scene");
+	xmlDoc.InsertFirstChild(sceneNode);
+
+	auto sceneNameNode = xmlDoc.NewElement("SceneName");
+	sceneNameNode->SetText(this->sceneName);
+	sceneNode->InsertFirstChild(sceneNameNode);
+
+	auto entitiesNode = xmlDoc.NewElement("Entities");
+	for (auto& entity : this->entities)
+	{
+		auto entityNode = xmlDoc.NewElement("Entity");
+
+		auto entityIDNode = xmlDoc.NewElement("ID");
+		entityIDNode->SetText(std::to_string(entity->ID()).c_str());
+		entityNode->InsertEndChild(entityIDNode);
+
+		auto entityMeshNode = xmlDoc.NewElement("Mesh");
+		entityMeshNode->SetText(entity->MeshName().c_str());
+		entityNode->InsertEndChild(entityMeshNode);
+
+		auto entityMaterialNode = xmlDoc.NewElement("Material");
+		entityMaterialNode->SetText(entity->MaterialName().c_str());
+		entityNode->InsertEndChild(entityMaterialNode);
+
+		auto entityColliderNode = xmlDoc.NewElement("Collider");
+		entityColliderNode->SetText(entity->ColliderMeshName().c_str());
+		entityNode->InsertEndChild(entityColliderNode);
+
+		auto entityTransformNode = xmlDoc.NewElement("Transform");
+
+		auto entityTransformPositionNode = xmlDoc.NewElement("Position");
+		entityTransformPositionNode->SetAttribute("X", entity->ObjectTransform()->Position().x);
+		entityTransformPositionNode->SetAttribute("Y", entity->ObjectTransform()->Position().y);
+		entityTransformPositionNode->SetAttribute("Z", entity->ObjectTransform()->Position().z);
+		entityTransformNode->InsertEndChild(entityTransformPositionNode);
+
+		auto entityTransformRotationNode = xmlDoc.NewElement("Rotation");
+		entityTransformRotationNode->SetAttribute("X", entity->ObjectTransform()->RotationQuaternion().x);
+		entityTransformRotationNode->SetAttribute("Y", entity->ObjectTransform()->RotationQuaternion().y);
+		entityTransformRotationNode->SetAttribute("Z", entity->ObjectTransform()->RotationQuaternion().z);
+		entityTransformRotationNode->SetAttribute("W", entity->ObjectTransform()->RotationQuaternion().w);
+		entityTransformNode->InsertEndChild(entityTransformRotationNode);
+
+		auto entityTransformScaleNode = xmlDoc.NewElement("Scale");
+		entityTransformScaleNode->SetAttribute("X", entity->ObjectTransform()->Scale().x);
+		entityTransformScaleNode->SetAttribute("Y", entity->ObjectTransform()->Scale().y);
+		entityTransformScaleNode->SetAttribute("Z", entity->ObjectTransform()->Scale().z);
+		entityTransformNode->InsertEndChild(entityTransformScaleNode);
+
+		entityNode->InsertEndChild(entityTransformNode);
+
+		entitiesNode->InsertEndChild(entityNode);
+	}
+	sceneNode->InsertEndChild(entitiesNode);
+
+	auto componentsNode = xmlDoc.NewElement("Components");
+	for (auto& component : components)
+	{
+		auto componentNode = xmlDoc.NewElement("Component");
+
+		componentNode->SetAttribute("Type", component->Type().c_str());
+
+		auto ownerNode = xmlDoc.NewElement("Owner");
+		ownerNode->SetText(std::to_string(component->Owner()->ID()).c_str());
+		componentNode->InsertEndChild(ownerNode);
+
+		auto dataMap = component->Serialize();
+		for (auto& dataPair : dataMap)
+		{
+			auto dataNode = xmlDoc.NewElement(dataPair.first.c_str());
+			dataNode->SetText(dataPair.second.c_str());
+			componentNode->InsertEndChild(dataNode);
+		}
+
+		componentsNode->InsertEndChild(componentNode);
+	}
+	sceneNode->InsertEndChild(componentsNode);
+
+	std::string filePath = context->ApplicationFileManager()->SaveFilePath() + this->sceneName + ".xml";
+	xmlDoc.SaveFile(filePath.c_str());
 }

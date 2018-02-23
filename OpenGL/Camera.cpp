@@ -2,6 +2,11 @@
 #include "Transform.h"
 #include "Entity.h"
 
+std::unordered_map<std::string, std::string> Camera::Serialize() const
+{
+	return std::unordered_map<std::string, std::string>();
+}
+
 glm::mat4 Camera::ViewMatrix()
 {
 	Transform* transform = this->Owner()->ObjectTransform();

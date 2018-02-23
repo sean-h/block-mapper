@@ -24,6 +24,7 @@ public:
 	Camera* ActiveCamera() { return camera; }
 	void Export(ApplicationContext* context);
 	std::string SceneName() const { return std::string(sceneName); }
+	void SaveScene(ApplicationContext* context) const;
 
 private:
 	std::vector<std::unique_ptr<Entity>> entities;

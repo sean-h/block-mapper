@@ -11,6 +11,17 @@ OrbitController::OrbitController()
 	this->orbitPoint = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
+std::unordered_map<std::string, std::string> OrbitController::Serialize() const
+{
+	std::unordered_map<std::string, std::string> dataMap;
+
+	dataMap["OrbitPointX"] = std::to_string(orbitPoint.x);
+	dataMap["OrbitPointY"] = std::to_string(orbitPoint.y);
+	dataMap["OrbitPointZ"] = std::to_string(orbitPoint.z);
+
+	return dataMap;
+}
+
 void OrbitController::OnAttachToEntity()
 {
 	this->Rotate(0.0f, 0.0f);

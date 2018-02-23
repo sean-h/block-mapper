@@ -6,6 +6,8 @@ class OrbitController : public Component
 {
 public:
 	OrbitController();
+	std::string Type() const { return "OrbitController"; }
+	std::unordered_map<std::string, std::string> Serialize() const;
 	void OnAttachToEntity();
 	void Update(ApplicationContext* context);
 

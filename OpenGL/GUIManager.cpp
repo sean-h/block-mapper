@@ -51,7 +51,7 @@ void GUIManager::Draw(ApplicationContext* context)
 			}
 			if (ImGui::MenuItem("Save", "Ctrl+S"))
 			{
-
+				context->ApplicationScene()->SaveScene(context);
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "Ctrl+Q"))
