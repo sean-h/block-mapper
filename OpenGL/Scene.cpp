@@ -3,7 +3,6 @@
 #include "OrbitController.h"
 #include "SceneExporter.h"
 #include "imgui.h"
-#include "tinyxml2.h"
 #include <string>
 
 Scene::Scene()
@@ -147,4 +146,85 @@ void Scene::SaveScene(ApplicationContext * context) const
 
 	std::string filePath = context->ApplicationFileManager()->SaveFilePath() + this->sceneName + ".xml";
 	xmlDoc.SaveFile(filePath.c_str());
+}
+
+void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
+{
+	tinyxml2::XMLDocument xmlDoc;
+	xmlDoc.LoadFile(loadFilePath.c_str());
+
+	//this->ClearScene();
+
+	auto sceneNode = xmlDoc.FirstChild();
+
+	auto sceneNameNode = sceneNode->FirstChildElement("SceneName");
+	strcpy_s(this->sceneName, 64, sceneNameNode->GetText());
+
+	auto entitiesNode = sceneNode->FirstChildElement("Entities");
+	
+	for (auto entityNode = entitiesNode->FirstChild(); entityNode != nullptr; entityNode = entityNode->NextSibling())
+	{
+		int entityID = std::stoi(entityNode->FirstChildElement("ID")->GetText());
+
+		auto meshNode = entityNode->FirstChildElement("Mesh");
+		std::string mesh;
+		if (meshNode && meshNode->GetText())
+		{
+			mesh = meshNode->GetText();
+		}
+		
+		auto materialNode = entityNode->FirstChildElement("Material");
+		std::string material;
+		if (materialNode && materialNode->GetText())
+		{
+			material = materialNode->GetText();
+		}
+
+		auto colliderNode = entityNode->FirstChildElement("Collider");
+		std::string collider;
+		if (colliderNode && colliderNode->GetText())
+		{
+			collider = colliderNode->GetText();
+		}
+
+		auto transformNode = entityNode->FirstChildElement("Transform");
+		auto positionNode = transformNode->FirstChildElement("Position");
+		auto rotationNode = transformNode->FirstChildElement("Rotation");
+		auto scaleNode = transformNode->FirstChildElement("Scale");
+
+		auto entity = this->CreateEntity(entityID);
+		entity->TargetEntity()->MeshName(mesh);
+		entity->TargetEntity()->MaterialName(material);
+		entity->TargetEntity()->ColliderMeshName(collider);
+		entity->TargetEntity()->ObjectTransform()->Position(glm::vec3(positionNode->FloatAttribute("X"), positionNode->FloatAttribute("Y"), positionNode->FloatAttribute("Z")));
+
+		glm::quat quat;
+		quat.x = rotationNode->FloatAttribute("X");
+		quat.y = rotationNode->FloatAttribute("Y");
+		quat.z = rotationNode->FloatAttribute("Z");
+		quat.w = rotationNode->FloatAttribute("W");
+		entity->TargetEntity()->ObjectTransform()->Rotation(quat);
+
+		entity->TargetEntity()->ObjectTransform()->Scale(glm::vec3(scaleNode->FloatAttribute("X"), scaleNode->FloatAttribute("Y"), scaleNode->FloatAttribute("Z")));
+	}
+}
+
+void Scene::ClearScene()
+{
+	this->entities.clear();
+	this->components.clear();
+	this->camera = nullptr;
+	this->entityCounter = 0;
+}
+
+std::shared_ptr<EntityHandle> Scene::CreateEntity(int entityID)
+{
+	if (entityID > entityCounter)
+	{
+		entityCounter = entityID;
+	}
+
+	std::unique_ptr<Entity> entity(new Entity(entityID));
+	this->entities.push_back(std::move(entity));
+	return this->entities.back()->Handle();
 }

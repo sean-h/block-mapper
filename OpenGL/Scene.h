@@ -3,6 +3,7 @@
 #include "Entity.h"
 #include "Component.h"
 #include "Camera.h"
+#include "tinyxml2.h"
 #include <memory>
 #include <vector>
 #include <string>
@@ -25,8 +26,12 @@ public:
 	void Export(ApplicationContext* context);
 	std::string SceneName() const { return std::string(sceneName); }
 	void SaveScene(ApplicationContext* context) const;
+	void LoadScene(ApplicationContext* context, std::string loadFilePath);
 
 private:
+	void ClearScene();
+	std::shared_ptr<EntityHandle> CreateEntity(int entityID);
+
 	std::vector<std::unique_ptr<Entity>> entities;
 	int entityCounter;
 	std::vector<std::unique_ptr<Component>> components;

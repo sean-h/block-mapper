@@ -12,6 +12,7 @@ public:
 	std::unordered_map<std::string, std::string> BlockPaths() const;
 	std::string ExportFilePath() const { return exportFolderPath + "/"; }
 	std::string SaveFilePath() const { return saveFolderPath + "/"; }
+	std::vector<std::string> SavedSceneFilenames() const;
 
 private:
 	const std::string applicationFolderName = "BlockEditor";

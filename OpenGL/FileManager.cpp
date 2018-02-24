@@ -54,3 +54,15 @@ std::unordered_map<std::string, std::string> FileManager::BlockPaths() const
 
 	return blocks;
 }
+
+std::vector<std::string> FileManager::SavedSceneFilenames() const
+{
+	std::vector<std::string> sceneFilenames;
+
+	for (auto &file : std::experimental::filesystem::directory_iterator(this->saveFolderPath))
+	{
+		sceneFilenames.push_back(file.path().filename().string());
+	}
+
+	return sceneFilenames;
+}

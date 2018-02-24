@@ -5,6 +5,7 @@
 
 class ImGuiContext;
 class ApplicationContext;
+class FileSelector;
 
 struct GUILocation
 {
@@ -27,9 +28,14 @@ public:
 	void Draw(ApplicationContext* context);
 	bool MouseOverGUIElement(float mouseX, float mouseY);
 	GUILocation WindowLocation(std::string windowName);
+	void OpenFileSelector();
+	void AcceptFileSelector(ApplicationContext* context, std::string filename);
+	void CloseFileSelector();
 
 private:
 	ImGuiContext* imGuiContext;
 	std::unordered_map<std::string, GUILocation> windowLocations;
 	bool mainMenuOpen;
+	bool modalWindowOpen;
+	std::shared_ptr<FileSelector> fileSelector;
 };

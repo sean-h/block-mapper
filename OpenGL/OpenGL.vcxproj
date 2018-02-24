@@ -132,6 +132,7 @@
     <ClCompile Include="EntitySelectionManager.cpp" />
     <ClCompile Include="ExtrudeBlockTool.cpp" />
     <ClCompile Include="FileManager.cpp" />
+    <ClCompile Include="FileSelector.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GridBlockTool.cpp" />
     <ClCompile Include="GUIManager.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="EntitySelectionManager.h" />
     <ClInclude Include="ExtrudeBlockTool.h" />
+    <ClInclude Include="FileSelector.h" />
     <ClInclude Include="GridBlockTool.h" />
     <ClInclude Include="BlockManager.h" />
     <ClInclude Include="Camera.h" />
