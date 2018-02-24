@@ -106,6 +106,7 @@ void ExtrudeBlockTool::MoveBlock(ApplicationContext * context, glm::vec3 directi
 			Entity* hoverBlockEntity = hoverBlock->TargetEntity();
 			hoverBlockEntity->ObjectTransform()->Position(point + extrudeDirection * (float)i);
 			hoverBlockEntity->MaterialName("Hover");
+			hoverBlockEntity->ColliderMeshName("Cube");
 			hoverBlockEntity->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
 			hoverBlocks.push_back(hoverBlock);
 		}
