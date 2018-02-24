@@ -114,7 +114,7 @@ void DrawBlockTool::PlaceBlock(Scene* scene)
 	newCube->MeshName(hoverBlock->TargetEntity()->MeshName());
 	newCube->ColliderMeshName(hoverBlock->TargetEntity()->ColliderMeshName());
 	newCube->MaterialName("Solid");
-	newCube->IsBlock(true);
+	newCube->AddProperty("Block", "");
 }
 
 void DrawBlockTool::RefreshHoverBlock(ApplicationContext * context)

@@ -1,8 +1,10 @@
 #pragma once
-#include <string>
-#include <memory>
 #include "Transform.h"
 #include "Model.h"
+#include <string>
+#include <memory>
+#include <unordered_map>
+#include <algorithm>
 
 class Entity;
 
@@ -38,8 +40,10 @@ public:
 	std::string MaterialName() const { return materialName; }
 	void MaterialName(std::string materialName) { this->materialName = materialName; }
 
-	bool IsBlock() const { return isBlock; }
-	void IsBlock(bool isBlock) { this->isBlock = isBlock; }
+	void AddProperty(std::string propertyName, std::string propertyValue) { this->properties[propertyName] = propertyValue; }
+	void RemoveProperty(std::string propertyName);
+	bool HasProperty(std::string propertyName) const { return properties.find(propertyName) != properties.end(); }
+	std::string PropertyValue(std::string propertyName) { return properties[propertyName]; }
 
 	std::shared_ptr<EntityHandle> Handle() const { return entityHandle; }
 
@@ -50,6 +54,6 @@ private:
 	std::string materialName;
 	std::string colliderMeshName;
 	std::shared_ptr<EntityHandle> entityHandle;
-	bool isBlock;
+	std::unordered_map<std::string, std::string> properties;
 };
 

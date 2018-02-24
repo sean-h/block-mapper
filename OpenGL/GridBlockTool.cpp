@@ -132,7 +132,7 @@ void GridBlockTool::Apply(ApplicationContext * context)
 	for (auto& block : hoverBlocks)
 	{
 		block->TargetEntity()->MaterialName("Solid");
-		block->TargetEntity()->IsBlock(true);
+		block->TargetEntity()->AddProperty("Block", "");
 	}
 	this->hoverBlocks.clear();
 

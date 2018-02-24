@@ -195,6 +195,11 @@ void SelectBlockTool::SelectRegion(EntitySelectionManager * selectionManager, st
 
 void SelectBlockTool::SelectBorder(EntitySelectionManager * selectionManager, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap)
 {
+	if (!hitEntity->TargetEntity()->HasProperty("Block"))
+	{
+		return;
+	}
+
 	glm::ivec3 gridPosition = hitEntity->TargetEntity()->ObjectTransform()->GridPosition();
 
 	std::set<glm::ivec3> visited;

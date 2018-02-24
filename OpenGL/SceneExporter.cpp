@@ -30,10 +30,24 @@ void SceneExporter::Export(ApplicationContext * context)
 	}
 
 	// Add all entities as children to the root node
-	aiNode** children = new aiNode*[context->ApplicationScene()->EntityCount()];
+	int exportEntityCount = 0;
+	for (auto &e : context->ApplicationScene()->Entities())
+	{
+		if (e->HasProperty("Block"))
+		{
+			exportEntityCount++;
+		}
+	}
+
+	aiNode** children = new aiNode*[exportEntityCount];
 	int entityIndex = 0;
 	for (auto &e : context->ApplicationScene()->Entities())
 	{
+		if (!e->HasProperty("Block"))
+		{
+			continue;
+		}
+
 		children[entityIndex] = new aiNode();
 		children[entityIndex]->mMeshes = new unsigned int[1];
 		children[entityIndex]->mMeshes[0] = meshIndexes[e->MeshName()];
@@ -59,7 +73,7 @@ void SceneExporter::Export(ApplicationContext * context)
 		entityIndex++;
 	}
 
-	exportScene.mRootNode->addChildren(context->ApplicationScene()->EntityCount(), children);
+	exportScene.mRootNode->addChildren(exportEntityCount, children);
 
 	Assimp::Exporter exporter;
 	exporter.Export(&exportScene, "collada", exportFilePath);
