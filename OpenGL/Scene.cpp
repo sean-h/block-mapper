@@ -185,6 +185,15 @@ void Scene::SaveScene(ApplicationContext * context) const
 		entityTransformNode->InsertEndChild(entityTransformScaleNode);
 
 		entityNode->InsertEndChild(entityTransformNode);
+		
+		auto entityPropertiesNode = xmlDoc.NewElement("Properties");
+		for (auto& prop : entity->Properties())
+		{
+			auto propertyNode = xmlDoc.NewElement(prop.first.c_str());
+			propertyNode->SetText(prop.second.c_str());
+			entityPropertiesNode->InsertEndChild(propertyNode);
+		}
+		entityNode->InsertEndChild(entityPropertiesNode);
 
 		entitiesNode->InsertEndChild(entityNode);
 	}
@@ -273,8 +282,19 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 		quat.z = rotationNode->FloatAttribute("Z");
 		quat.w = rotationNode->FloatAttribute("W");
 		entity->TargetEntity()->ObjectTransform()->Rotation(quat);
-
 		entity->TargetEntity()->ObjectTransform()->Scale(glm::vec3(scaleNode->FloatAttribute("X"), scaleNode->FloatAttribute("Y"), scaleNode->FloatAttribute("Z")));
+
+		auto propertiesNode = entityNode->FirstChildElement("Properties");
+		for (auto propertyNode = propertiesNode->FirstChild(); propertyNode != nullptr; propertyNode = propertyNode->NextSibling())
+		{
+			std::string propertyValue;
+			if (propertyNode->ToElement()->GetText())
+			{
+				propertyValue = propertyNode->ToElement()->GetText();
+			}
+
+			entity->TargetEntity()->AddProperty(propertyNode->Value(), propertyValue);
+		}
 	}
 }
 

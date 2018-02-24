@@ -44,6 +44,7 @@ public:
 	void RemoveProperty(std::string propertyName);
 	bool HasProperty(std::string propertyName) const { return properties.find(propertyName) != properties.end(); }
 	std::string PropertyValue(std::string propertyName) { return properties[propertyName]; }
+	std::unordered_map<std::string, std::string> Properties() const { return properties; }
 
 	std::shared_ptr<EntityHandle> Handle() const { return entityHandle; }
 
