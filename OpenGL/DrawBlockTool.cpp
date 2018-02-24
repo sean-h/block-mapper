@@ -98,11 +98,6 @@ void DrawBlockTool::Update(ApplicationContext* context)
 	{
 		hoverBlockEntity->ObjectTransform()->Rotate(glm::vec3(0.0f, 0.0f, 1.0f), -90.0f);
 	}
-
-	if (input->GetKeyDown(Input::Keys::KEY_P))
-	{
-		context->ApplicationScene()->Export(context);
-	}
 }
 
 void DrawBlockTool::DrawGUI(ApplicationContext * context)

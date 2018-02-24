@@ -52,6 +52,11 @@ void Scene::DrawGUI(ApplicationContext * context)
 
 	ImGui::InputText("Scene Name", this->sceneName, IM_ARRAYSIZE(this->sceneName));
 
+	if (ImGui::Button("Export"))
+	{
+		this->Export(context);
+	}
+
 	std::string entityCount = "Entity Count: " + std::to_string(entities.size());
 	ImGui::Text(entityCount.c_str());
 
