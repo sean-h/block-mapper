@@ -204,15 +204,7 @@ bool Physics::PlaneAABIntersectOrInside(glm::vec3 AABBMin, glm::vec3 AABBMax, Pl
 	glm::vec3 c = (AABBMax + AABBMin) / 2.0f;
 	glm::vec3 h = (AABBMax - AABBMin) / 2.0f;
 	float e = h.x * glm::abs(plane.normal.x) + h.y * glm::abs(plane.normal.y) + h.z * glm::abs(plane.normal.z);
-
-	/*float d = glm::length(plane.position);
-	if (glm::dot(glm::normalize(plane.position), plane.normal) > 0)
-	{
-		d *= -1.0f;
-	}*/
-
 	float d = -glm::dot(plane.position, plane.normal);
-
 	float s = glm::dot(c, plane.normal) + d;
 
 	if (s - e > 0)

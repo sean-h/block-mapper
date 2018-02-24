@@ -8,22 +8,6 @@ DrawBlockTool::DrawBlockTool(ApplicationContext* context)
 {
 	hoverBlock = context->ApplicationScene()->CreateEntity();
 	this->RefreshHoverBlock(context);
-
-	gridPlane = context->ApplicationScene()->CreateEntity();
-	Entity* gridPlaneEntity = gridPlane->TargetEntity();
-	gridPlaneEntity->ObjectTransform()->Position(glm::vec3(0.0f, 0.0f, 0.0f));
-	gridPlaneEntity->ObjectTransform()->Scale(glm::vec3(25.0f, 1.0f, 25.0f));
-	gridPlaneEntity->MeshName("Plane");
-	gridPlaneEntity->ColliderMeshName("Plane");
-	gridPlaneEntity->MaterialName("Grid");
-
-	gridPlaneBottom = context->ApplicationScene()->CreateEntity();
-	Entity* gridPlaneBottomEntity = gridPlaneBottom->TargetEntity();
-	gridPlaneBottomEntity->ObjectTransform()->Position(glm::vec3(0.0f, 0.0f, 0.0f));
-	gridPlaneBottomEntity->ObjectTransform()->Scale(glm::vec3(25.0f, 1.0f, 25.0f));
-	gridPlaneBottomEntity->MeshName("PlaneBottom");
-	gridPlaneBottomEntity->ColliderMeshName("PlaneBottom");
-	gridPlaneBottomEntity->MaterialName("Grid");
 }
 
 void DrawBlockTool::Update(ApplicationContext* context)
@@ -115,17 +99,6 @@ void DrawBlockTool::Update(ApplicationContext* context)
 		hoverBlockEntity->ObjectTransform()->Rotate(glm::vec3(0.0f, 0.0f, 1.0f), -90.0f);
 	}
 
-	if (input->GetKeyDown(Input::Keys::KEY_EQUAL))
-	{
-		gridPlane->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, 1.0f, 0.0f));
-		gridPlaneBottom->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, 1.0f, 0.0f));
-	}
-	else if (input->GetKeyDown(Input::Keys::KEY_MINUS))
-	{
-		gridPlane->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, -1.0f, 0.0f));
-		gridPlaneBottom->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, -1.0f, 0.0f));
-	}
-
 	if (input->GetKeyDown(Input::Keys::KEY_P))
 	{
 		context->ApplicationScene()->Export(context);
@@ -160,10 +133,6 @@ void DrawBlockTool::DisableTool(ApplicationContext * context)
 {
 	Scene* scene = context->ApplicationScene();
 	scene->DestroyEntity(hoverBlock);
-	scene->DestroyEntity(gridPlane);
-	scene->DestroyEntity(gridPlaneBottom);
 
 	hoverBlock.reset();
-	gridPlane.reset();
-	gridPlaneBottom.reset();
 }

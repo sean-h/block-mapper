@@ -17,6 +17,4 @@ public:
 
 private:
 	std::shared_ptr<EntityHandle> hoverBlock;
-	std::shared_ptr<EntityHandle> gridPlane;
-	std::shared_ptr<EntityHandle> gridPlaneBottom;
 };

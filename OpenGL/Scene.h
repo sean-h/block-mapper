@@ -31,10 +31,15 @@ public:
 private:
 	void ClearScene();
 	std::shared_ptr<EntityHandle> CreateEntity(int entityID);
+	void CreateGridPlanes();
 
 	std::vector<std::unique_ptr<Entity>> entities;
 	int entityCounter;
 	std::vector<std::unique_ptr<Component>> components;
 	Camera* camera;
 	char sceneName[64] = { 0 };
+
+	std::shared_ptr<EntityHandle> gridPlane;
+	std::shared_ptr<EntityHandle> gridPlaneBottom;
+	int selectedGridPlane = 2;
 };

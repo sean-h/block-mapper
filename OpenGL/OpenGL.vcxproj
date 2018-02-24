@@ -135,6 +135,7 @@
     <ClCompile Include="FileSelector.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GridBlockTool.cpp" />
+    <ClCompile Include="GUI.cpp" />
     <ClCompile Include="GUIManager.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="imgui_demo.cpp" />

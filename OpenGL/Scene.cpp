@@ -2,6 +2,7 @@
 #include "ApplicationContext.h"
 #include "OrbitController.h"
 #include "SceneExporter.h"
+#include "GUI.h"
 #include "imgui.h"
 #include <string>
 
@@ -15,10 +16,30 @@ Scene::Scene()
 	AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new OrbitController()));
 	camera = (Camera*)AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new Camera()));
 	strcpy_s(this->sceneName, 64, "Scene");
+
+	this->CreateGridPlanes();
 }
 
 void Scene::Update(ApplicationContext* context)
 {
+	Input* input = context->ApplicationInput();
+	if (input->GetKeyDown(Input::Keys::KEY_EQUAL))
+	{
+		if (gridPlane && gridPlaneBottom && gridPlane->EntityExists() && gridPlaneBottom->EntityExists())
+		{
+			gridPlane->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, 1.0f, 0.0f));
+			gridPlaneBottom->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, 1.0f, 0.0f));
+		}
+	}
+	else if (input->GetKeyDown(Input::Keys::KEY_MINUS))
+	{
+		if (gridPlane && gridPlaneBottom && gridPlane->EntityExists() && gridPlaneBottom->EntityExists())
+		{
+			gridPlane->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, -1.0f, 0.0f));
+			gridPlaneBottom->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, -1.0f, 0.0f));
+		}
+	}
+
 	for (auto &c : components)
 	{
 		c->Update(context);
@@ -33,6 +54,49 @@ void Scene::DrawGUI(ApplicationContext * context)
 
 	std::string entityCount = "Entity Count: " + std::to_string(entities.size());
 	ImGui::Text(entityCount.c_str());
+
+	ImGui::Text("Grid");
+	if (GUI::ToggleButton("OFF", 0, this->selectedGridPlane, false))
+	{
+		if (gridPlane && gridPlaneBottom)
+		{
+			this->DestroyEntity(gridPlane);
+			gridPlane = nullptr;
+			this->DestroyEntity(gridPlaneBottom);
+			gridPlaneBottom = nullptr;
+		}
+	}
+	ImGui::SameLine();
+	if (GUI::ToggleButton("XY", 1, this->selectedGridPlane, false))
+	{
+		if (gridPlane == nullptr)
+		{
+			this->CreateGridPlanes();
+		}
+		gridPlane->TargetEntity()->ObjectTransform()->Rotation(glm::vec3(90.0f, 0.0f, 0.0f));
+		gridPlaneBottom->TargetEntity()->ObjectTransform()->Rotation(glm::vec3(90.0f, 0.0f, 0.0f));
+	}
+	ImGui::SameLine();
+	if (GUI::ToggleButton("XZ", 2, this->selectedGridPlane, false))
+	{
+		if (gridPlane == nullptr)
+		{
+			this->CreateGridPlanes();
+		}
+		gridPlane->TargetEntity()->ObjectTransform()->Rotation(glm::vec3(0.0f, 0.0f, 0.0f));
+		gridPlaneBottom->TargetEntity()->ObjectTransform()->Rotation(glm::vec3(0.0f, 0.0f, 0.0f));
+	}
+	ImGui::SameLine();
+	if (GUI::ToggleButton("YZ", 3, this->selectedGridPlane, false))
+	{
+		if (gridPlane == nullptr)
+		{
+			this->CreateGridPlanes();
+		}
+		gridPlane->TargetEntity()->ObjectTransform()->Rotation(glm::vec3(0.0f, 0.0f, 90.0f));
+		gridPlaneBottom->TargetEntity()->ObjectTransform()->Rotation(glm::vec3(0.0f, 0.0f, 90.0f));
+	}
+	ImGui::SameLine();
 }
 
 std::shared_ptr<EntityHandle> Scene::CreateEntity()
@@ -227,4 +291,23 @@ std::shared_ptr<EntityHandle> Scene::CreateEntity(int entityID)
 	std::unique_ptr<Entity> entity(new Entity(entityID));
 	this->entities.push_back(std::move(entity));
 	return this->entities.back()->Handle();
+}
+
+void Scene::CreateGridPlanes()
+{
+	gridPlane = this->CreateEntity();
+	Entity* gridPlaneEntity = gridPlane->TargetEntity();
+	gridPlaneEntity->ObjectTransform()->Position(glm::vec3(0.0f, 0.0f, 0.0f));
+	gridPlaneEntity->ObjectTransform()->Scale(glm::vec3(25.0f, 1.0f, 25.0f));
+	gridPlaneEntity->MeshName("Plane");
+	gridPlaneEntity->ColliderMeshName("Plane");
+	gridPlaneEntity->MaterialName("Grid");
+
+	gridPlaneBottom = this->CreateEntity();
+	Entity* gridPlaneBottomEntity = gridPlaneBottom->TargetEntity();
+	gridPlaneBottomEntity->ObjectTransform()->Position(glm::vec3(0.0f, 0.0f, 0.0f));
+	gridPlaneBottomEntity->ObjectTransform()->Scale(glm::vec3(25.0f, 1.0f, 25.0f));
+	gridPlaneBottomEntity->MeshName("PlaneBottom");
+	gridPlaneBottomEntity->ColliderMeshName("PlaneBottom");
+	gridPlaneBottomEntity->MaterialName("Grid");
 }
