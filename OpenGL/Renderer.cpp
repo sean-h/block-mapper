@@ -50,7 +50,7 @@ void Renderer::RenderScene(ApplicationContext* context)
 	defaultShader->setVec3("cameraPosition", camera->Owner()->ObjectTransform()->Position());
 	for (auto &e : scene->Entities())
 	{
-		if (e->MeshName().length() == 0)
+		if (e->MeshName().length() == 0 || e->HasProperty("Hidden"))
 		{
 			continue;
 		}

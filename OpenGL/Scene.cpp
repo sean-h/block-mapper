@@ -40,6 +40,32 @@ void Scene::Update(ApplicationContext* context)
 		}
 	}
 
+	if (input->GetKeyDown(Input::Keys::KEY_H))
+	{
+		if (input->GetKey(Input::Keys::KEY_LEFT_ALT))
+		{
+			for (auto& entity : entities)
+			{
+				if (entity->HasProperty("Hidden"))
+				{
+					entity->RemoveProperty("Hidden");
+				}
+			}
+		}
+		else
+		{
+			for (auto& entity : context->ApplicationEntitySelectionManager()->SelectedEntities())
+			{
+				if (entity->EntityExists())
+				{
+					entity->TargetEntity()->AddProperty("Hidden", "");
+				}
+			}
+
+			context->ApplicationEntitySelectionManager()->DeselectAll();
+		}
+	}
+
 	for (auto &c : components)
 	{
 		c->Update(context);

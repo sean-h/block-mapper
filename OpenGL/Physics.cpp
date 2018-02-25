@@ -15,7 +15,7 @@ RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction
 	// See Real-Time Rendering Third Edition 16.7.2
 	for (auto &e : scene->Entities())
 	{
-		if (e->ColliderMeshName().length() == 0)
+		if (e->ColliderMeshName().length() == 0 || e->HasProperty("Hidden"))
 		{
 			continue;
 		}
@@ -100,7 +100,7 @@ std::vector<std::shared_ptr<EntityHandle>> Physics::FrustumIntersect(Debug* debu
 
 	for (auto& entity : scene->Entities())
 	{
-		if (entity->ColliderMeshName().length() == 0)
+		if (entity->ColliderMeshName().length() == 0 || entity->HasProperty("Hidden"))
 		{
 			continue;
 		}
