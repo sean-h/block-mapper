@@ -15,9 +15,13 @@ public:
 	float Opacity() const { return this->opacity; }
 	void Opacity(float opacity) { this->opacity = opacity; }
 
+	std::string TextureName() const { return this->textureName; }
+	void TextureName(std::string name) { this->textureName = name; }
+
 private:
 	std::string shaderName;
 	glm::vec3 color;
 	float shininess;
 	float opacity;
+	std::string textureName;
 };

@@ -7,6 +7,8 @@ BlockManager::BlockManager(FileManager * fileManager)
 {
 	this->blockNames = fileManager->BlockNames();
 	selectedBlockIndex = 0;
+	selectedColorIndex = 0;
+	selectedBlockColorCount = 0;
 	selectedBlockPreviewDirty = true;
 }
 
@@ -16,6 +18,7 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 	{
 		context->ApplicationRenderer()->RenderModelPreview(this->SelectedBlockName());
 		selectedBlockPreviewDirty = false;
+		selectedBlockColorCount = context->ApplicationRenderer()->ModelUVIndexCount(SelectedBlockName());
 	}
 
 	bool drawBlockWindowOpen = true;
@@ -37,12 +40,26 @@ void BlockManager::SelectNextBlock()
 {
 	selectedBlockIndex = (selectedBlockIndex + 1) % blockNames.size();
 	selectedBlockPreviewDirty = true;
+	selectedColorIndex = 0;
 }
 
 void BlockManager::SelectPreviousBlock()
 {
 	selectedBlockIndex = (selectedBlockIndex - 1) % blockNames.size();
 	selectedBlockPreviewDirty = true;
+	selectedColorIndex = 0;
+}
+
+void BlockManager::SelectNextColorIndex()
+{
+	selectedColorIndex = (selectedColorIndex + 1) % selectedBlockColorCount;
+}
+
+void BlockManager::SelectPreviousColorIndex()
+{
+	int a = selectedColorIndex;
+	selectedColorIndex = (selectedColorIndex - 1) % (size_t)selectedBlockColorCount;
+	int b = selectedColorIndex;
 }
 
 BlockMap BlockManager::BlockPositionMap(Scene * scene)

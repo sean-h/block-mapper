@@ -4,10 +4,12 @@
 
 void Model::Draw(Shader shader)
 {
-	for (unsigned int i = 0; i < meshes.size(); i++)
-	{
-		meshes[i].Draw(shader);
-	}
+	activeMesh->Draw(shader);
+}
+
+void Model::Draw(Shader shader, int meshColorIndex)
+{
+	meshes[meshColorIndex]->Draw(shader);
 }
 
 void Model::loadModel(std::string path)
@@ -27,20 +29,22 @@ void Model::loadModel(std::string path)
 
 void Model::processNode(aiNode * node, const aiScene * scene)
 {
-	// process all the node's meshes (if any)
-	for (unsigned int i = 0; i < node->mNumMeshes; i++)
+	if (node->mNumMeshes == 0)
 	{
-		aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(processMesh(mesh, scene));
+		processNode(node->mChildren[0], scene);
+		return;
 	}
-	// then do the same for each of its children
-	for (unsigned int i = 0; i < node->mNumChildren; i++)
+
+	aiMesh *mesh = scene->mMeshes[node->mMeshes[0]];
+	for (int i = 0; i < mesh->GetNumUVChannels(); i++)
 	{
-		processNode(node->mChildren[i], scene);
+		meshes[i] = std::make_unique<Mesh>(processMesh(mesh, scene, i));
 	}
+
+	activeMesh = meshes[0].get();
 }
 
-Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene)
+Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene, int uvChannelIndex)
 {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -62,17 +66,12 @@ Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene)
 		vector.z = mesh->mNormals[i].z;
 		vertex.Normal = vector;
 
-		if (mesh->mTextureCoords[0])
-		{
-			glm::vec2 vec;
-			vec.x = mesh->mTextureCoords[0][i].x;
-			vec.y = mesh->mTextureCoords[0][i].y;
-			vertex.TexCoords = vec;
-		}
-		else
-		{
-			vertex.TexCoords = glm::vec2(0.0f, 0.0f);
-		}
+		int numberOfTextureCoords = mesh->GetNumUVChannels();
+
+		glm::vec2 vec;
+		vec.x = mesh->mTextureCoords[uvChannelIndex][i].x;
+		vec.y = mesh->mTextureCoords[uvChannelIndex][i].y;
+		vertex.TexCoords = vec;
 
 		vertices.push_back(vertex);
 	}

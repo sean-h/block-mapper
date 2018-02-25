@@ -28,12 +28,17 @@ public:
 	BlockManager(FileManager* fileManager);
 	void DrawGUI(ApplicationContext* context);
 	std::string SelectedBlockName() const { return blockNames[selectedBlockIndex]; }
+	int SelectedColorIndex() const { return selectedColorIndex; }
 	void SelectNextBlock();
 	void SelectPreviousBlock();
+	void SelectNextColorIndex();
+	void SelectPreviousColorIndex();
 	BlockMap BlockPositionMap(Scene* scene);
 
 private:
 	std::vector<std::string> blockNames;
 	int selectedBlockIndex;
+	int selectedColorIndex;
+	int selectedBlockColorCount;
 	bool selectedBlockPreviewDirty;
 };

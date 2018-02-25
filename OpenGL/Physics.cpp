@@ -72,21 +72,19 @@ RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction
 		Model* model = this->colliders[closestEntity.first->ColliderMeshName()];
 		glm::vec3 entityPosition = closestEntity.first->ObjectTransform()->Position();
 		glm::mat4 modelMatrix = closestEntity.first->ObjectTransform()->Model();
-		for (auto& mesh : model->Meshes())
+		Mesh* mesh = model->ActiveMesh();
+		auto triangles = mesh->Triangles();
+		for (auto& triangle : triangles)
 		{
-			auto triangles = mesh.Triangles();
-			for (auto& triangle : triangles)
+			RaycastHit hit = RayTriIntersect(origin,
+					                            direction,
+					                            modelMatrix * glm::vec4(triangle.p0, 1.0f),
+					                            modelMatrix * glm::vec4(triangle.p1, 1.0f),
+					                            modelMatrix * glm::vec4(triangle.p2, 1.0f));
+			if (hit.hit)
 			{
-				RaycastHit hit = RayTriIntersect(origin,
-					                             direction,
-					                             modelMatrix * glm::vec4(triangle.p0, 1.0f),
-					                             modelMatrix * glm::vec4(triangle.p1, 1.0f),
-					                             modelMatrix * glm::vec4(triangle.p2, 1.0f));
-				if (hit.hit)
-				{
-					hit.entity = closestEntity.first->Handle();
-					return hit;
-				}
+				hit.entity = closestEntity.first->Handle();
+				return hit;
 			}
 		}
 	}

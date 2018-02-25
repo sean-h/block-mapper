@@ -19,11 +19,13 @@ public:
 	std::unordered_map<std::string, Model*> Models() const { return models; }
 	unsigned int ModelPreviewTextureID() const { return this->modelPreviewTextureID; }
 	void RenderModelPreview(std::string modelName);
+	int ModelUVIndexCount(std::string modelName) const;
 
 private:
 	void LoadShaders();
 	void LoadModels(FileManager* fileManager);
 	void LoadMaterials();
+	void LoadTextures(FileManager* fileManager);
 	unsigned int loadTexture(char const * path);
 
 	unsigned int modelPreviewFBO;

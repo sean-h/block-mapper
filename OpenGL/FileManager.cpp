@@ -10,14 +10,19 @@ FileManager::FileManager()
 	{
 		this->applicationFolderPath = std::string(my_documents) + "/" + applicationFolderName;
 		this->blockFolderPath = this->applicationFolderPath + "/blocks";
+		this->textureFolderPath = this->applicationFolderPath + "/textures";
 
 		for (auto &file : std::experimental::filesystem::directory_iterator(this->blockFolderPath))
 		{
 			this->blockPaths.push_back(file.path());
 		}
 
+		for (auto &file : std::experimental::filesystem::directory_iterator(this->textureFolderPath))
+		{
+			this->texturePaths.push_back(file.path());
+		}
+
 		this->exportFolderPath = this->applicationFolderPath + "/" + "Export";
-		
 		if (!std::experimental::filesystem::exists(this->exportFolderPath))
 		{
 			std::experimental::filesystem::create_directory(this->exportFolderPath);
@@ -53,6 +58,18 @@ std::unordered_map<std::string, std::string> FileManager::BlockPaths() const
 	}
 
 	return blocks;
+}
+
+std::unordered_map<std::string, std::string> FileManager::TexturePaths() const
+{
+	std::unordered_map<std::string, std::string> textures;
+
+	for (auto &texturePath : texturePaths)
+	{
+		textures[texturePath.filename().stem().string()] = texturePath.string();
+	}
+
+	return textures;
 }
 
 std::vector<std::string> FileManager::SavedSceneFilenames() const

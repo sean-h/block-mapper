@@ -11,6 +11,7 @@ Renderer::Renderer(FileManager* fileManager)
 	this->LoadShaders();
 	this->LoadModels(fileManager);
 	this->LoadMaterials();
+	this->LoadTextures(fileManager);
 
 	this->SetUpModelPreview();
 }
@@ -35,6 +36,12 @@ void Renderer::RenderScene(ApplicationContext* context)
 		shader.second->use();
 		shader.second->setMat4("view", glm::value_ptr(view));
 		shader.second->setMat4("projection", glm::value_ptr(projection));
+
+		if (this->textureIDs.size() > 0)
+		{
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, this->textureIDs["Palette"]);
+		}
 	}
 
 	std::vector<Entity*> transparentEntities;
@@ -55,13 +62,18 @@ void Renderer::RenderScene(ApplicationContext* context)
 			continue;
 		}
 
-		glm::mat4 model = e->ObjectTransform()->Model();
+		glm::mat4 modelMatrix = e->ObjectTransform()->Model();
 		
 		Shader* shader = this->shaders[material->ShaderName()];
 		shader->use();
-		shader->setMat4("model", glm::value_ptr(model));
+		shader->setMat4("model", glm::value_ptr(modelMatrix));
 		shader->setVec3("objectColor", material->Color());
-		models[e->MeshName()]->Draw(*shader);
+
+		auto model = models.find(e->MeshName());
+		if (model != models.end())
+		{
+			model->second->Draw(*shader, e->MeshColorIndex());
+		}
 	}
 
 	// Draw transparent entities
@@ -70,11 +82,16 @@ void Renderer::RenderScene(ApplicationContext* context)
 	for (auto &e : transparentEntities)
 	{
 		Material* material = materials[e->MaterialName()].get();
-		glm::mat4 model = e->ObjectTransform()->Model();
-		transparentShader->setMat4("model", glm::value_ptr(model));
+		glm::mat4 modelMatrix = e->ObjectTransform()->Model();
+		transparentShader->setMat4("model", glm::value_ptr(modelMatrix));
 		transparentShader->setVec3("objectColor", material->Color());
 		transparentShader->setFloat("opacity", material->Opacity());
-		models[e->MeshName()]->Draw(*transparentShader);
+
+		auto model = models.find(e->MeshName());
+		if (model != models.end())
+		{
+			model->second->Draw(*transparentShader, e->MeshColorIndex());
+		}
 	}
 }
 
@@ -138,13 +155,19 @@ void Renderer::LoadModels(FileManager* fileManager)
 	for (auto &block : fileManager->BlockPaths())
 	{
 		this->models[block.first] = new Model(block.second);
+
+		if (this->models[block.first]->ActiveMesh() == nullptr)
+		{
+			std::cout << "Could not load model: " << block.first << std::endl;
+			models.erase(block.first);
+		}
 	}
 }
 
 void Renderer::LoadMaterials()
 {
 	std::unique_ptr<Material> solidMaterial(new Material("CameraLit"));
-	solidMaterial->Color(glm::vec3(0.6f, 0.2f, 0.2f));
+	solidMaterial->Color(glm::vec3(1.0f, 1.0f, 1.0f));
 	solidMaterial->Opacity(1.0f);
 
 	std::unique_ptr<Material> selectedMaterial(new Material("CameraLit"));
@@ -163,6 +186,14 @@ void Renderer::LoadMaterials()
 	this->materials["Selected"] = std::move(selectedMaterial);
 	this->materials["Hover"] = std::move(hoverMaterial);
 	this->materials["Grid"] = std::move(gridMaterial);
+}
+
+void Renderer::LoadTextures(FileManager * fileManager)
+{
+	for (auto& texture : fileManager->TexturePaths())
+	{
+		this->textureIDs[texture.first] = this->loadTexture(texture.second.c_str());
+	}
 }
 
 unsigned int Renderer::loadTexture(char const * path)
@@ -222,27 +253,47 @@ void Renderer::RenderModelPreview(std::string modelName)
 	glViewport(0, 0, modelPreviewTextureSize, modelPreviewTextureSize);
 	glBindFramebuffer(GL_FRAMEBUFFER, this->modelPreviewFBO);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if (models.find(modelName) != models.end())
+	{
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	Shader* defaultShader = this->shaders["CameraLit"];
-	defaultShader->use();
+		Shader* defaultShader = this->shaders["CameraLit"];
+		defaultShader->use();
 
-	glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
+		glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
 
-	glm::mat4 model;
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 3.0f));
-	model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 model;
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 3.0f));
+		model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-	defaultShader->setMat4("view", glm::value_ptr(view));
-	defaultShader->setMat4("projection", glm::value_ptr(projection));
-	defaultShader->setMat4("model", glm::value_ptr(model));
-	defaultShader->setVec3("objectColor", glm::vec3(0.2f, 0.2f, 0.8f));
-	defaultShader->setVec3("cameraPosition", glm::vec3(0.0f, 0.0f, 0.0f));
-	models[modelName]->Draw(*defaultShader);
+		defaultShader->setMat4("view", glm::value_ptr(view));
+		defaultShader->setMat4("projection", glm::value_ptr(projection));
+		defaultShader->setMat4("model", glm::value_ptr(model));
+		defaultShader->setVec3("objectColor", glm::vec3(0.2f, 0.2f, 0.8f));
+		defaultShader->setVec3("cameraPosition", glm::vec3(0.0f, 0.0f, 0.0f));
+		models[modelName]->Draw(*defaultShader);
+	}
+	else
+	{
+		// Model could not be found
+		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+int Renderer::ModelUVIndexCount(std::string modelName) const
+{
+	auto model = models.find(modelName);
+	if (model != models.end())
+	{
+		return model->second->UVIndexCount();
+	}
+
+	return 0;
 }

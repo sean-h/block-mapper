@@ -155,6 +155,10 @@ void Scene::SaveScene(ApplicationContext * context) const
 		entityMeshNode->SetText(entity->MeshName().c_str());
 		entityNode->InsertEndChild(entityMeshNode);
 
+		auto entityColorIndexNode = xmlDoc.NewElement("MeshColorIndex");
+		entityColorIndexNode->SetText(std::to_string(entity->MeshColorIndex()).c_str());
+		entityNode->InsertEndChild(entityColorIndexNode);
+
 		auto entityMaterialNode = xmlDoc.NewElement("Material");
 		entityMaterialNode->SetText(entity->MaterialName().c_str());
 		entityNode->InsertEndChild(entityMaterialNode);
@@ -250,6 +254,13 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 		{
 			mesh = meshNode->GetText();
 		}
+
+		auto colorIndexNode = entityNode->FirstChildElement("MeshColorIndex");
+		std::string colorIndex;
+		if (colorIndexNode && colorIndexNode->GetText())
+		{
+			colorIndex = colorIndexNode->GetText();
+		}
 		
 		auto materialNode = entityNode->FirstChildElement("Material");
 		std::string material;
@@ -272,6 +283,7 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 
 		auto entity = this->CreateEntity(entityID);
 		entity->TargetEntity()->MeshName(mesh);
+		entity->TargetEntity()->MeshColorIndex(std::stoi(colorIndex));
 		entity->TargetEntity()->MaterialName(material);
 		entity->TargetEntity()->ColliderMeshName(collider);
 		entity->TargetEntity()->ObjectTransform()->Position(glm::vec3(positionNode->FloatAttribute("X"), positionNode->FloatAttribute("Y"), positionNode->FloatAttribute("Z")));

@@ -24,6 +24,16 @@ void DrawBlockTool::Update(ApplicationContext* context)
 		context->ApplicationBlockManager()->SelectPreviousBlock();
 		this->RefreshHoverBlock(context);
 	}
+	if (input->GetKeyDown(Input::Keys::KEY_APOSTROPHE))
+	{
+		context->ApplicationBlockManager()->SelectNextColorIndex();
+		this->RefreshHoverBlock(context);
+	}
+	if (input->GetKeyDown(Input::Keys::KEY_SEMICOLON))
+	{
+		context->ApplicationBlockManager()->SelectPreviousColorIndex();
+		this->RefreshHoverBlock(context);
+	}
 
 	if (input->MouseOverGUIElement())
 	{
@@ -115,6 +125,7 @@ void DrawBlockTool::PlaceBlock(Scene* scene)
 	newCube->ColliderMeshName(hoverBlock->TargetEntity()->ColliderMeshName());
 	newCube->MaterialName("Solid");
 	newCube->AddProperty("Block", "");
+	newCube->MeshColorIndex(hoverBlock->TargetEntity()->MeshColorIndex());
 }
 
 void DrawBlockTool::RefreshHoverBlock(ApplicationContext * context)
@@ -122,6 +133,7 @@ void DrawBlockTool::RefreshHoverBlock(ApplicationContext * context)
 	hoverBlock->TargetEntity()->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
 	hoverBlock->TargetEntity()->MaterialName("Hover");
 	hoverBlock->TargetEntity()->ColliderMeshName("Cube");
+	hoverBlock->TargetEntity()->MeshColorIndex(context->ApplicationBlockManager()->SelectedColorIndex());
 }
 
 void DrawBlockTool::DisableTool(ApplicationContext * context)

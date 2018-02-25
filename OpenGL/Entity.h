@@ -34,6 +34,9 @@ public:
 	std::string MeshName() const { return meshName; }
 	void MeshName(std::string meshName) { this->meshName = meshName; }
 
+	int MeshColorIndex() const { return meshColorIndex; }
+	void MeshColorIndex(int colorIndex) { this->meshColorIndex = colorIndex; }
+
 	std::string ColliderMeshName() const { return colliderMeshName; }
 	void ColliderMeshName(std::string colliderMeshName) { this->colliderMeshName = colliderMeshName; }
 
@@ -52,6 +55,7 @@ private:
 	int id;
 	Transform transform;
 	std::string meshName;
+	int meshColorIndex = 0;
 	std::string materialName;
 	std::string colliderMeshName;
 	std::shared_ptr<EntityHandle> entityHandle;

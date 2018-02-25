@@ -22,7 +22,7 @@ void SceneExporter::Export(ApplicationContext * context)
 	{
 		exportScene.mMeshes[meshIndex] = new aiMesh();
 		Model* model = modelTuple.second;
-		Mesh* mesh = model->GetMesh(0);
+		Mesh* mesh = model->ActiveMesh();
 
 		this->LoadMeshData(&exportScene, mesh, meshIndex);
 		meshIndexes[modelTuple.first] = meshIndex;
