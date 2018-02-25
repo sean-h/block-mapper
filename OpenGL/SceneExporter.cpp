@@ -20,13 +20,16 @@ void SceneExporter::Export(ApplicationContext * context)
 	int meshIndex = 0;
 	for (auto &modelTuple : context->ApplicationRenderer()->Models())
 	{
-		exportScene.mMeshes[meshIndex] = new aiMesh();
 		Model* model = modelTuple.second;
-		Mesh* mesh = model->ActiveMesh();
+		for (int colorIndex = 0; colorIndex < model->UVIndexCount(); colorIndex++)
+		{
+			Mesh* mesh = model->GetMesh(colorIndex);
 
-		this->LoadMeshData(&exportScene, mesh, meshIndex);
-		meshIndexes[modelTuple.first] = meshIndex;
-		meshIndex++;
+			exportScene.mMeshes[meshIndex] = new aiMesh();
+			this->LoadMeshData(&exportScene, mesh, meshIndex);
+			meshIndexes[modelTuple.first][colorIndex] = meshIndex;
+			meshIndex++;
+		}
 	}
 
 	// Add all entities as children to the root node
@@ -50,7 +53,7 @@ void SceneExporter::Export(ApplicationContext * context)
 
 		children[entityIndex] = new aiNode();
 		children[entityIndex]->mMeshes = new unsigned int[1];
-		children[entityIndex]->mMeshes[0] = meshIndexes[e->MeshName()];
+		children[entityIndex]->mMeshes[0] = meshIndexes[e->MeshName()][e->MeshColorIndex()];
 		children[entityIndex]->mNumMeshes = 1;
 
 		children[entityIndex]->mName = e->MeshName() + "_" + std::to_string(e->ID());
@@ -101,6 +104,16 @@ void SceneExporter::LoadMeshData(aiScene* scene, Mesh * mesh, int meshIndex)
 		vertNormal.y = mesh->vertices[i].Normal.y;
 		vertNormal.z = mesh->vertices[i].Normal.z;
 		scene->mMeshes[meshIndex]->mNormals[i] = vertNormal;
+	}
+
+	scene->mMeshes[meshIndex]->mTextureCoords[0] = new aiVector3D[mesh->vertices.size()];
+	for (int i = 0; i < mesh->vertices.size(); i++)
+	{
+		aiVector3D vertTexCoords;
+		vertTexCoords.x = mesh->vertices[i].TexCoords.x;
+		vertTexCoords.y = 1.0f - mesh->vertices[i].TexCoords.y;
+		vertTexCoords.z = 0.0f;
+		scene->mMeshes[meshIndex]->mTextureCoords[0][i] = vertTexCoords;
 	}
 
 	scene->mMeshes[meshIndex]->mNumFaces = (unsigned int)(mesh->indices.size() / 3);

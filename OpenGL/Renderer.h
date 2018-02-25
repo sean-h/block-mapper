@@ -15,7 +15,7 @@ public:
 	void RenderScene(ApplicationContext* context);
 	void DrawLine(ApplicationContext* context, glm::vec3 start, glm::vec3 end);
 	Model* GetModel(std::string modelName) { return models[modelName]; }
-	int ModelCount() const { return models.size(); }
+	int ModelCount() const;
 	std::unordered_map<std::string, Model*> Models() const { return models; }
 	unsigned int ModelPreviewTextureID() const { return this->modelPreviewTextureID; }
 	void RenderModelPreview(std::string modelName);

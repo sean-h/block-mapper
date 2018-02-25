@@ -12,7 +12,7 @@ public:
 
 private:
 	std::unique_ptr<aiScene> exportScene;
-	std::unordered_map<std::string, int> meshIndexes;
+	std::unordered_map<std::string, std::unordered_map<int, int>> meshIndexes;
 
 	void LoadMeshData(aiScene* scene, Mesh* mesh, int meshIndex);
 };

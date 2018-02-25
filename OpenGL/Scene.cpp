@@ -256,7 +256,7 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 		}
 
 		auto colorIndexNode = entityNode->FirstChildElement("MeshColorIndex");
-		std::string colorIndex;
+		std::string colorIndex = "0";
 		if (colorIndexNode && colorIndexNode->GetText())
 		{
 			colorIndex = colorIndexNode->GetText();
@@ -297,15 +297,18 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 		entity->TargetEntity()->ObjectTransform()->Scale(glm::vec3(scaleNode->FloatAttribute("X"), scaleNode->FloatAttribute("Y"), scaleNode->FloatAttribute("Z")));
 
 		auto propertiesNode = entityNode->FirstChildElement("Properties");
-		for (auto propertyNode = propertiesNode->FirstChild(); propertyNode != nullptr; propertyNode = propertyNode->NextSibling())
+		if (propertiesNode)
 		{
-			std::string propertyValue;
-			if (propertyNode->ToElement()->GetText())
+			for (auto propertyNode = propertiesNode->FirstChild(); propertyNode != nullptr; propertyNode = propertyNode->NextSibling())
 			{
-				propertyValue = propertyNode->ToElement()->GetText();
-			}
+				std::string propertyValue;
+				if (propertyNode->ToElement()->GetText())
+				{
+					propertyValue = propertyNode->ToElement()->GetText();
+				}
 
-			entity->TargetEntity()->AddProperty(propertyNode->Value(), propertyValue);
+				entity->TargetEntity()->AddProperty(propertyNode->Value(), propertyValue);
+			}
 		}
 	}
 }

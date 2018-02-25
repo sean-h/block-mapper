@@ -128,6 +128,17 @@ void Renderer::DrawLine(ApplicationContext* context, glm::vec3 start, glm::vec3 
 	models["Line"]->Draw(*shader);
 }
 
+int Renderer::ModelCount() const
+{
+	int modelCount = 0;
+	for (auto& model : models)
+	{
+		modelCount += model.second->UVIndexCount();
+	}
+
+	return modelCount;
+}
+
 void Renderer::LoadShaders()
 {
 	shaders["Default"] = new Shader("VertexShader.glsl", "FragmentShader.glsl");
