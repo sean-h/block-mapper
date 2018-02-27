@@ -14,6 +14,8 @@ public:
 	glm::vec3 WorldAxisRight();
 	float NearClipDistance() const { return nearClipDistance; }
 	float FarClipDistance() const { return farClipDistance; }
+	void SetFPSMode(ApplicationContext* context);
+	void SetOrbitMode(ApplicationContext* context);
 
 private:
 	const float verticalFOV = glm::radians(45.0f);

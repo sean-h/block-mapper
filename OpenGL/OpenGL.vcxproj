@@ -133,6 +133,7 @@
     <ClCompile Include="ExtrudeBlockTool.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="FileSelector.cpp" />
+    <ClCompile Include="FPSController.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GridBlockTool.cpp" />
     <ClCompile Include="GUI.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="EntitySelectionManager.h" />
     <ClInclude Include="ExtrudeBlockTool.h" />
     <ClInclude Include="FileSelector.h" />
+    <ClInclude Include="FPSController.h" />
     <ClInclude Include="GridBlockTool.h" />
     <ClInclude Include="BlockManager.h" />
     <ClInclude Include="Camera.h" />

@@ -1,6 +1,10 @@
 #include "Camera.h"
 #include "Transform.h"
 #include "Entity.h"
+#include "Scene.h"
+#include "ApplicationContext.h"
+#include "FPSController.h"
+#include "OrbitController.h"
 
 std::unordered_map<std::string, std::string> Camera::Serialize() const
 {
@@ -63,4 +67,20 @@ glm::vec3 Camera::WorldAxisForward()
 glm::vec3 Camera::WorldAxisRight()
 {
 	return glm::cross(this->WorldAxisForward(), glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+void Camera::SetFPSMode(ApplicationContext * context)
+{
+	Scene* scene = context->ApplicationScene();
+	scene->DestroyComponent(Owner(), "OrbitController");
+	scene->AddComponentToEntity(Owner(), std::unique_ptr<Component>(new FPSController()));
+	context->ApplicationWindow()->LockMouse();
+}
+
+void Camera::SetOrbitMode(ApplicationContext * context)
+{
+	Scene* scene = context->ApplicationScene();
+	scene->DestroyComponent(Owner(), "FPSController");
+	scene->AddComponentToEntity(Owner(), std::unique_ptr<Component>(new OrbitController()));
+	context->ApplicationWindow()->UnlockMouse();
 }

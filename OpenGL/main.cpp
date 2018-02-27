@@ -20,7 +20,7 @@ int main()
 			input->PollWindowInput(window->GLFWWindow());
 			if (input->GetKey(Input::Keys::KEY_ESCAPE))
 			{
-				window->Close();
+				//window->Close();
 			}
 			input->MouseOverGUIElement(applicationContext.ApplicationGUIManager()->MouseOverGUIElement(input->MouseX(), input->MouseY()));
 

@@ -22,6 +22,7 @@ public:
 	std::shared_ptr<EntityHandle> CreateEntity();
 	void DestroyEntity(std::shared_ptr<EntityHandle> entityHandle);
 	Component* AddComponentToEntity(Entity* entity, std::unique_ptr<Component> component);
+	void DestroyComponent(Entity* entity, std::string componentType);
 	Camera* ActiveCamera() { return camera; }
 	void Export(ApplicationContext* context);
 	std::string SceneName() const { return std::string(sceneName); }

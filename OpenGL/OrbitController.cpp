@@ -24,6 +24,8 @@ std::unordered_map<std::string, std::string> OrbitController::Serialize() const
 
 void OrbitController::OnAttachToEntity()
 {
+	Transform* transform = this->Owner()->ObjectTransform();
+	this->orbitPoint = (transform->Position() + transform->Forward() * glm::length(glm::vec2(20.0f, 20.0f)));
 	this->Rotate(0.0f, 0.0f);
 }
 

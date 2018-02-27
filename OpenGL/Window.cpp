@@ -33,6 +33,7 @@ Window::Window(int width, int height)
 	glViewport(0, 0, this->width, this->height);
 	glfwSetFramebufferSizeCallback(glfwWindow.get(), OnFrameBufferSizeChanged);
 	glfwSetScrollCallback(glfwWindow.get(), scroll_callback);
+	glfwSetCursorPosCallback(glfwWindow.get(), cursor_position_callback);
 
 	SetOpenGLCapabilities();
 }
@@ -78,6 +79,16 @@ bool Window::IsWindowMinimized() const
 	return glfwGetWindowAttrib(glfwWindow.get(), GLFW_ICONIFIED);
 }
 
+void Window::LockMouse()
+{
+	glfwSetInputMode(glfwWindow.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void Window::UnlockMouse()
+{
+	glfwSetInputMode(glfwWindow.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
 void Window::SetWindowHints()
 {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -110,5 +121,14 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	if (callbackInput != nullptr)
 	{
 		callbackInput->SetScrollWheel(yoffset);
+	}
+}
+
+void cursor_position_callback(GLFWwindow * window, double xpos, double ypos)
+{
+	if (callbackInput != nullptr)
+	{
+		callbackInput->SetMouseXDelta(xpos);
+		callbackInput->SetMouseYDelta(ypos);
 	}
 }

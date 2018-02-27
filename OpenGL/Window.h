@@ -26,11 +26,15 @@ public:
 	void SetCallbackWindow(Window* window);
 	void UpdateWindowDimensions();
 	bool IsWindowMinimized() const;
+	bool IsMouseLocked() const { return isMouseLocked; }
+	void LockMouse();
+	void UnlockMouse();
 
 private:
 	int width;
 	int height;
 	bool open;
+	bool isMouseLocked;
 	std::unique_ptr<GLFWwindow, DestroyglfwWin> glfwWindow;
 
 	void SetWindowHints();
@@ -39,3 +43,4 @@ private:
 
 void OnFrameBufferSizeChanged(GLFWwindow * window, int width, int height);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);

@@ -1,6 +1,7 @@
 #include "Scene.h"
 #include "ApplicationContext.h"
 #include "OrbitController.h"
+#include "FPSController.h"
 #include "SceneExporter.h"
 #include "GUI.h"
 #include "imgui.h"
@@ -12,8 +13,9 @@ Scene::Scene()
 	auto cameraEntityHandle = this->CreateEntity();
 	Entity* cameraEntity = cameraEntityHandle->TargetEntity();
 	cameraEntity->ObjectTransform()->Position(glm::vec3(0.0f, 20.0f, -20.0f));
-	cameraEntity->ObjectTransform()->Rotation(glm::vec3(0.0f, 0.0f, 0.0f));
+	cameraEntity->ObjectTransform()->Rotation(glm::vec3(45.0f, 0.0f, 0.0f));
 	AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new OrbitController()));
+	//AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new FPSController()));
 	camera = (Camera*)AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new Camera()));
 	strcpy_s(this->sceneName, 64, "Scene");
 
@@ -64,6 +66,11 @@ void Scene::Update(ApplicationContext* context)
 
 			context->ApplicationEntitySelectionManager()->DeselectAll();
 		}
+	}
+
+	if (input->GetKeyDown(Input::Keys::KEY_F) && input->GetKey(Input::Keys::KEY_LEFT_SHIFT))
+	{
+		ActiveCamera()->SetFPSMode(context);
 	}
 
 	for (auto &c : components)
@@ -149,6 +156,27 @@ Component * Scene::AddComponentToEntity(Entity * entity, std::unique_ptr<Compone
 	this->components.back()->Owner(entity);
 	this->components.back()->OnAttachToEntity();
 	return this->components.back().get();
+}
+
+void Scene::DestroyComponent(Entity * entity, std::string componentType)
+{
+	int deleteIndex = -1;
+
+	int i = 0;
+	for (auto& component : components)
+	{
+		if (component->Owner() == entity && component->Type() == componentType)
+		{
+			deleteIndex = i;
+			break;
+		}
+		i++;
+	}
+
+	if (deleteIndex != -1)
+	{
+		components.erase(components.begin() + deleteIndex);
+	}
 }
 
 void Scene::Export(ApplicationContext * context)

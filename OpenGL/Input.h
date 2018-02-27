@@ -174,6 +174,7 @@ private:
 	double pendingScrollWheel;
 	bool firstMouse;
 	bool mouseOverGUIElement;
+	bool mouseLocked;
 
 	void SetKeyDown(Keys key);
 	void SetKeyUp(Keys key);
