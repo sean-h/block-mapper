@@ -120,7 +120,7 @@ void DrawBlockTool::PlaceBlock(Scene* scene)
 	auto newCubeHandle = scene->CreateEntity();
 	Entity* newCube = newCubeHandle->TargetEntity();
 	newCube->ObjectTransform()->Position(hoverBlock->TargetEntity()->ObjectTransform()->Position());
-	newCube->ObjectTransform()->Rotation(hoverBlock->TargetEntity()->ObjectTransform()->Rotation());
+	newCube->ObjectTransform()->Rotation(hoverBlock->TargetEntity()->ObjectTransform()->RotationQuaternion());
 	newCube->MeshName(hoverBlock->TargetEntity()->MeshName());
 	newCube->ColliderMeshName(hoverBlock->TargetEntity()->ColliderMeshName());
 	newCube->MaterialName("Solid");

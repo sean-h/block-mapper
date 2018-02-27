@@ -53,7 +53,7 @@ glm::vec3 Transform::Up() const
 
 void Transform::Rotate(glm::vec3 axis, float angle)
 {
-	rotation = glm::rotate(rotation, glm::radians(angle), axis);
+	rotation = glm::rotate(glm::quat(), glm::radians(angle), axis) * rotation;
 	this->UpdateModel();
 }
 
