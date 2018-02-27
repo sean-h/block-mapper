@@ -62,7 +62,7 @@ void GUIManager::Draw(ApplicationContext* context)
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "Ctrl+Q"))
 			{
-
+				context->ApplicationWindow()->Close();
 			}
 			ImGui::EndMenu();
 		}
