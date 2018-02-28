@@ -1,13 +1,16 @@
 #include "DrawBlockTool.h"
 #include "ApplicationContext.h"
-#include "glm\gtc\matrix_transform.hpp"
+#include "GUI.h"
 #include <iostream>
 #include "imgui.h"
 
 DrawBlockTool::DrawBlockTool(ApplicationContext* context)
 {
-	hoverBlock = context->ApplicationScene()->CreateEntity();
-	this->RefreshHoverBlock(context);
+	hoverBlocks.push_back(context->ApplicationScene()->CreateEntity());
+	this->RefreshHoverBlocks(context);
+
+	selectedDrawModeIndex = 0;
+	drawMode = DrawModes::Point;
 }
 
 void DrawBlockTool::Update(ApplicationContext* context)
@@ -17,22 +20,22 @@ void DrawBlockTool::Update(ApplicationContext* context)
 	if (input->GetKeyDown(Input::Keys::KEY_PERIOD))
 	{
 		context->ApplicationBlockManager()->SelectNextBlock();
-		this->RefreshHoverBlock(context);
+		this->RefreshHoverBlocks(context);
 	}
 	if (input->GetKeyDown(Input::Keys::KEY_COMMA))
 	{
 		context->ApplicationBlockManager()->SelectPreviousBlock();
-		this->RefreshHoverBlock(context);
+		this->RefreshHoverBlocks(context);
 	}
 	if (input->GetKeyDown(Input::Keys::KEY_APOSTROPHE))
 	{
 		context->ApplicationBlockManager()->SelectNextColorIndex();
-		this->RefreshHoverBlock(context);
+		this->RefreshHoverBlocks(context);
 	}
 	if (input->GetKeyDown(Input::Keys::KEY_SEMICOLON))
 	{
 		context->ApplicationBlockManager()->SelectPreviousColorIndex();
-		this->RefreshHoverBlock(context);
+		this->RefreshHoverBlocks(context);
 	}
 
 	if (input->MouseOverGUIElement())
@@ -44,102 +47,195 @@ void DrawBlockTool::Update(ApplicationContext* context)
 	Scene* scene = context->ApplicationScene();
 	Physics* physics = context->ApplicationPhysics();
 
-	Entity* hoverBlockEntity = hoverBlock->TargetEntity();
-
-	glm::vec3 hoverBlockOriginalPosition = hoverBlockEntity->ObjectTransform()->Position();
-	hoverBlockEntity->ObjectTransform()->Position(glm::vec3(10000, 10000, 10000));
 	Camera* camera = scene->ActiveCamera();
 	Transform* cameraTransform = camera->Owner()->ObjectTransform();
+
+	if (input->GetKeyUp(Input::Keys::MOUSE_1))
+	{
+		this->PlaceBlocks(scene);
+	}
 
 	glm::vec3 mouseDirection = camera->ScreenToWorldDirection(input->MouseX(), input->MouseY(), window->Width(), window->Height());
 	RaycastHit hit = physics->Raycast(scene, cameraTransform->Position(), mouseDirection, 100.0f);
 	if (hit.hit)
 	{
 		Entity* hitEntity = hit.entity->TargetEntity();
+		glm::vec3 newPos;
+
 		if (hitEntity->ColliderMeshName() == "Plane" || hitEntity->ColliderMeshName() == "PlaneBottom")
 		{
-			glm::vec3 newPos = hit.point;
+			newPos = hit.point;
 			if (hit.normal.y != 0.0f)
 			{
 				newPos.x = glm::round(newPos.x);
 				newPos.y = hitEntity->ObjectTransform()->Position().y;
 				newPos.z = glm::round(newPos.z);
 			}
-			hoverBlockEntity->ObjectTransform()->Position(newPos);
 		}
 		else
 		{
-			glm::vec3 newPos = hitEntity->ObjectTransform()->Position() + hit.normal;
+			newPos = hitEntity->ObjectTransform()->Position() + hit.normal;
 			context->ApplicationDebug()->LogToUI("Draw Position", newPos);
-			hoverBlockEntity->ObjectTransform()->Position(newPos);
 		}
-	}
-	else
-	{
-		hoverBlockEntity->ObjectTransform()->Position(hoverBlockOriginalPosition);
-	}
 
-	if (input->GetKeyDown(Input::Keys::MOUSE_1))
-	{
-		this->PlaceBlock(scene);
+		if (input->GetKey(Input::Keys::MOUSE_1))
+		{
+			if (drawEndPosition != newPos)
+			{
+				drawEndPosition = newPos;
+				this->RefreshHoverBlocks(context);
+			}
+		}
+		else
+		{
+			if (drawStartPosition != newPos)
+			{
+				drawStartPosition = newPos;
+				this->RefreshHoverBlocks(context);
+			}
+		}
 	}
 
 	if (input->GetKeyDown(Input::Keys::KEY_E))
 	{
-		hoverBlockEntity->ObjectTransform()->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), -90.0f);
+		drawRotation = glm::rotate(glm::quat(), glm::radians(-90.f), glm::vec3(0.0f, 1.0f, 0.0f)) * drawRotation;
+		this->RefreshHoverBlocks(context);
 	}
 	if (input->GetKeyDown(Input::Keys::KEY_Q))
 	{
-		hoverBlockEntity->ObjectTransform()->Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 90.0f);
+		drawRotation = glm::rotate(glm::quat(), glm::radians(90.f), glm::vec3(0.0f, 1.0f, 0.0f)) * drawRotation;
+		this->RefreshHoverBlocks(context);
 	}
 	if (input->GetKeyDown(Input::Keys::KEY_W))
 	{
-		hoverBlockEntity->ObjectTransform()->Rotate(glm::vec3(1.0f, 0.0f, 0.0f), 90.0f);
+		drawRotation = glm::rotate(glm::quat(), glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f)) * drawRotation;
+		this->RefreshHoverBlocks(context);
 	}
 	if (input->GetKeyDown(Input::Keys::KEY_S))
 	{
-		hoverBlockEntity->ObjectTransform()->Rotate(glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
+		drawRotation = glm::rotate(glm::quat(), glm::radians(-90.f), glm::vec3(1.0f, 0.0f, 0.0f)) * drawRotation;
+		this->RefreshHoverBlocks(context);
 	}
 	if (input->GetKeyDown(Input::Keys::KEY_A))
 	{
-		hoverBlockEntity->ObjectTransform()->Rotate(glm::vec3(0.0f, 0.0f, 1.0f), 90.0f);
+		drawRotation = glm::rotate(glm::quat(), glm::radians(90.f), glm::vec3(0.0f, 0.0f, 1.0f)) * drawRotation;
+		this->RefreshHoverBlocks(context);
 	}
 	if (input->GetKeyDown(Input::Keys::KEY_D))
 	{
-		hoverBlockEntity->ObjectTransform()->Rotate(glm::vec3(0.0f, 0.0f, 1.0f), -90.0f);
+		drawRotation = glm::rotate(glm::quat(), glm::radians(-90.f), glm::vec3(0.0f, 0.0f, 1.0f)) * drawRotation;
+		this->RefreshHoverBlocks(context);
 	}
 }
 
 void DrawBlockTool::DrawGUI(ApplicationContext * context)
 {
 	ImGui::Text("Draw");
+
+	if (GUI::ToggleButton("Point", 0, selectedDrawModeIndex))
+	{
+		drawMode = DrawModes::Point;
+	}
+
+	if (GUI::ToggleButton("Line", 1, selectedDrawModeIndex))
+	{
+		drawMode = DrawModes::Line;
+	}
+
+	if (GUI::ToggleButton("Rectangle", 2, selectedDrawModeIndex))
+	{
+		drawMode = DrawModes::Rectangle;
+	}
 }
 
-void DrawBlockTool::PlaceBlock(Scene* scene)
+void DrawBlockTool::PlaceBlocks(Scene* scene)
 {
-	auto newCubeHandle = scene->CreateEntity();
-	Entity* newCube = newCubeHandle->TargetEntity();
-	newCube->ObjectTransform()->Position(hoverBlock->TargetEntity()->ObjectTransform()->Position());
-	newCube->ObjectTransform()->Rotation(hoverBlock->TargetEntity()->ObjectTransform()->RotationQuaternion());
-	newCube->MeshName(hoverBlock->TargetEntity()->MeshName());
-	newCube->ColliderMeshName(hoverBlock->TargetEntity()->ColliderMeshName());
-	newCube->MaterialName("Solid");
-	newCube->AddProperty("Block", "");
-	newCube->MeshColorIndex(hoverBlock->TargetEntity()->MeshColorIndex());
+	for (auto& hoverBlock : hoverBlocks)
+	{
+		auto newCubeHandle = scene->CreateEntity();
+		Entity* newCube = newCubeHandle->TargetEntity();
+		newCube->ObjectTransform()->Position(hoverBlock->TargetEntity()->ObjectTransform()->Position());
+		newCube->ObjectTransform()->Rotation(hoverBlock->TargetEntity()->ObjectTransform()->RotationQuaternion());
+		newCube->MeshName(hoverBlock->TargetEntity()->MeshName());
+		newCube->ColliderMeshName("Cube");
+		newCube->MaterialName("Solid");
+		newCube->AddProperty("Block", "");
+		newCube->MeshColorIndex(hoverBlock->TargetEntity()->MeshColorIndex());
+	}
 }
 
-void DrawBlockTool::RefreshHoverBlock(ApplicationContext * context)
+void DrawBlockTool::RefreshHoverBlocks(ApplicationContext * context)
 {
-	hoverBlock->TargetEntity()->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
-	hoverBlock->TargetEntity()->MaterialName("Hover");
-	hoverBlock->TargetEntity()->ColliderMeshName("Cube");
-	hoverBlock->TargetEntity()->MeshColorIndex(context->ApplicationBlockManager()->SelectedColorIndex());
+	Scene* scene = context->ApplicationScene();
+	for (auto& hoverBlock : hoverBlocks)
+	{
+		scene->DestroyEntity(hoverBlock);
+	}
+	hoverBlocks.clear();
+
+	if (!context->ApplicationInput()->GetKey(Input::Keys::MOUSE_1))
+	{
+		hoverBlocks.push_back(context->ApplicationScene()->CreateEntity());
+		hoverBlocks[0]->TargetEntity()->ObjectTransform()->Position(drawStartPosition);
+		hoverBlocks[0]->TargetEntity()->ObjectTransform()->Rotation(drawRotation);
+		hoverBlocks[0]->TargetEntity()->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
+		hoverBlocks[0]->TargetEntity()->MaterialName("Hover");
+		hoverBlocks[0]->TargetEntity()->MeshColorIndex(context->ApplicationBlockManager()->SelectedColorIndex());
+		return;
+	}
+
+	if (drawMode == DrawModes::Point)
+	{
+		auto hoverBlock = context->ApplicationScene()->CreateEntity();
+		Entity* hoverBlockEntity = hoverBlock->TargetEntity();
+		hoverBlockEntity->MaterialName("Hover");
+		hoverBlockEntity->ObjectTransform()->Position(drawEndPosition);
+		hoverBlockEntity->ObjectTransform()->Rotation(drawRotation);
+		hoverBlockEntity->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
+		hoverBlockEntity->MeshColorIndex(context->ApplicationBlockManager()->SelectedColorIndex());
+		this->hoverBlocks.push_back(hoverBlock);
+	}
+	else if (drawMode == DrawModes::Rectangle)
+	{
+		glm::vec3 buildVector = this->drawEndPosition - this->drawStartPosition;
+
+		int endX = glm::abs((int)buildVector.x);
+		int endY = glm::abs((int)buildVector.y);
+		int endZ = glm::abs((int)buildVector.z);
+
+		for (int x = 0; x <= endX; x++)
+		{
+			for (int y = 0; y <= endY; y++)
+			{
+				for (int z = 0; z <= endZ; z++)
+				{
+					glm::vec3 blockPosition = glm::vec3(
+						this->drawStartPosition.x + (x * glm::sign(this->drawEndPosition.x - this->drawStartPosition.x)),
+						this->drawStartPosition.y + (y * glm::sign(this->drawEndPosition.y - this->drawStartPosition.y)),
+						this->drawStartPosition.z + (z * glm::sign(this->drawEndPosition.z - this->drawStartPosition.z)));
+
+					auto hoverBlock = context->ApplicationScene()->CreateEntity();
+					Entity* hoverBlockEntity = hoverBlock->TargetEntity();
+
+					hoverBlockEntity->MaterialName("Hover");
+					hoverBlockEntity->ObjectTransform()->Position(blockPosition);
+					hoverBlockEntity->ObjectTransform()->Rotation(drawRotation);
+					hoverBlockEntity->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
+					hoverBlockEntity->MeshColorIndex(context->ApplicationBlockManager()->SelectedColorIndex());
+					this->hoverBlocks.push_back(hoverBlock);
+				}
+			}
+		}
+	}
 }
 
 void DrawBlockTool::DisableTool(ApplicationContext * context)
 {
 	Scene* scene = context->ApplicationScene();
-	scene->DestroyEntity(hoverBlock);
+	for (auto& hoverBlock : hoverBlocks)
+	{
+		scene->DestroyEntity(hoverBlock);
+	}
 
-	hoverBlock.reset();
+	hoverBlocks.clear();
 }

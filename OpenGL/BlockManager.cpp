@@ -38,28 +38,28 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 
 void BlockManager::SelectNextBlock()
 {
-	selectedBlockIndex = (selectedBlockIndex + 1) % blockNames.size();
+	int blockCount = blockNames.size();
+	selectedBlockIndex = (((selectedBlockIndex + 1) % blockCount) + blockCount) % blockCount;
 	selectedBlockPreviewDirty = true;
 	selectedColorIndex = 0;
 }
 
 void BlockManager::SelectPreviousBlock()
 {
-	selectedBlockIndex = (selectedBlockIndex - 1) % blockNames.size();
+	int blockCount = blockNames.size();
+	selectedBlockIndex = (((selectedBlockIndex - 1) % blockCount) + blockCount) % blockCount;
 	selectedBlockPreviewDirty = true;
 	selectedColorIndex = 0;
 }
 
 void BlockManager::SelectNextColorIndex()
 {
-	selectedColorIndex = (selectedColorIndex + 1) % selectedBlockColorCount;
+	selectedColorIndex = (((selectedColorIndex + 1) % selectedBlockColorCount) + selectedBlockColorCount) % selectedBlockColorCount;
 }
 
 void BlockManager::SelectPreviousColorIndex()
 {
-	int a = selectedColorIndex;
-	selectedColorIndex = (selectedColorIndex - 1) % (size_t)selectedBlockColorCount;
-	int b = selectedColorIndex;
+	selectedColorIndex = (((selectedColorIndex - 1) % selectedBlockColorCount) + selectedBlockColorCount) % selectedBlockColorCount;
 }
 
 BlockMap BlockManager::BlockPositionMap(Scene * scene)
