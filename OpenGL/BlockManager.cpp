@@ -16,7 +16,7 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 {
 	if (selectedBlockPreviewDirty)
 	{
-		context->ApplicationRenderer()->RenderModelPreview(this->SelectedBlockName());
+		context->ApplicationRenderer()->RenderModelPreview(this->SelectedBlockName(), this->selectedColorIndex);
 		selectedBlockPreviewDirty = false;
 		selectedBlockColorCount = context->ApplicationRenderer()->ModelUVIndexCount(SelectedBlockName());
 	}
@@ -55,11 +55,13 @@ void BlockManager::SelectPreviousBlock()
 void BlockManager::SelectNextColorIndex()
 {
 	selectedColorIndex = (((selectedColorIndex + 1) % selectedBlockColorCount) + selectedBlockColorCount) % selectedBlockColorCount;
+	selectedBlockPreviewDirty = true;
 }
 
 void BlockManager::SelectPreviousColorIndex()
 {
 	selectedColorIndex = (((selectedColorIndex - 1) % selectedBlockColorCount) + selectedBlockColorCount) % selectedBlockColorCount;
+	selectedBlockPreviewDirty = true;
 }
 
 BlockMap BlockManager::BlockPositionMap(Scene * scene)

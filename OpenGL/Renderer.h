@@ -18,7 +18,7 @@ public:
 	int ModelCount() const;
 	std::unordered_map<std::string, Model*> Models() const { return models; }
 	unsigned int ModelPreviewTextureID() const { return this->modelPreviewTextureID; }
-	void RenderModelPreview(std::string modelName);
+	void RenderModelPreview(std::string modelName, int meshColorIndex);
 	int ModelUVIndexCount(std::string modelName) const;
 
 private:

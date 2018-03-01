@@ -2,9 +2,6 @@
 
 void EntitySelectionManager::SelectEntity(std::shared_ptr<EntityHandle> entityHandle)
 {
-	int a = 1;
-	int b = 2;
-
 	if (entityHandle->EntityExists()
 		&& entityHandle->TargetEntity()->HasProperty("Block")
 		&& std::find(selectedEntities.begin(), selectedEntities.end(), entityHandle) == selectedEntities.end())

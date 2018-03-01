@@ -259,7 +259,7 @@ void Renderer::SetUpModelPreview()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Renderer::RenderModelPreview(std::string modelName)
+void Renderer::RenderModelPreview(std::string modelName, int meshColorIndex)
 {
 	glViewport(0, 0, modelPreviewTextureSize, modelPreviewTextureSize);
 	glBindFramebuffer(GL_FRAMEBUFFER, this->modelPreviewFBO);
@@ -284,9 +284,9 @@ void Renderer::RenderModelPreview(std::string modelName)
 		defaultShader->setMat4("view", glm::value_ptr(view));
 		defaultShader->setMat4("projection", glm::value_ptr(projection));
 		defaultShader->setMat4("model", glm::value_ptr(model));
-		defaultShader->setVec3("objectColor", glm::vec3(0.2f, 0.2f, 0.8f));
+		defaultShader->setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
 		defaultShader->setVec3("cameraPosition", glm::vec3(0.0f, 0.0f, 0.0f));
-		models[modelName]->Draw(*defaultShader);
+		models[modelName]->Draw(*defaultShader, meshColorIndex);
 	}
 	else
 	{
