@@ -11,6 +11,7 @@ DrawBlockTool::DrawBlockTool(ApplicationContext* context)
 
 	selectedDrawModeIndex = 0;
 	drawMode = DrawModes::Point;
+	buildState = BuildStates::PlaceFirstBlock;
 }
 
 void DrawBlockTool::Update(ApplicationContext* context)
@@ -43,54 +44,48 @@ void DrawBlockTool::Update(ApplicationContext* context)
 		return;
 	}
 
-	Window* window = context->ApplicationWindow();
-	Scene* scene = context->ApplicationScene();
-	Physics* physics = context->ApplicationPhysics();
-
-	Camera* camera = scene->ActiveCamera();
-	Transform* cameraTransform = camera->Owner()->ObjectTransform();
-
-	if (input->GetKeyUp(Input::Keys::MOUSE_1))
+	if (input->GetKeyDown(Input::Keys::MOUSE_1))
 	{
-		this->PlaceBlocks(scene);
+		buildState = BuildStates::PlaceLastBlock;
 	}
-
-	glm::vec3 mouseDirection = camera->ScreenToWorldDirection(input->MouseX(), input->MouseY(), window->Width(), window->Height());
-	RaycastHit hit = physics->Raycast(scene, cameraTransform->Position(), mouseDirection, 100.0f);
-	if (hit.hit)
+	else if (input->GetKeyUp(Input::Keys::MOUSE_1))
 	{
-		Entity* hitEntity = hit.entity->TargetEntity();
-		glm::vec3 newPos;
-
-		if (hitEntity->ColliderMeshName() == "Plane" || hitEntity->ColliderMeshName() == "PlaneBottom")
+		if (buildState == BuildStates::Canceled)
 		{
-			newPos = hit.point;
-			if (hit.normal.y != 0.0f)
-			{
-				newPos.x = glm::round(newPos.x);
-				newPos.y = hitEntity->ObjectTransform()->Position().y;
-				newPos.z = glm::round(newPos.z);
-			}
+			buildState = BuildStates::PlaceFirstBlock;
 		}
 		else
 		{
-			newPos = hitEntity->ObjectTransform()->Position() + hit.normal;
-			context->ApplicationDebug()->LogToUI("Draw Position", newPos);
+			buildState = BuildStates::Completed;
 		}
+	}
+	else if (input->GetKeyDown(Input::Keys::MOUSE_2))
+	{
+		buildState = BuildStates::Canceled;
+		this->RefreshHoverBlocks(context);
+	}
 
-		if (input->GetKey(Input::Keys::MOUSE_1))
+	if (buildState == BuildStates::Completed)
+	{
+		this->PlaceBlocks(context->ApplicationScene());
+	}
+
+	glm::vec3 newBlockPos;
+	if (this->GetHoverBlockPosition(context, newBlockPos))
+	{
+		if (buildState == BuildStates::PlaceFirstBlock)
 		{
-			if (drawEndPosition != newPos)
+			if (drawStartPosition != newBlockPos)
 			{
-				drawEndPosition = newPos;
+				drawStartPosition = newBlockPos;
 				this->RefreshHoverBlocks(context);
 			}
 		}
-		else
+		else if (buildState == BuildStates::PlaceLastBlock)
 		{
-			if (drawStartPosition != newPos)
+			if (drawEndPosition != newBlockPos)
 			{
-				drawStartPosition = newPos;
+				drawEndPosition = newBlockPos;
 				this->RefreshHoverBlocks(context);
 			}
 		}
@@ -98,33 +93,27 @@ void DrawBlockTool::Update(ApplicationContext* context)
 
 	if (input->GetKeyDown(Input::Keys::KEY_E))
 	{
-		drawRotation = glm::rotate(glm::quat(), glm::radians(-90.f), glm::vec3(0.0f, 1.0f, 0.0f)) * drawRotation;
-		this->RefreshHoverBlocks(context);
+		this->RotateHoverBlocks(context, glm::vec3(0.0f, 1.0f, 0.0f), -90.0f);
 	}
-	if (input->GetKeyDown(Input::Keys::KEY_Q))
+	else if (input->GetKeyDown(Input::Keys::KEY_Q))
 	{
-		drawRotation = glm::rotate(glm::quat(), glm::radians(90.f), glm::vec3(0.0f, 1.0f, 0.0f)) * drawRotation;
-		this->RefreshHoverBlocks(context);
+		this->RotateHoverBlocks(context, glm::vec3(0.0f, 1.0f, 0.0f), 90.0f);
 	}
-	if (input->GetKeyDown(Input::Keys::KEY_W))
+	else if (input->GetKeyDown(Input::Keys::KEY_W))
 	{
-		drawRotation = glm::rotate(glm::quat(), glm::radians(90.f), glm::vec3(1.0f, 0.0f, 0.0f)) * drawRotation;
-		this->RefreshHoverBlocks(context);
+		this->RotateHoverBlocks(context, glm::vec3(1.0f, 0.0f, 0.0f), 90.0f);
 	}
-	if (input->GetKeyDown(Input::Keys::KEY_S))
+	else if (input->GetKeyDown(Input::Keys::KEY_S))
 	{
-		drawRotation = glm::rotate(glm::quat(), glm::radians(-90.f), glm::vec3(1.0f, 0.0f, 0.0f)) * drawRotation;
-		this->RefreshHoverBlocks(context);
+		this->RotateHoverBlocks(context, glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
 	}
-	if (input->GetKeyDown(Input::Keys::KEY_A))
+	else if (input->GetKeyDown(Input::Keys::KEY_A))
 	{
-		drawRotation = glm::rotate(glm::quat(), glm::radians(90.f), glm::vec3(0.0f, 0.0f, 1.0f)) * drawRotation;
-		this->RefreshHoverBlocks(context);
+		this->RotateHoverBlocks(context, glm::vec3(0.0f, 0.0f, 1.0f), 90.0f);
 	}
-	if (input->GetKeyDown(Input::Keys::KEY_D))
+	else if (input->GetKeyDown(Input::Keys::KEY_D))
 	{
-		drawRotation = glm::rotate(glm::quat(), glm::radians(-90.f), glm::vec3(0.0f, 0.0f, 1.0f)) * drawRotation;
-		this->RefreshHoverBlocks(context);
+		this->RotateHoverBlocks(context, glm::vec3(0.0f, 0.0f, 1.0f), -90.0f);
 	}
 }
 
@@ -162,18 +151,20 @@ void DrawBlockTool::PlaceBlocks(Scene* scene)
 		newCube->AddProperty("Block", "");
 		newCube->MeshColorIndex(hoverBlock->TargetEntity()->MeshColorIndex());
 	}
+
+	buildState = BuildStates::PlaceFirstBlock;
 }
 
 void DrawBlockTool::RefreshHoverBlocks(ApplicationContext * context)
 {
 	Scene* scene = context->ApplicationScene();
-	for (auto& hoverBlock : hoverBlocks)
-	{
-		scene->DestroyEntity(hoverBlock);
-	}
-	hoverBlocks.clear();
+	this->ClearHoverBlocks(scene);
 
-	if (!context->ApplicationInput()->GetKey(Input::Keys::MOUSE_1))
+	if (buildState == BuildStates::Canceled)
+	{
+		return;
+	}
+	else if (buildState == BuildStates::PlaceFirstBlock)
 	{
 		hoverBlocks.push_back(context->ApplicationScene()->CreateEntity());
 		hoverBlocks[0]->TargetEntity()->ObjectTransform()->Position(drawStartPosition);
@@ -232,10 +223,60 @@ void DrawBlockTool::RefreshHoverBlocks(ApplicationContext * context)
 void DrawBlockTool::DisableTool(ApplicationContext * context)
 {
 	Scene* scene = context->ApplicationScene();
+	this->ClearHoverBlocks(scene);
+}
+
+void DrawBlockTool::ClearHoverBlocks(Scene * scene)
+{
 	for (auto& hoverBlock : hoverBlocks)
 	{
 		scene->DestroyEntity(hoverBlock);
 	}
-
 	hoverBlocks.clear();
+}
+
+void DrawBlockTool::RotateHoverBlocks(ApplicationContext * context, glm::vec3 axis, float angleDegrees)
+{
+	drawRotation = glm::rotate(glm::quat(), glm::radians(angleDegrees), axis) * drawRotation;
+	this->RefreshHoverBlocks(context);
+}
+
+bool DrawBlockTool::GetHoverBlockPosition(ApplicationContext * context, glm::vec3 & newBlockPosition)
+{
+	Window* window = context->ApplicationWindow();
+	Scene* scene = context->ApplicationScene();
+	Physics* physics = context->ApplicationPhysics();
+	Input* input = context->ApplicationInput();
+	Camera* camera = scene->ActiveCamera();
+	Transform* cameraTransform = camera->Owner()->ObjectTransform();
+
+	glm::vec3 mouseDirection = camera->ScreenToWorldDirection(input->MouseX(), input->MouseY(), window->Width(), window->Height());
+	RaycastHit hit = physics->Raycast(scene, cameraTransform->Position(), mouseDirection, 100.0f);
+	if (hit.hit)
+	{
+		Entity* hitEntity = hit.entity->TargetEntity();
+		glm::vec3 newPos;
+
+		if (hitEntity->ColliderMeshName() == "Plane" || hitEntity->ColliderMeshName() == "PlaneBottom")
+		{
+			newPos = hit.point;
+			if (hit.normal.y != 0.0f)
+			{
+				newPos.x = glm::round(newPos.x);
+				newPos.y = hitEntity->ObjectTransform()->Position().y;
+				newPos.z = glm::round(newPos.z);
+			}
+		}
+		else
+		{
+			newPos = hitEntity->ObjectTransform()->Position() + hit.normal;
+			context->ApplicationDebug()->LogToUI("Draw Position", newPos);
+		}
+
+		newBlockPosition = newPos;
+
+		return true;
+	}
+
+	return false;
 }
