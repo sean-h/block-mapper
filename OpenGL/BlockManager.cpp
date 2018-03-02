@@ -12,6 +12,28 @@ BlockManager::BlockManager(FileManager * fileManager)
 	selectedBlockPreviewDirty = true;
 }
 
+void BlockManager::Update(ApplicationContext * context)
+{
+	Input* input = context->ApplicationInput();
+
+	if (input->GetKeyDown(Input::Keys::KEY_PERIOD))
+	{
+		context->ApplicationBlockManager()->SelectNextBlock();
+	}
+	if (input->GetKeyDown(Input::Keys::KEY_COMMA))
+	{
+		context->ApplicationBlockManager()->SelectPreviousBlock();
+	}
+	if (input->GetKeyDown(Input::Keys::KEY_APOSTROPHE))
+	{
+		context->ApplicationBlockManager()->SelectNextColorIndex();
+	}
+	if (input->GetKeyDown(Input::Keys::KEY_SEMICOLON))
+	{
+		context->ApplicationBlockManager()->SelectPreviousColorIndex();
+	}
+}
+
 void BlockManager::DrawGUI(ApplicationContext * context)
 {
 	if (selectedBlockPreviewDirty)

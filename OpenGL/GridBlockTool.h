@@ -37,4 +37,6 @@ private:
 	std::vector<std::shared_ptr<EntityHandle>> hoverBlocks;
 	BuildSteps buildStep;
 	Shapes drawShape;
+	std::string selectedBlockName;
+	int selectedBlockColorIndex;
 };

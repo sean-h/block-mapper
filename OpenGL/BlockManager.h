@@ -26,6 +26,7 @@ class BlockManager
 {
 public:
 	BlockManager(FileManager* fileManager);
+	void Update(ApplicationContext* context);
 	void DrawGUI(ApplicationContext* context);
 	std::string SelectedBlockName() const { return blockNames[selectedBlockIndex]; }
 	int SelectedColorIndex() const { return selectedColorIndex; }

@@ -41,6 +41,8 @@ private:
 	BuildStates buildState;
 	glm::quat drawRotation;
 	int selectedDrawModeIndex;
+	std::string selectedBlockName;
+	int selectedBlockColorIndex;
 
 	glm::vec3 drawStartPosition;
 	glm::vec3 drawEndPosition;

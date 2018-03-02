@@ -12,30 +12,19 @@ DrawBlockTool::DrawBlockTool(ApplicationContext* context)
 	selectedDrawModeIndex = 0;
 	drawMode = DrawModes::Point;
 	buildState = BuildStates::PlaceFirstBlock;
+	selectedBlockName = "";
+	selectedBlockColorIndex = 0;
 }
 
 void DrawBlockTool::Update(ApplicationContext* context)
 {
 	Input* input = context->ApplicationInput();
+	BlockManager* blockManager = context->ApplicationBlockManager();
 	
-	if (input->GetKeyDown(Input::Keys::KEY_PERIOD))
+	if (selectedBlockName != blockManager->SelectedBlockName() || selectedBlockColorIndex != blockManager->SelectedColorIndex())
 	{
-		context->ApplicationBlockManager()->SelectNextBlock();
-		this->RefreshHoverBlocks(context);
-	}
-	if (input->GetKeyDown(Input::Keys::KEY_COMMA))
-	{
-		context->ApplicationBlockManager()->SelectPreviousBlock();
-		this->RefreshHoverBlocks(context);
-	}
-	if (input->GetKeyDown(Input::Keys::KEY_APOSTROPHE))
-	{
-		context->ApplicationBlockManager()->SelectNextColorIndex();
-		this->RefreshHoverBlocks(context);
-	}
-	if (input->GetKeyDown(Input::Keys::KEY_SEMICOLON))
-	{
-		context->ApplicationBlockManager()->SelectPreviousColorIndex();
+		selectedBlockName = blockManager->SelectedBlockName();
+		selectedBlockColorIndex = blockManager->SelectedColorIndex();
 		this->RefreshHoverBlocks(context);
 	}
 

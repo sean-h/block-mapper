@@ -18,14 +18,11 @@ int main()
 		if (!window->IsWindowMinimized())
 		{
 			input->PollWindowInput(window->GLFWWindow());
-			if (input->GetKey(Input::Keys::KEY_ESCAPE))
-			{
-				//window->Close();
-			}
 			input->MouseOverGUIElement(applicationContext.ApplicationGUIManager()->MouseOverGUIElement(input->MouseX(), input->MouseY()));
 
 			Scene* scene = applicationContext.ApplicationScene();
 			scene->Update(&applicationContext);
+			applicationContext.ApplicationBlockManager()->Update(&applicationContext);
 			applicationContext.ApplicationToolManager()->Update(&applicationContext);
 
 			applicationContext.ApplicationGUIManager()->StartFrame();

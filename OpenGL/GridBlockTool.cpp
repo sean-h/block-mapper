@@ -7,6 +7,8 @@ GridBlockTool::GridBlockTool(ApplicationContext * context)
 	this->lastBlockPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 	drawShape = Shapes::HollowCube;
 	buildStep = BuildSteps::PlaceFirstBlock;
+	selectedBlockName = "";
+	selectedBlockColorIndex = 0;
 
 	this->PlaceHoverBlocks(context);
 }
@@ -14,6 +16,14 @@ GridBlockTool::GridBlockTool(ApplicationContext * context)
 void GridBlockTool::Update(ApplicationContext * context)
 {
 	Input* input = context->ApplicationInput();
+	BlockManager* blockManager = context->ApplicationBlockManager();
+
+	if (selectedBlockName != blockManager->SelectedBlockName() || selectedBlockColorIndex != blockManager->SelectedColorIndex())
+	{
+		selectedBlockName = blockManager->SelectedBlockName();
+		selectedBlockColorIndex = blockManager->SelectedColorIndex();
+		this->PlaceHoverBlocks(context);
+	}
 
 	if (input->MouseOverGUIElement())
 	{
