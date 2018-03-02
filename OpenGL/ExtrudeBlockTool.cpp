@@ -13,12 +13,22 @@ ExtrudeBlockTool::ExtrudeBlockTool(ApplicationContext * context)
 
 	extrudeDirection = glm::vec3(0.0f, 1.0f, 0.0f);
 	extrudeDistance = 0;
+	selectedBlockName = "";
+	selectedBlockColorIndex = 0;
 	this->MoveBlock(context, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void ExtrudeBlockTool::Update(ApplicationContext * context)
 {
 	Input* input = context->ApplicationInput();
+	BlockManager* blockManager = context->ApplicationBlockManager();
+
+	if (selectedBlockName != blockManager->SelectedBlockName() || selectedBlockColorIndex != blockManager->SelectedColorIndex())
+	{
+		selectedBlockName = blockManager->SelectedBlockName();
+		selectedBlockColorIndex = blockManager->SelectedColorIndex();
+		this->RefreshHoverBlocks(context);
+	}
 
 	if (input->MouseOverGUIElement())
 	{
@@ -72,13 +82,6 @@ void ExtrudeBlockTool::DisableTool(ApplicationContext * context)
 
 void ExtrudeBlockTool::MoveBlock(ApplicationContext * context, glm::vec3 direction)
 {
-	Scene* scene = context->ApplicationScene();
-	for (auto& block : hoverBlocks)
-	{
-		scene->DestroyEntity(block);
-	}
-	hoverBlocks.clear();
-
 	if (direction == extrudeDirection)
 	{
 		extrudeDistance++;
@@ -98,19 +101,7 @@ void ExtrudeBlockTool::MoveBlock(ApplicationContext * context, glm::vec3 directi
 		extrudeDistance = 1;
 	}
 
-	for (int i = 1; i <= extrudeDistance; i++)
-	{
-		for (auto& point : extrudeFromPoints)
-		{
-			auto hoverBlock = scene->CreateEntity();
-			Entity* hoverBlockEntity = hoverBlock->TargetEntity();
-			hoverBlockEntity->ObjectTransform()->Position(point + extrudeDirection * (float)i);
-			hoverBlockEntity->MaterialName("Hover");
-			hoverBlockEntity->ColliderMeshName("Cube");
-			hoverBlockEntity->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
-			hoverBlocks.push_back(hoverBlock);
-		}
-	}
+	this->RefreshHoverBlocks(context);
 }
 
 void ExtrudeBlockTool::Apply()
@@ -121,4 +112,29 @@ void ExtrudeBlockTool::Apply()
 		block->TargetEntity()->AddProperty("Block", "");
 	}
 	this->hoverBlocks.clear();
+}
+
+void ExtrudeBlockTool::RefreshHoverBlocks(ApplicationContext * context)
+{
+	Scene* scene = context->ApplicationScene();
+	for (auto& block : hoverBlocks)
+	{
+		scene->DestroyEntity(block);
+	}
+	hoverBlocks.clear();
+
+	for (int i = 1; i <= extrudeDistance; i++)
+	{
+		for (auto& point : extrudeFromPoints)
+		{
+			auto hoverBlock = scene->CreateEntity();
+			Entity* hoverBlockEntity = hoverBlock->TargetEntity();
+			hoverBlockEntity->ObjectTransform()->Position(point + extrudeDirection * (float)i);
+			hoverBlockEntity->MaterialName("Hover");
+			hoverBlockEntity->ColliderMeshName("Cube");
+			hoverBlockEntity->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
+			hoverBlockEntity->MeshColorIndex(context->ApplicationBlockManager()->SelectedColorIndex());
+			hoverBlocks.push_back(hoverBlock);
+		}
+	}
 }

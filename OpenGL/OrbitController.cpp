@@ -48,6 +48,25 @@ void OrbitController::Update(ApplicationContext * context)
 	{
 		this->Zoom(input->ScrollWheel());
 	}
+
+	if (input->GetKeyDown(Input::Keys::KEY_DELETE))
+	{
+		glm::vec3 newOrbitPoint;
+
+		int selectedEntityCount = 0;
+		for (auto& selectedEntity : context->ApplicationEntitySelectionManager()->SelectedEntities())
+		{
+			newOrbitPoint += selectedEntity->TargetEntity()->ObjectTransform()->Position();
+			selectedEntityCount++;
+		}
+
+		if (selectedEntityCount > 0)
+		{
+			newOrbitPoint /= (float)selectedEntityCount;
+			this->orbitPoint = newOrbitPoint;
+			this->Rotate(0.0f, 0.0f);
+		}
+	}
 }
 
 void OrbitController::Rotate(float x, float y)

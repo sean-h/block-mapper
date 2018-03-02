@@ -18,9 +18,12 @@ public:
 private:
 	void MoveBlock(ApplicationContext* context, glm::vec3 direction);
 	void Apply();
+	void RefreshHoverBlocks(ApplicationContext* context);
 
 	std::vector<glm::vec3> extrudeFromPoints;
 	std::vector<std::shared_ptr<EntityHandle>> hoverBlocks;
 	glm::vec3 extrudeDirection;
 	int extrudeDistance;
+	std::string selectedBlockName;
+	int selectedBlockColorIndex;
 };
