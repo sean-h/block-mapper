@@ -1,32 +1,36 @@
 #include "EntitySelectionManager.h"
+#include "Scene.h"
 
-void EntitySelectionManager::SelectEntity(std::shared_ptr<EntityHandle> entityHandle)
+void EntitySelectionManager::SelectEntity(Scene* scene, std::shared_ptr<EntityHandle> entityHandle)
 {
 	if (entityHandle->EntityExists()
 		&& entityHandle->TargetEntity()->HasProperty("Block")
 		&& std::find(selectedEntities.begin(), selectedEntities.end(), entityHandle) == selectedEntities.end())
 	{
 		entityHandle->TargetEntity()->MaterialName("Selected");
+		scene->RefreshEntityRenderData(entityHandle);
 		selectedEntities.push_back(entityHandle);
 	}
 }
 
-void EntitySelectionManager::DeselectEntity(std::shared_ptr<EntityHandle> entityHandle)
+void EntitySelectionManager::DeselectEntity(Scene* scene, std::shared_ptr<EntityHandle> entityHandle)
 {
 	if (entityHandle->EntityExists())
 	{
 		entityHandle->TargetEntity()->MaterialName("Solid");
+		scene->RefreshEntityRenderData(entityHandle);
 		selectedEntities.erase(std::remove(selectedEntities.begin(), selectedEntities.end(), entityHandle), selectedEntities.end());
 	}
 }
 
-void EntitySelectionManager::DeselectAll()
+void EntitySelectionManager::DeselectAll(Scene* scene)
 {
 	for (auto& e : selectedEntities)
 	{
 		if (e->EntityExists())
 		{
 			e->TargetEntity()->MaterialName("Solid");
+			scene->RefreshEntityRenderData(e);
 		}
 	}
 

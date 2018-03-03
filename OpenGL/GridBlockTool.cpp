@@ -81,9 +81,11 @@ void GridBlockTool::DisableTool(ApplicationContext * context)
 
 void GridBlockTool::PlaceHoverBlocks(ApplicationContext * context)
 {
+	Scene* scene = context->ApplicationScene();
+
 	for (int i = 0; i < this->hoverBlocks.size(); i++)
 	{
-		context->ApplicationScene()->DestroyEntity(hoverBlocks[i]);
+		scene->DestroyEntity(hoverBlocks[i]);
 	}
 	this->hoverBlocks.clear();
 
@@ -113,6 +115,7 @@ void GridBlockTool::PlaceHoverBlocks(ApplicationContext * context)
 					hoverBlockEntity->ObjectTransform()->Position(blockPosition);
 					hoverBlockEntity->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
 					hoverBlockEntity->ColliderMeshName("Cube");
+					scene->RefreshEntityRenderData(hoverBlock);
 
 					this->hoverBlocks.push_back(hoverBlock);
 				}
@@ -139,10 +142,12 @@ void GridBlockTool::MoveBlock(ApplicationContext * context, glm::vec3 moveDirect
 
 void GridBlockTool::Apply(ApplicationContext * context)
 {
+	Scene* scene = context->ApplicationScene();
 	for (auto& block : hoverBlocks)
 	{
 		block->TargetEntity()->MaterialName("Solid");
 		block->TargetEntity()->AddProperty("Block", "");
+		scene->RefreshEntityRenderData(block);
 	}
 	this->hoverBlocks.clear();
 

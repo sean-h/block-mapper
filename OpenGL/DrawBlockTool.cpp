@@ -139,6 +139,7 @@ void DrawBlockTool::PlaceBlocks(Scene* scene)
 		newCube->MaterialName("Solid");
 		newCube->AddProperty("Block", "");
 		newCube->MeshColorIndex(hoverBlock->TargetEntity()->MeshColorIndex());
+		scene->RefreshEntityRenderData(newCubeHandle);
 	}
 
 	buildState = BuildStates::PlaceFirstBlock;
@@ -161,6 +162,7 @@ void DrawBlockTool::RefreshHoverBlocks(ApplicationContext * context)
 		hoverBlocks[0]->TargetEntity()->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
 		hoverBlocks[0]->TargetEntity()->MaterialName("Hover");
 		hoverBlocks[0]->TargetEntity()->MeshColorIndex(context->ApplicationBlockManager()->SelectedColorIndex());
+		scene->RefreshEntityRenderData(hoverBlocks[0]);
 		return;
 	}
 
@@ -174,6 +176,7 @@ void DrawBlockTool::RefreshHoverBlocks(ApplicationContext * context)
 		hoverBlockEntity->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
 		hoverBlockEntity->MeshColorIndex(context->ApplicationBlockManager()->SelectedColorIndex());
 		this->hoverBlocks.push_back(hoverBlock);
+		scene->RefreshEntityRenderData(hoverBlock);
 	}
 	else if (drawMode == DrawModes::Rectangle)
 	{
@@ -203,6 +206,7 @@ void DrawBlockTool::RefreshHoverBlocks(ApplicationContext * context)
 					hoverBlockEntity->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
 					hoverBlockEntity->MeshColorIndex(context->ApplicationBlockManager()->SelectedColorIndex());
 					this->hoverBlocks.push_back(hoverBlock);
+					scene->RefreshEntityRenderData(hoverBlock);
 				}
 			}
 		}

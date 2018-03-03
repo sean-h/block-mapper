@@ -17,7 +17,7 @@ public:
 
 private:
 	void MoveBlock(ApplicationContext* context, glm::vec3 direction);
-	void Apply();
+	void Apply(ApplicationContext* context);
 	void RefreshHoverBlocks(ApplicationContext* context);
 
 	std::vector<glm::vec3> extrudeFromPoints;

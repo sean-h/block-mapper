@@ -1,5 +1,6 @@
 #pragma once
 #include <unordered_map>
+#include <map>
 #include "Shader.h"
 #include "Model.h"
 #include "Material.h"
@@ -7,6 +8,16 @@
 #include "FileManager.h"
 
 class ApplicationContext;
+
+struct RenderObject
+{
+	int id;
+	glm::mat4 modelMatrix;
+	Mesh* mesh;
+	Material* material;
+	Shader* shader;
+	bool transparent;
+};
 
 class Renderer
 {
@@ -20,6 +31,9 @@ public:
 	unsigned int ModelPreviewTextureID() const { return this->modelPreviewTextureID; }
 	void RenderModelPreview(std::string modelName, int meshColorIndex);
 	int ModelUVIndexCount(std::string modelName) const;
+	int AddRenderObject(std::string meshName, int meshColorIndex, std::string materialName, glm::mat4 modelMatrix);
+	void RemoveRenderObject(int id);
+	void UpdateRenderObjectModelMatrix(int id, glm::mat4 modelMatrix);
 
 private:
 	void LoadShaders();
@@ -37,4 +51,7 @@ private:
 	std::unordered_map<std::string, Model*> models;
 	std::unordered_map<std::string, std::unique_ptr<Material>> materials;
 	std::unordered_map<std::string, unsigned int> textureIDs;
+
+	int renderObjectCounter;
+	std::map<int, RenderObject> renderObjects;
 };

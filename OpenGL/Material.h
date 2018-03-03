@@ -15,6 +15,11 @@ public:
 	float Opacity() const { return this->opacity; }
 	void Opacity(float opacity) { this->opacity = opacity; }
 
+	bool IsTransparent() const { return opacity < 1.0f; }
+
+	void Wireframe(bool wireframe) { this->wireframe = wireframe; }
+	bool Wireframe() const { return this->wireframe; }
+
 	std::string TextureName() const { return this->textureName; }
 	void TextureName(std::string name) { this->textureName = name; }
 
@@ -23,5 +28,6 @@ private:
 	glm::vec3 color;
 	float shininess;
 	float opacity;
+	bool wireframe;
 	std::string textureName;
 };

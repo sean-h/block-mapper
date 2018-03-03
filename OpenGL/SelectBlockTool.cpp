@@ -31,7 +31,7 @@ void SelectBlockTool::Update(ApplicationContext * context)
 		{
 			scene->DestroyEntity(block);
 		}
-		selectionManager->DeselectAll();
+		selectionManager->DeselectAll(scene);
 	}
 
 	if (selectionMode == SelectionModes::Box)
@@ -43,7 +43,8 @@ void SelectBlockTool::Update(ApplicationContext * context)
 			EntitySelectionManager* selectionManager = context->ApplicationEntitySelectionManager();
 			if (!input->GetKey(Input::Keys::KEY_LEFT_SHIFT))
 			{
-				selectionManager->DeselectAll();
+				Scene* scene = context->ApplicationScene();
+				selectionManager->DeselectAll(scene);
 			}
 		}
 		
@@ -89,7 +90,7 @@ void SelectBlockTool::Update(ApplicationContext * context)
 			auto enclosedEntites = context->ApplicationPhysics()->FrustumIntersect(context->ApplicationDebug(), scene, frustum);
 			for (auto& entity : enclosedEntites)
 			{
-				selectionManager->SelectEntity(entity);
+				selectionManager->SelectEntity(scene, entity);
 			}
 		}
 		return;
@@ -108,22 +109,22 @@ void SelectBlockTool::Update(ApplicationContext * context)
 		EntitySelectionManager* selectionManager = context->ApplicationEntitySelectionManager();
 		if (!input->GetKey(Input::Keys::KEY_LEFT_SHIFT))
 		{
-			selectionManager->DeselectAll();
+			selectionManager->DeselectAll(scene);
 		}
 
 		if (hit.hit)
 		{
 			if (selectionMode == SelectionModes::Single)
 			{
-				this->SelectSingle(selectionManager, hit.entity);
+				this->SelectSingle(selectionManager, scene, hit.entity);
 			}
 			else if (selectionMode == SelectionModes::Region)
 			{
-				this->SelectRegion(selectionManager, hit.entity, context->ApplicationBlockManager()->BlockPositionMap(scene));
+				this->SelectRegion(selectionManager, scene, hit.entity, context->ApplicationBlockManager()->BlockPositionMap(scene));
 			}
 			else if (selectionMode == SelectionModes::Border)
 			{
-				this->SelectBorder(selectionManager, hit.entity, context->ApplicationBlockManager()->BlockPositionMap(scene));
+				this->SelectBorder(selectionManager, scene, hit.entity, context->ApplicationBlockManager()->BlockPositionMap(scene));
 			}
 		}
 	}
@@ -155,14 +156,14 @@ void SelectBlockTool::DrawGUI(ApplicationContext * context)
 	}
 }
 
-void SelectBlockTool::SelectSingle(EntitySelectionManager * selectionManager, std::shared_ptr<EntityHandle> hitEntity)
+void SelectBlockTool::SelectSingle(EntitySelectionManager * selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity)
 {
-	selectionManager->SelectEntity(hitEntity);
+	selectionManager->SelectEntity(scene, hitEntity);
 }
 
-void SelectBlockTool::SelectRegion(EntitySelectionManager * selectionManager, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap)
+void SelectBlockTool::SelectRegion(EntitySelectionManager * selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap)
 {
-	selectionManager->SelectEntity(hitEntity);
+	selectionManager->SelectEntity(scene, hitEntity);
 	glm::ivec3 gridPosition = hitEntity->TargetEntity()->ObjectTransform()->GridPosition();
 
 	std::set<glm::ivec3> visited;
@@ -186,14 +187,14 @@ void SelectBlockTool::SelectRegion(EntitySelectionManager * selectionManager, st
 			auto adjacentBlock = blockMap[pos];
 			if (adjacentBlock)
 			{
-				selectionManager->SelectEntity(adjacentBlock);
+				selectionManager->SelectEntity(scene, adjacentBlock);
 				searchFrom.push(pos);
 			}
 		}
 	}
 }
 
-void SelectBlockTool::SelectBorder(EntitySelectionManager * selectionManager, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap)
+void SelectBlockTool::SelectBorder(EntitySelectionManager * selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap)
 {
 	if (!hitEntity->TargetEntity()->HasProperty("Block"))
 	{
@@ -230,7 +231,7 @@ void SelectBlockTool::SelectBorder(EntitySelectionManager * selectionManager, st
 
 		if (adjacentBlockCount < 4)
 		{
-			selectionManager->SelectEntity(blockMap[currentPosition]);
+			selectionManager->SelectEntity(scene, blockMap[currentPosition]);
 		}
 	}
 }

@@ -14,6 +14,7 @@ Renderer::Renderer(FileManager* fileManager)
 	this->LoadTextures(fileManager);
 
 	this->SetUpModelPreview();
+	renderObjectCounter = 0;
 }
 
 void Renderer::RenderScene(ApplicationContext* context)
@@ -25,72 +26,33 @@ void Renderer::RenderScene(ApplicationContext* context)
 	glViewport(0, 0, window->Width(), window->Height());
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	Shader* defaultShader = this->shaders["CameraLit"];
-	defaultShader->use();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, this->textureIDs["Palette"]);
 
 	glm::mat4 view = camera->ViewMatrix();
 	glm::mat4 projection = camera->ProjectionMatrix((float)window->Width(), (float)window->Height());
 
-	for (auto &shader : this->shaders)
+	for (auto& renderObjectPair : renderObjects)
 	{
-		shader.second->use();
-		shader.second->setMat4("view", glm::value_ptr(view));
-		shader.second->setMat4("projection", glm::value_ptr(projection));
+		RenderObject renderObject = renderObjectPair.second;
 
-		if (this->textureIDs.size() > 0)
+		renderObject.shader->use();
+		renderObject.shader->setVec3("cameraPosition", camera->Owner()->ObjectTransform()->Position());
+		renderObject.shader->setMat4("view", glm::value_ptr(view));
+		renderObject.shader->setMat4("projection", glm::value_ptr(projection));
+		renderObject.shader->setMat4("model", glm::value_ptr(renderObject.modelMatrix));
+		renderObject.shader->setVec3("objectColor", renderObject.material->Color());
+		renderObject.shader->setFloat("opacity", renderObject.material->Opacity());
+		renderObject.shader->setFloat("inverseColorMultiplier", 0.0f);
+
+		renderObject.mesh->Draw(*renderObject.shader);
+
+		if (renderObject.material->Wireframe())
 		{
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, this->textureIDs["Palette"]);
-		}
-	}
-
-	std::vector<Entity*> transparentEntities;
-
-	defaultShader->use();
-	defaultShader->setVec3("cameraPosition", camera->Owner()->ObjectTransform()->Position());
-	for (auto &e : scene->Entities())
-	{
-		if (e->MeshName().length() == 0 || e->HasProperty("Hidden"))
-		{
-			continue;
-		}
-
-		Material* material = materials[e->MaterialName()].get();
-		if (material->Opacity() < 1.0f)
-		{
-			transparentEntities.push_back(e.get());
-			continue;
-		}
-
-		glm::mat4 modelMatrix = e->ObjectTransform()->Model();
-		
-		Shader* shader = this->shaders[material->ShaderName()];
-		shader->use();
-		shader->setMat4("model", glm::value_ptr(modelMatrix));
-		shader->setVec3("objectColor", material->Color());
-
-		auto model = models.find(e->MeshName());
-		if (model != models.end())
-		{
-			model->second->Draw(*shader, e->MeshColorIndex());
-		}
-	}
-
-	// Draw transparent entities
-	Shader* transparentShader = this->shaders["Transparent"];
-	transparentShader->use();
-	for (auto &e : transparentEntities)
-	{
-		Material* material = materials[e->MaterialName()].get();
-		glm::mat4 modelMatrix = e->ObjectTransform()->Model();
-		transparentShader->setMat4("model", glm::value_ptr(modelMatrix));
-		transparentShader->setVec3("objectColor", material->Color());
-		transparentShader->setFloat("opacity", material->Opacity());
-
-		auto model = models.find(e->MeshName());
-		if (model != models.end())
-		{
-			model->second->Draw(*transparentShader, e->MeshColorIndex());
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			renderObject.shader->setFloat("inverseColorMultiplier", 1.0f);
+			renderObject.mesh->Draw(*renderObject.shader);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 	}
 }
@@ -146,14 +108,6 @@ void Renderer::LoadShaders()
 	shaders["CameraLit"] = new Shader("VertexShader.glsl", "CameraLitFragmentShader.glsl");
 	shaders["Transparent"] = new Shader("VertexShader.glsl", "TransparentFragmentShader.glsl");
 	shaders["Grid"] = new Shader("VertexShader.glsl", "GridFragmentShader.glsl");
-
-	unsigned int diffuseMap = loadTexture("container2.png");
-	unsigned int specularMap = loadTexture("container2_specular.png");
-	shaders["Default"]->use();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, diffuseMap);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, specularMap);
 }
 
 void Renderer::LoadModels(FileManager* fileManager)
@@ -180,14 +134,17 @@ void Renderer::LoadMaterials()
 	std::unique_ptr<Material> solidMaterial(new Material("CameraLit"));
 	solidMaterial->Color(glm::vec3(1.0f, 1.0f, 1.0f));
 	solidMaterial->Opacity(1.0f);
+	solidMaterial->Wireframe(false);
 
 	std::unique_ptr<Material> selectedMaterial(new Material("CameraLit"));
 	selectedMaterial->Color(glm::vec3(0.2f, 0.8f, 0.2f));
 	selectedMaterial->Opacity(1.0f);
+	selectedMaterial->Wireframe(true);
 
-	std::unique_ptr<Material> hoverMaterial(new Material("Transparent"));
-	hoverMaterial->Color(glm::vec3(0.2f, 0.2f, 0.6f));
-	hoverMaterial->Opacity(0.5f);
+	std::unique_ptr<Material> hoverMaterial(new Material("CameraLit"));
+	hoverMaterial->Color(glm::vec3(1.0f, 1.0f, 1.0f));
+	hoverMaterial->Opacity(1.0f);
+	hoverMaterial->Wireframe(true);
 
 	std::unique_ptr<Material> gridMaterial(new Material("Grid"));
 	gridMaterial->Color(glm::vec3(0.0f, 0.0f, 0.0f));
@@ -286,6 +243,7 @@ void Renderer::RenderModelPreview(std::string modelName, int meshColorIndex)
 		defaultShader->setMat4("model", glm::value_ptr(model));
 		defaultShader->setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
 		defaultShader->setVec3("cameraPosition", glm::vec3(0.0f, 0.0f, 0.0f));
+		defaultShader->setFloat("inverseColorMultiplier", 0.0f);
 		models[modelName]->Draw(*defaultShader, meshColorIndex);
 	}
 	else
@@ -307,4 +265,39 @@ int Renderer::ModelUVIndexCount(std::string modelName) const
 	}
 
 	return 0;
+}
+
+int Renderer::AddRenderObject(std::string meshName, int meshColorIndex, std::string materialName, glm::mat4 modelMatrix)
+{
+	RenderObject renderObject;
+	renderObject.material = this->materials[materialName].get();
+	renderObject.mesh = this->models[meshName]->GetMesh(meshColorIndex);
+	renderObject.shader = this->shaders[renderObject.material->ShaderName()];
+	renderObject.transparent = renderObject.material->IsTransparent();
+	renderObject.modelMatrix = modelMatrix;
+	renderObject.id = ++renderObjectCounter;
+
+	this->renderObjects[renderObject.id] = renderObject;
+
+	return renderObject.id;
+}
+
+void Renderer::RemoveRenderObject(int id)
+{
+	if (id <= 0)
+	{
+		return;
+	}
+
+	renderObjects.erase(id);
+}
+
+void Renderer::UpdateRenderObjectModelMatrix(int id, glm::mat4 modelMatrix)
+{
+	if (id <= 0)
+	{
+		return;
+	}
+
+	this->renderObjects[id].modelMatrix = modelMatrix;
 }

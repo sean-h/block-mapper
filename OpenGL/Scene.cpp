@@ -50,6 +50,7 @@ void Scene::Update(ApplicationContext* context)
 				if (entity->HasProperty("Hidden"))
 				{
 					entity->RemoveProperty("Hidden");
+					newRenderObjectsQueue.push(entity->Handle());
 				}
 			}
 		}
@@ -60,10 +61,11 @@ void Scene::Update(ApplicationContext* context)
 				if (entity->EntityExists())
 				{
 					entity->TargetEntity()->AddProperty("Hidden", "");
+					destroyedRenderObjectsQueue.push(entity->TargetEntity()->RenderID());
 				}
 			}
 
-			context->ApplicationEntitySelectionManager()->DeselectAll();
+			context->ApplicationEntitySelectionManager()->DeselectAll(this);
 		}
 	}
 
@@ -75,6 +77,35 @@ void Scene::Update(ApplicationContext* context)
 	for (auto &c : components)
 	{
 		c->Update(context);
+	}
+
+	Renderer* renderer = context->ApplicationRenderer();
+
+	while (newRenderObjectsQueue.size() > 0)
+	{
+		if (newRenderObjectsQueue.front()->EntityExists())
+		{
+			Entity* entity = newRenderObjectsQueue.front()->TargetEntity();
+			int renderID = renderer->AddRenderObject(entity->MeshName(), entity->MeshColorIndex(), entity->MaterialName(), entity->ObjectTransform()->Model());
+			entity->RenderID(renderID);
+		}
+		newRenderObjectsQueue.pop();
+	}
+
+	while (updatedRenderObjectsQueue.size() > 0)
+	{
+		if (updatedRenderObjectsQueue.front()->EntityExists())
+		{
+			Entity* entity = updatedRenderObjectsQueue.front()->TargetEntity();
+			renderer->UpdateRenderObjectModelMatrix(entity->RenderID(), entity->ObjectTransform()->Model());
+		}
+		updatedRenderObjectsQueue.pop();
+	}
+
+	while (destroyedRenderObjectsQueue.size() > 0)
+	{
+		renderer->RemoveRenderObject(destroyedRenderObjectsQueue.front());
+		destroyedRenderObjectsQueue.pop();
 	}
 }
 
@@ -112,6 +143,8 @@ void Scene::DrawGUI(ApplicationContext * context)
 		}
 		gridPlane->TargetEntity()->ObjectTransform()->Rotation(glm::vec3(90.0f, 0.0f, 0.0f));
 		gridPlaneBottom->TargetEntity()->ObjectTransform()->Rotation(glm::vec3(90.0f, 0.0f, 0.0f));
+		updatedRenderObjectsQueue.push(gridPlane);
+		updatedRenderObjectsQueue.push(gridPlaneBottom);
 	}
 	ImGui::SameLine();
 	if (GUI::ToggleButton("XZ", 2, this->selectedGridPlane, false))
@@ -122,6 +155,8 @@ void Scene::DrawGUI(ApplicationContext * context)
 		}
 		gridPlane->TargetEntity()->ObjectTransform()->Rotation(glm::vec3(0.0f, 0.0f, 0.0f));
 		gridPlaneBottom->TargetEntity()->ObjectTransform()->Rotation(glm::vec3(0.0f, 0.0f, 0.0f));
+		updatedRenderObjectsQueue.push(gridPlane);
+		updatedRenderObjectsQueue.push(gridPlaneBottom);
 	}
 	ImGui::SameLine();
 	if (GUI::ToggleButton("YZ", 3, this->selectedGridPlane, false))
@@ -132,6 +167,8 @@ void Scene::DrawGUI(ApplicationContext * context)
 		}
 		gridPlane->TargetEntity()->ObjectTransform()->Rotation(glm::vec3(0.0f, 0.0f, 90.0f));
 		gridPlaneBottom->TargetEntity()->ObjectTransform()->Rotation(glm::vec3(0.0f, 0.0f, 90.0f));
+		updatedRenderObjectsQueue.push(gridPlane);
+		updatedRenderObjectsQueue.push(gridPlaneBottom);
 	}
 	ImGui::SameLine();
 }
@@ -146,6 +183,12 @@ std::shared_ptr<EntityHandle> Scene::CreateEntity()
 void Scene::DestroyEntity(std::shared_ptr<EntityHandle> entityHandle)
 {
 	auto entity = std::find_if(entities.begin(), entities.end(), [&entityHandle](const std::unique_ptr<Entity>& entityObj) { return entityObj.get() == entityHandle->TargetEntity(); });
+
+	if (entity->get()->RenderID() > 0)
+	{
+		destroyedRenderObjectsQueue.push(entity->get()->RenderID());
+	}
+
 	entities.erase(entity);
 }
 
@@ -363,6 +406,35 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 				entity->TargetEntity()->AddProperty(propertyNode->Value(), propertyValue);
 			}
 		}
+
+		this->RefreshEntityRenderData(entity);
+	}
+}
+
+void Scene::RefreshEntityRenderData(std::shared_ptr<EntityHandle> entityHandle)
+{
+	if (entityHandle->EntityExists())
+	{
+		Entity* entity = entityHandle->TargetEntity();
+
+		// Delete old RenderObject
+		if (entity->RenderID() != 0)
+		{
+			destroyedRenderObjectsQueue.push(entity->RenderID());
+		}
+
+		if (!entity->HasProperty("Hidden") && entity->MeshName() != "")
+		{
+			newRenderObjectsQueue.push(entityHandle);
+		}
+	}
+}
+
+void Scene::RefreshEntityRenderModelMatrix(std::shared_ptr<EntityHandle> entityHandle)
+{
+	if (entityHandle->EntityExists() && entityHandle->TargetEntity()->RenderID() > 0)
+	{
+		updatedRenderObjectsQueue.push(entityHandle);
 	}
 }
 
@@ -395,6 +467,7 @@ void Scene::CreateGridPlanes()
 	gridPlaneEntity->MeshName("Plane");
 	gridPlaneEntity->ColliderMeshName("Plane");
 	gridPlaneEntity->MaterialName("Grid");
+	newRenderObjectsQueue.push(gridPlane);
 
 	gridPlaneBottom = this->CreateEntity();
 	Entity* gridPlaneBottomEntity = gridPlaneBottom->TargetEntity();
@@ -403,4 +476,5 @@ void Scene::CreateGridPlanes()
 	gridPlaneBottomEntity->MeshName("PlaneBottom");
 	gridPlaneBottomEntity->ColliderMeshName("PlaneBottom");
 	gridPlaneBottomEntity->MaterialName("Grid");
+	newRenderObjectsQueue.push(gridPlaneBottom);
 }

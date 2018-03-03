@@ -3,12 +3,14 @@
 #include <vector>
 #include <memory>
 
+class Scene;
+
 class EntitySelectionManager
 {
 public:
-	void SelectEntity(std::shared_ptr<EntityHandle> entityHandle);
-	void DeselectEntity(std::shared_ptr<EntityHandle> entityHandle);
-	void DeselectAll();
+	void SelectEntity(Scene* scene, std::shared_ptr<EntityHandle> entityHandle);
+	void DeselectEntity(Scene* scene, std::shared_ptr<EntityHandle> entityHandle);
+	void DeselectAll(Scene* scene);
 	std::vector<std::shared_ptr<EntityHandle>>& SelectedEntities();
 
 private:

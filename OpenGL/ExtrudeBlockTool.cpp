@@ -37,7 +37,7 @@ void ExtrudeBlockTool::Update(ApplicationContext * context)
 
 	if (input->GetKeyDown(Input::Keys::MOUSE_1))
 	{
-		this->Apply();
+		this->Apply(context);
 	}
 
 	if (input->GetKeyDown(Input::Keys::KEY_W))
@@ -104,12 +104,14 @@ void ExtrudeBlockTool::MoveBlock(ApplicationContext * context, glm::vec3 directi
 	this->RefreshHoverBlocks(context);
 }
 
-void ExtrudeBlockTool::Apply()
+void ExtrudeBlockTool::Apply(ApplicationContext* context)
 {
+	Scene* scene = context->ApplicationScene();
 	for (auto& block : hoverBlocks)
 	{
 		block->TargetEntity()->MaterialName("Solid");
 		block->TargetEntity()->AddProperty("Block", "");
+		scene->RefreshEntityRenderData(block);
 	}
 	this->hoverBlocks.clear();
 }
@@ -134,6 +136,7 @@ void ExtrudeBlockTool::RefreshHoverBlocks(ApplicationContext * context)
 			hoverBlockEntity->ColliderMeshName("Cube");
 			hoverBlockEntity->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
 			hoverBlockEntity->MeshColorIndex(context->ApplicationBlockManager()->SelectedColorIndex());
+			scene->RefreshEntityRenderData(hoverBlock);
 			hoverBlocks.push_back(hoverBlock);
 		}
 	}

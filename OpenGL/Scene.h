@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <queue>
 
 class ApplicationContext;
 
@@ -29,6 +30,9 @@ public:
 	void SaveScene(ApplicationContext* context) const;
 	void LoadScene(ApplicationContext* context, std::string loadFilePath);
 
+	void RefreshEntityRenderData(std::shared_ptr<EntityHandle> entityHandle);
+	void RefreshEntityRenderModelMatrix(std::shared_ptr<EntityHandle> entityHandle);
+
 private:
 	void ClearScene();
 	std::shared_ptr<EntityHandle> CreateEntity(int entityID);
@@ -43,4 +47,8 @@ private:
 	std::shared_ptr<EntityHandle> gridPlane;
 	std::shared_ptr<EntityHandle> gridPlaneBottom;
 	int selectedGridPlane = 2;
+
+	std::queue<std::shared_ptr<EntityHandle>> newRenderObjectsQueue;
+	std::queue<std::shared_ptr<EntityHandle>> updatedRenderObjectsQueue;
+	std::queue<int> destroyedRenderObjectsQueue;
 };

@@ -42,11 +42,13 @@ void MoveBlockTool::DrawGUI(ApplicationContext * context)
 
 void MoveBlockTool::MoveBlocks(ApplicationContext * context, glm::vec3 direction)
 {
+	Scene* scene = context->ApplicationScene();
 	for (auto& block : context->ApplicationEntitySelectionManager()->SelectedEntities())
 	{
 		if (block->EntityExists())
 		{
 			block->TargetEntity()->ObjectTransform()->Translate(direction);
+			scene->RefreshEntityRenderModelMatrix(block);
 		}
 	}
 }

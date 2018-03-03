@@ -43,6 +43,9 @@ public:
 	std::string MaterialName() const { return materialName; }
 	void MaterialName(std::string materialName) { this->materialName = materialName; }
 
+	int RenderID() const { return renderID; }
+	void RenderID(int id) { this->renderID = id; }
+
 	void AddProperty(std::string propertyName, std::string propertyValue) { this->properties[propertyName] = propertyValue; }
 	void RemoveProperty(std::string propertyName);
 	bool HasProperty(std::string propertyName) const { return properties.find(propertyName) != properties.end(); }
@@ -53,6 +56,7 @@ public:
 
 private:
 	int id;
+	int renderID;
 	Transform transform;
 	std::string meshName;
 	int meshColorIndex = 0;
