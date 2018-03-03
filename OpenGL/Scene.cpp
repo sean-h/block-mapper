@@ -15,7 +15,6 @@ Scene::Scene()
 	cameraEntity->ObjectTransform()->Position(glm::vec3(0.0f, 20.0f, -20.0f));
 	cameraEntity->ObjectTransform()->Rotation(glm::vec3(45.0f, 0.0f, 0.0f));
 	AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new OrbitController()));
-	//AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new FPSController()));
 	camera = (Camera*)AddComponentToEntity(cameraEntity, std::unique_ptr<Component>(new Camera()));
 	strcpy_s(this->sceneName, 64, "Scene");
 
@@ -392,7 +391,7 @@ void Scene::CreateGridPlanes()
 	gridPlane = this->CreateEntity();
 	Entity* gridPlaneEntity = gridPlane->TargetEntity();
 	gridPlaneEntity->ObjectTransform()->Position(glm::vec3(0.0f, 0.0f, 0.0f));
-	gridPlaneEntity->ObjectTransform()->Scale(glm::vec3(25.0f, 1.0f, 25.0f));
+	gridPlaneEntity->ObjectTransform()->Scale(glm::vec3(250.0f, 1.0f, 250.0f));
 	gridPlaneEntity->MeshName("Plane");
 	gridPlaneEntity->ColliderMeshName("Plane");
 	gridPlaneEntity->MaterialName("Grid");
@@ -400,7 +399,7 @@ void Scene::CreateGridPlanes()
 	gridPlaneBottom = this->CreateEntity();
 	Entity* gridPlaneBottomEntity = gridPlaneBottom->TargetEntity();
 	gridPlaneBottomEntity->ObjectTransform()->Position(glm::vec3(0.0f, 0.0f, 0.0f));
-	gridPlaneBottomEntity->ObjectTransform()->Scale(glm::vec3(25.0f, 1.0f, 25.0f));
+	gridPlaneBottomEntity->ObjectTransform()->Scale(glm::vec3(250.0f, 1.0f, 250.0f));
 	gridPlaneBottomEntity->MeshName("PlaneBottom");
 	gridPlaneBottomEntity->ColliderMeshName("PlaneBottom");
 	gridPlaneBottomEntity->MaterialName("Grid");

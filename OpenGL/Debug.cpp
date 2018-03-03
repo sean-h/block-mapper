@@ -9,6 +9,29 @@ void Debug::Clear()
 	debugStrings.clear();
 }
 
+void Debug::EndFrame(ApplicationContext * context)
+{
+	this->Clear();
+
+	fpsLog.push(1.0f / context->ApplicationTime()->DeltaTime());
+	
+	if (fpsLog.size() == 100)
+	{
+		averageFPS = 0;
+
+		while (fpsLog.size() > 0)
+		{
+			averageFPS += fpsLog.front();
+			fpsLog.pop();
+		}
+
+		averageFPS /= 100.0f;
+	}
+
+	std::string fpsString = "FPS: " + std::to_string(averageFPS);
+	debugStrings.push_back(fpsString);
+}
+
 void Debug::LogToUI(std::string debugString)
 {
 	debugStrings.push_back(debugString);

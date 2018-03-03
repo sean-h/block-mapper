@@ -2,6 +2,7 @@
 #include "glm\glm.hpp"
 #include <vector>
 #include <string>
+#include <queue>
 
 class ApplicationContext;
 
@@ -15,6 +16,7 @@ class Debug
 {
 public:
 	void Clear();
+	void EndFrame(ApplicationContext* context);
 	void LogToUI(std::string debugString);
 	void LogToUI(std::string name, glm::vec3 v);
 	void DrawGUI(ApplicationContext* context);
@@ -25,4 +27,6 @@ public:
 private:
 	std::vector<std::string> debugStrings;
 	std::vector<Line> debugLines;
+	std::queue<float> fpsLog;
+	float averageFPS;
 };
