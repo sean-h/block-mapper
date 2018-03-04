@@ -32,27 +32,45 @@ void Renderer::RenderScene(ApplicationContext* context)
 	glm::mat4 view = camera->ViewMatrix();
 	glm::mat4 projection = camera->ProjectionMatrix((float)window->Width(), (float)window->Height());
 
+	std::map<Shader*, std::vector<RenderObject>> shaderSortedRenderObjects;
 	for (auto& renderObjectPair : renderObjects)
 	{
-		RenderObject renderObject = renderObjectPair.second;
+		shaderSortedRenderObjects[renderObjectPair.second.shader].push_back(renderObjectPair.second);
+	}
 
-		renderObject.shader->use();
-		renderObject.shader->setVec3("cameraPosition", camera->Owner()->ObjectTransform()->Position());
-		renderObject.shader->setMat4("view", glm::value_ptr(view));
-		renderObject.shader->setMat4("projection", glm::value_ptr(projection));
-		renderObject.shader->setMat4("model", glm::value_ptr(renderObject.modelMatrix));
-		renderObject.shader->setVec3("objectColor", renderObject.material->Color());
-		renderObject.shader->setFloat("opacity", renderObject.material->Opacity());
-		renderObject.shader->setFloat("inverseColorMultiplier", 0.0f);
+	for (auto& shaderSortedRenderObject : shaderSortedRenderObjects)
+	{
+		Shader* shader = shaderSortedRenderObject.first;
+		shader->use();
 
-		renderObject.mesh->Draw(*renderObject.shader);
+		GLint cameraPositionID = shader->UniformLocation("cameraPosition");
+		GLint viewID = shader->UniformLocation("view");
+		GLint projectionID = shader->UniformLocation("projection");
+		GLint modelID = shader->UniformLocation("model");
+		GLint objectColorID = shader->UniformLocation("objectColor");
+		GLint opacityID = shader->UniformLocation("opacity");
+		GLint inverseColorMultiplierID = shader->UniformLocation("inverseColorMultiplier");
 
-		if (renderObject.material->Wireframe())
+		shader->setVec3(cameraPositionID, camera->Owner()->ObjectTransform()->Position());
+		shader->setMat4(viewID, glm::value_ptr(view));
+		shader->setMat4(projectionID, glm::value_ptr(projection));
+
+		for (auto& renderObject : shaderSortedRenderObject.second)
 		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			renderObject.shader->setFloat("inverseColorMultiplier", 1.0f);
-			renderObject.mesh->Draw(*renderObject.shader);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			shader->setMat4(modelID, glm::value_ptr(renderObject.modelMatrix));
+			shader->setVec3(objectColorID, renderObject.material->Color());
+			shader->setFloat(opacityID, renderObject.material->Opacity());
+			shader->setFloat(inverseColorMultiplierID, 0.0f);
+
+			renderObject.mesh->Draw(*shader);
+
+			if (renderObject.material->Wireframe())
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				renderObject.shader->setFloat(inverseColorMultiplierID, 1.0f);
+				renderObject.mesh->Draw(*shader);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
 		}
 	}
 }
