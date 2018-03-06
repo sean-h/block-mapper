@@ -43,31 +43,23 @@ void Renderer::RenderScene(ApplicationContext* context)
 		Shader* shader = shaderSortedRenderObject.first;
 		shader->use();
 
-		GLint cameraPositionID = shader->UniformLocation("cameraPosition");
-		GLint viewID = shader->UniformLocation("view");
-		GLint projectionID = shader->UniformLocation("projection");
-		GLint modelID = shader->UniformLocation("model");
-		GLint objectColorID = shader->UniformLocation("objectColor");
-		GLint opacityID = shader->UniformLocation("opacity");
-		GLint inverseColorMultiplierID = shader->UniformLocation("inverseColorMultiplier");
-
-		shader->setVec3(cameraPositionID, camera->Owner()->ObjectTransform()->Position());
-		shader->setMat4(viewID, glm::value_ptr(view));
-		shader->setMat4(projectionID, glm::value_ptr(projection));
+		shader->setVec3(shader->cameraPositionID, camera->Owner()->ObjectTransform()->Position());
+		shader->setMat4(shader->viewID, glm::value_ptr(view));
+		shader->setMat4(shader->projectionID, glm::value_ptr(projection));
 
 		for (auto& renderObject : shaderSortedRenderObject.second)
 		{
-			shader->setMat4(modelID, glm::value_ptr(renderObject.modelMatrix));
-			shader->setVec3(objectColorID, renderObject.material->Color());
-			shader->setFloat(opacityID, renderObject.material->Opacity());
-			shader->setFloat(inverseColorMultiplierID, 0.0f);
+			shader->setMat4(shader->modelID, glm::value_ptr(renderObject.modelMatrix));
+			shader->setVec3(shader->objectColorID, renderObject.material->Color());
+			shader->setFloat(shader->opacityID, renderObject.material->Opacity());
+			shader->setFloat(shader->inverseColorMultiplierID, 0.0f);
 
 			renderObject.mesh->Draw(*shader);
 
 			if (renderObject.material->Wireframe())
 			{
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				renderObject.shader->setFloat(inverseColorMultiplierID, 1.0f);
+				renderObject.shader->setFloat(shader->inverseColorMultiplierID, 1.0f);
 				renderObject.mesh->Draw(*shader);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
@@ -121,11 +113,25 @@ int Renderer::ModelCount() const
 
 void Renderer::LoadShaders()
 {
-	shaders["Default"] = new Shader("VertexShader.glsl", "FragmentShader.glsl");
-	shaders["Unlit"] = new Shader("VertexShader.glsl", "UnlitFragmentShader.glsl");
 	shaders["CameraLit"] = new Shader("VertexShader.glsl", "CameraLitFragmentShader.glsl");
-	shaders["Transparent"] = new Shader("VertexShader.glsl", "TransparentFragmentShader.glsl");
+	Shader* cameraLit = shaders["CameraLit"];
+	cameraLit->use();
+	cameraLit->cameraPositionID = cameraLit->UniformLocation("cameraPosition");
+	cameraLit->viewID = cameraLit->UniformLocation("view");
+	cameraLit->projectionID = cameraLit->UniformLocation("projection");
+	cameraLit->modelID = cameraLit->UniformLocation("model");
+	cameraLit->objectColorID = cameraLit->UniformLocation("objectColor");
+	cameraLit->opacityID = cameraLit->UniformLocation("opacity");
+	cameraLit->inverseColorMultiplierID = cameraLit->UniformLocation("inverseColorMultiplier");
+
+
 	shaders["Grid"] = new Shader("VertexShader.glsl", "GridFragmentShader.glsl");
+	Shader* grid = shaders["Grid"];
+	grid->use();
+	grid->cameraPositionID = grid->UniformLocation("cameraPosition");
+	grid->viewID = grid->UniformLocation("view");
+	grid->projectionID = grid->UniformLocation("projection");
+	grid->modelID = grid->UniformLocation("model");
 }
 
 void Renderer::LoadModels(FileManager* fileManager)

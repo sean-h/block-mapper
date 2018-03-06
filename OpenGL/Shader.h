@@ -26,4 +26,12 @@ public:
 	void setMat4(GLint locationID, float* mat) const;
 
 	GLint UniformLocation(const std::string &name) const;
+
+	GLint cameraPositionID;
+	GLint viewID;
+	GLint projectionID;
+	GLint modelID;
+	GLint objectColorID;
+	GLint opacityID;
+	GLint inverseColorMultiplierID;
 };
