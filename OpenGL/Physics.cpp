@@ -12,7 +12,7 @@ Physics::Physics()
 
 RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction, float distance)
 {
-	std::vector<std::pair<PhysicsObject*, float>> hitEntities;
+	std::vector<PhysicsObject> hitObjects;
 
 	// See Real-Time Rendering Third Edition 16.7.2
 	for (auto &physicsObjectPair : physicsObjects)
@@ -53,43 +53,34 @@ RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction
 		}
 
 		float entityDistance = glm::distance(origin, entityPosition);
-		hitEntities.push_back(std::make_pair<PhysicsObject*, float>(&physicsObjectPair.second, (float)entityDistance));
-	}
-
-	if (hitEntities.size() > 0)
-	{
-		std::pair<PhysicsObject*, float> closestEntity = hitEntities.front();
-
-		for (int i = 1; i < hitEntities.size(); i++)
-		{
-			if (hitEntities[i].second < closestEntity.second)
-			{
-				closestEntity = hitEntities[i];
-			}
-		}
-
-		glm::mat4 modelMatrix;
-		modelMatrix = glm::translate(modelMatrix, closestEntity.first->boundingBoxPosition);
-		modelMatrix = glm::scale(modelMatrix, closestEntity.first->boundingBoxScale);
-		Mesh* mesh = closestEntity.first->collisionMesh;
-		auto triangles = mesh->Triangles();
-		for (auto& triangle : triangles)
-		{
-			RaycastHit hit = RayTriIntersect(origin,
-					                            direction,
-					                            modelMatrix * glm::vec4(triangle.p0, 1.0f),
-					                            modelMatrix * glm::vec4(triangle.p1, 1.0f),
-					                            modelMatrix * glm::vec4(triangle.p2, 1.0f));
-			if (hit.hit)
-			{
-				hit.physicsObjectID = closestEntity.first->ID;
-				return hit;
-			}
-		}
+		hitObjects.push_back(physicsObjectPair.second);
 	}
 
 	RaycastHit hit;
 	hit.hit = false;
+
+	for (auto& hitObject : hitObjects)
+	{
+		glm::mat4 modelMatrix;
+		modelMatrix = glm::translate(modelMatrix, hitObject.boundingBoxPosition);
+		modelMatrix = glm::scale(modelMatrix, hitObject.boundingBoxScale);
+		Mesh* mesh = hitObject.collisionMesh;
+		auto triangles = mesh->Triangles();
+		for (auto& triangle : triangles)
+		{
+			RaycastHit triHit = RayTriIntersect(origin,
+					                            direction,
+					                            modelMatrix * glm::vec4(triangle.p0, 1.0f),
+					                            modelMatrix * glm::vec4(triangle.p1, 1.0f),
+					                            modelMatrix * glm::vec4(triangle.p2, 1.0f));
+			if (triHit.hit && (!hit.hit || triHit.distance < hit.distance))
+			{
+				hit = triHit;
+				hit.physicsObjectID = hitObject.ID;
+			}
+		}
+	}
+
 	return hit;
 }
 
@@ -224,6 +215,7 @@ RaycastHit Physics::RayTriIntersect(glm::vec3 origin, glm::vec3 direction, glm::
 	hit.v = v;
 	hit.t = t;
 	hit.point = (1 - u - v) * p0 + u * p1 + v * p2;
+	hit.distance = glm::distance(origin, hit.point);
 	return hit;
 }
 

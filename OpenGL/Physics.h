@@ -12,6 +12,7 @@ struct RaycastHit
 	unsigned int physicsObjectID;
 	std::shared_ptr<EntityHandle> entity;
 	glm::vec3 normal;
+	float distance;
 	float u;
 	float v;
 	float t;
