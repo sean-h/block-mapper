@@ -51,6 +51,7 @@ void Scene::Update(ApplicationContext* context)
 				{
 					entity->RemoveProperty("Hidden");
 					newRenderObjectsQueue.push(entity->Handle());
+					RefreshEntityCollisionData(entity->Handle());
 				}
 			}
 		}
@@ -62,6 +63,7 @@ void Scene::Update(ApplicationContext* context)
 				{
 					entity->TargetEntity()->AddProperty("Hidden", "");
 					destroyedRenderObjectsQueue.push(entity->TargetEntity()->RenderID());
+					destroyedPhysicsObjectsQueue.push(entity->TargetEntity()->PhysicsID());
 				}
 			}
 
