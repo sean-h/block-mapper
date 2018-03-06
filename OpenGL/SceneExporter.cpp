@@ -38,7 +38,7 @@ void SceneExporter::Export(ApplicationContext * context)
 	{
 		if (e->HasProperty("Block"))
 		{
-			exportEntityCount++;
+			exportEntityCount += 2;
 		}
 	}
 
@@ -73,6 +73,17 @@ void SceneExporter::Export(ApplicationContext * context)
 		aiMatrix4x4 transformation = translationMatrix * rotationMatrix;
 
 		children[entityIndex]->mTransformation = transformation;
+		entityIndex++;
+
+		// Collision mesh
+		children[entityIndex] = new aiNode();
+		children[entityIndex]->mMeshes = new unsigned int[1];
+		children[entityIndex]->mMeshes[0] = meshIndexes[e->ColliderMeshName()][0];
+		children[entityIndex]->mNumMeshes = 1;
+
+		children[entityIndex]->mName = "Collider_" + e->MeshName() + "_" + std::to_string(e->ID());
+		children[entityIndex]->mTransformation = transformation;
+
 		entityIndex++;
 	}
 
