@@ -107,6 +107,36 @@ void Scene::Update(ApplicationContext* context)
 		renderer->RemoveRenderObject(destroyedRenderObjectsQueue.front());
 		destroyedRenderObjectsQueue.pop();
 	}
+
+	Physics* physics = context->ApplicationPhysics();
+
+	while (newPhysicsObjectsQueue.size() > 0)
+	{
+		if (newPhysicsObjectsQueue.front()->EntityExists())
+		{
+			Entity* entity = newPhysicsObjectsQueue.front()->TargetEntity();
+			unsigned int physicsID = physics->CreatePhysicsObject(entity->ObjectTransform()->Position(), entity->ObjectTransform()->Scale(), entity->ColliderMeshName());
+			entity->PhysicsID(physicsID);
+		}
+		newPhysicsObjectsQueue.pop();
+	}
+
+	while (updatedPhysicsObjectsQueue.size() > 0)
+	{
+		if (updatedPhysicsObjectsQueue.front()->EntityExists())
+		{
+			Entity* entity = updatedPhysicsObjectsQueue.front()->TargetEntity();
+			physics->UpdatePhysicsObjectPosition(entity->PhysicsID(), entity->ObjectTransform()->Position());
+		}
+
+		updatedPhysicsObjectsQueue.pop();
+	}
+
+	while (destroyedPhysicsObjectsQueue.size() > 0)
+	{
+		physics->DestroyPhysicsObject(destroyedPhysicsObjectsQueue.front());
+		destroyedPhysicsObjectsQueue.pop();
+	}
 }
 
 void Scene::DrawGUI(ApplicationContext * context)
@@ -187,6 +217,11 @@ void Scene::DestroyEntity(std::shared_ptr<EntityHandle> entityHandle)
 	if (entity->get()->RenderID() > 0)
 	{
 		destroyedRenderObjectsQueue.push(entity->get()->RenderID());
+	}
+
+	if (entity->get()->PhysicsID() != 0)
+	{
+		destroyedPhysicsObjectsQueue.push(entity->get()->PhysicsID());
 	}
 
 	entities.erase(entity);
@@ -408,6 +443,7 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 		}
 
 		this->RefreshEntityRenderData(entity);
+		this->RefreshEntityCollisionData(entity);
 	}
 }
 
@@ -436,6 +472,51 @@ void Scene::RefreshEntityRenderModelMatrix(std::shared_ptr<EntityHandle> entityH
 	{
 		updatedRenderObjectsQueue.push(entityHandle);
 	}
+}
+
+void Scene::RefreshEntityCollisionData(std::shared_ptr<EntityHandle> entityHandle)
+{
+	if (entityHandle->EntityExists())
+	{
+		Entity* entity = entityHandle->TargetEntity();
+
+		if (entity->PhysicsID() != 0)
+		{
+			destroyedPhysicsObjectsQueue.push(entity->PhysicsID());
+		}
+
+		if (!entity->HasProperty("Hidden") && entity->ColliderMeshName() != "")
+		{
+			newPhysicsObjectsQueue.push(entityHandle);
+		}
+	}
+}
+
+void Scene::RefreshEntityCollisionPosition(std::shared_ptr<EntityHandle> entityHandle)
+{
+	if (entityHandle->EntityExists() && entityHandle->TargetEntity()->PhysicsID() != 0)
+	{
+		updatedPhysicsObjectsQueue.push(entityHandle);
+	}
+}
+
+RaycastHit Scene::Raycast(Physics * physics, glm::vec3 origin, glm::vec3 direction, float distance)
+{
+	RaycastHit hit = physics->Raycast(this, origin, direction, distance);
+
+	if (hit.hit)
+	{
+		for (auto& entity : entities)
+		{
+			if (entity->PhysicsID() == hit.physicsObjectID)
+			{
+				hit.entity = entity->Handle();
+				break;
+			}
+		}
+	}
+
+	return hit;
 }
 
 void Scene::ClearScene()
@@ -468,6 +549,7 @@ void Scene::CreateGridPlanes()
 	gridPlaneEntity->ColliderMeshName("Plane");
 	gridPlaneEntity->MaterialName("Grid");
 	newRenderObjectsQueue.push(gridPlane);
+	RefreshEntityCollisionData(gridPlane);
 
 	gridPlaneBottom = this->CreateEntity();
 	Entity* gridPlaneBottomEntity = gridPlaneBottom->TargetEntity();
@@ -477,4 +559,5 @@ void Scene::CreateGridPlanes()
 	gridPlaneBottomEntity->ColliderMeshName("PlaneBottom");
 	gridPlaneBottomEntity->MaterialName("Grid");
 	newRenderObjectsQueue.push(gridPlaneBottom);
+	RefreshEntityCollisionData(gridPlaneBottom);
 }

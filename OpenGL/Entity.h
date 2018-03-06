@@ -46,6 +46,9 @@ public:
 	int RenderID() const { return renderID; }
 	void RenderID(int id) { this->renderID = id; }
 
+	unsigned int PhysicsID() const { return physicsID; }
+	void PhysicsID(unsigned int id) { this->physicsID = id; }
+
 	void AddProperty(std::string propertyName, std::string propertyValue) { this->properties[propertyName] = propertyValue; }
 	void RemoveProperty(std::string propertyName);
 	bool HasProperty(std::string propertyName) const { return properties.find(propertyName) != properties.end(); }
@@ -57,6 +60,7 @@ public:
 private:
 	int id;
 	int renderID;
+	unsigned int physicsID;
 	Transform transform;
 	std::string meshName;
 	int meshColorIndex = 0;

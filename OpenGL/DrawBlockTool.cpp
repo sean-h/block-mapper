@@ -140,6 +140,7 @@ void DrawBlockTool::PlaceBlocks(Scene* scene)
 		newCube->AddProperty("Block", "");
 		newCube->MeshColorIndex(hoverBlock->TargetEntity()->MeshColorIndex());
 		scene->RefreshEntityRenderData(newCubeHandle);
+		scene->RefreshEntityCollisionData(newCubeHandle);
 	}
 
 	buildState = BuildStates::PlaceFirstBlock;
@@ -244,7 +245,7 @@ bool DrawBlockTool::GetHoverBlockPosition(ApplicationContext * context, glm::vec
 	Transform* cameraTransform = camera->Owner()->ObjectTransform();
 
 	glm::vec3 mouseDirection = camera->ScreenToWorldDirection(input->MouseX(), input->MouseY(), window->Width(), window->Height());
-	RaycastHit hit = physics->Raycast(scene, cameraTransform->Position(), mouseDirection, 100.0f);
+	RaycastHit hit = scene->Raycast(physics, cameraTransform->Position(), mouseDirection, 100.0f);
 	if (hit.hit)
 	{
 		Entity* hitEntity = hit.entity->TargetEntity();

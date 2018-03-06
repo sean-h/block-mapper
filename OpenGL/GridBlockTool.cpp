@@ -114,7 +114,6 @@ void GridBlockTool::PlaceHoverBlocks(ApplicationContext * context)
 					hoverBlockEntity->MaterialName("Hover");
 					hoverBlockEntity->ObjectTransform()->Position(blockPosition);
 					hoverBlockEntity->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
-					hoverBlockEntity->ColliderMeshName("Cube");
 					scene->RefreshEntityRenderData(hoverBlock);
 
 					this->hoverBlocks.push_back(hoverBlock);
@@ -147,7 +146,9 @@ void GridBlockTool::Apply(ApplicationContext * context)
 	{
 		block->TargetEntity()->MaterialName("Solid");
 		block->TargetEntity()->AddProperty("Block", "");
+		block->TargetEntity()->ColliderMeshName("Cube");
 		scene->RefreshEntityRenderData(block);
+		scene->RefreshEntityCollisionData(block);
 	}
 	this->hoverBlocks.clear();
 

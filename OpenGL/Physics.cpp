@@ -6,21 +6,20 @@
 Physics::Physics()
 {
 	LoadColliders();
+
+	physicsObjectCounter = 0;
 }
 
 RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction, float distance)
 {
-	std::vector<std::pair<Entity*, float>> hitEntities;
+	std::vector<std::pair<PhysicsObject*, float>> hitEntities;
 
 	// See Real-Time Rendering Third Edition 16.7.2
-	for (auto &e : scene->Entities())
+	for (auto &physicsObjectPair : physicsObjects)
 	{
-		if (e->ColliderMeshName().length() == 0 || e->HasProperty("Hidden"))
-		{
-			continue;
-		}
+		PhysicsObject physicsObject = physicsObjectPair.second;
 
-		glm::vec3 entityPosition = e->ObjectTransform()->Position();
+		glm::vec3 entityPosition = physicsObject.boundingBoxPosition;
 		glm::vec3 endPoint0 = origin - entityPosition;
 		glm::vec3 endPoint1 = origin - entityPosition + (direction * distance);
 		glm::vec3 c = (endPoint0 + endPoint1) / 2.0f;
@@ -28,7 +27,7 @@ RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction
 		float vx = abs(w.x);
 		float vy = abs(w.y);
 		float vz = abs(w.z);
-		glm::vec3 entityScale = e->ObjectTransform()->Scale();
+		glm::vec3 entityScale = physicsObject.boundingBoxScale;
 		float hx = entityScale.x / 2.0f;
 		float hy = entityScale.y / 2.0f;
 		float hz = entityScale.z / 2.0f;
@@ -54,12 +53,12 @@ RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction
 		}
 
 		float entityDistance = glm::distance(origin, entityPosition);
-		hitEntities.push_back(std::make_pair<Entity*, float>(e.get(), (float)entityDistance));
+		hitEntities.push_back(std::make_pair<PhysicsObject*, float>(&physicsObjectPair.second, (float)entityDistance));
 	}
 
 	if (hitEntities.size() > 0)
 	{
-		std::pair<Entity*, float> closestEntity = hitEntities.front();
+		std::pair<PhysicsObject*, float> closestEntity = hitEntities.front();
 
 		for (int i = 1; i < hitEntities.size(); i++)
 		{
@@ -69,10 +68,10 @@ RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction
 			}
 		}
 
-		Model* model = this->colliders[closestEntity.first->ColliderMeshName()];
-		glm::vec3 entityPosition = closestEntity.first->ObjectTransform()->Position();
-		glm::mat4 modelMatrix = closestEntity.first->ObjectTransform()->Model();
-		Mesh* mesh = model->ActiveMesh();
+		glm::mat4 modelMatrix;
+		modelMatrix = glm::translate(modelMatrix, closestEntity.first->boundingBoxPosition);
+		modelMatrix = glm::scale(modelMatrix, closestEntity.first->boundingBoxScale);
+		Mesh* mesh = closestEntity.first->collisionMesh;
 		auto triangles = mesh->Triangles();
 		for (auto& triangle : triangles)
 		{
@@ -83,7 +82,7 @@ RaycastHit Physics::Raycast(Scene * scene, glm::vec3 origin, glm::vec3 direction
 					                            modelMatrix * glm::vec4(triangle.p2, 1.0f));
 			if (hit.hit)
 			{
-				hit.entity = closestEntity.first->Handle();
+				hit.physicsObjectID = closestEntity.first->ID;
 				return hit;
 			}
 		}
@@ -140,6 +139,37 @@ std::vector<std::shared_ptr<EntityHandle>> Physics::FrustumIntersect(Debug* debu
 	}
 
 	return intersected;
+}
+
+unsigned int Physics::CreatePhysicsObject(glm::vec3 position, glm::vec3 scale, std::string colliderMeshName)
+{
+	PhysicsObject physicsObject;
+	physicsObject.boundingBoxPosition = position;
+	physicsObject.boundingBoxScale = scale;
+	physicsObject.collisionMesh = this->colliders[colliderMeshName]->GetMesh(0);
+	physicsObject.ID = ++physicsObjectCounter;
+	this->physicsObjects[physicsObject.ID] = physicsObject;
+	return physicsObject.ID;
+}
+
+void Physics::UpdatePhysicsObjectPosition(unsigned int physicsObjectID, glm::vec3 position)
+{
+	if (physicsObjectID == 0)
+	{
+		return;
+	}
+
+	physicsObjects[physicsObjectID].boundingBoxPosition = position;
+}
+
+void Physics::DestroyPhysicsObject(unsigned int physicsObjectID)
+{
+	if (physicsObjectID == 0)
+	{
+		return;
+	}
+
+	physicsObjects.erase(physicsObjectID);
 }
 
 void Physics::LoadColliders()

@@ -3,6 +3,7 @@
 #include "Entity.h"
 #include "Component.h"
 #include "Camera.h"
+#include "Physics.h"
 #include "tinyxml2.h"
 #include <memory>
 #include <vector>
@@ -33,6 +34,11 @@ public:
 	void RefreshEntityRenderData(std::shared_ptr<EntityHandle> entityHandle);
 	void RefreshEntityRenderModelMatrix(std::shared_ptr<EntityHandle> entityHandle);
 
+	void RefreshEntityCollisionData(std::shared_ptr<EntityHandle> entityHandle);
+	void RefreshEntityCollisionPosition(std::shared_ptr<EntityHandle> entityHandle);
+
+	RaycastHit Raycast(Physics* physics, glm::vec3 origin, glm::vec3 direction, float distance);
+
 private:
 	void ClearScene();
 	std::shared_ptr<EntityHandle> CreateEntity(int entityID);
@@ -51,4 +57,8 @@ private:
 	std::queue<std::shared_ptr<EntityHandle>> newRenderObjectsQueue;
 	std::queue<std::shared_ptr<EntityHandle>> updatedRenderObjectsQueue;
 	std::queue<int> destroyedRenderObjectsQueue;
+
+	std::queue<std::shared_ptr<EntityHandle>> newPhysicsObjectsQueue;
+	std::queue<std::shared_ptr<EntityHandle>> updatedPhysicsObjectsQueue;
+	std::queue<unsigned int> destroyedPhysicsObjectsQueue;
 };
