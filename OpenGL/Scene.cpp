@@ -88,8 +88,11 @@ void Scene::Update(ApplicationContext* context)
 		if (newRenderObjectsQueue.front()->EntityExists())
 		{
 			Entity* entity = newRenderObjectsQueue.front()->TargetEntity();
-			int renderID = renderer->AddRenderObject(entity->MeshName(), entity->MeshColorIndex(), entity->MaterialName(), entity->ObjectTransform()->Model());
-			entity->RenderID(renderID);
+			if (entity->RenderID() == 0)
+			{
+				int renderID = renderer->AddRenderObject(entity->MeshName(), entity->MeshColorIndex(), entity->MaterialName(), entity->ObjectTransform()->Model());
+				entity->RenderID(renderID);
+			}
 		}
 		newRenderObjectsQueue.pop();
 	}
@@ -459,6 +462,7 @@ void Scene::RefreshEntityRenderData(std::shared_ptr<EntityHandle> entityHandle)
 		if (entity->RenderID() != 0)
 		{
 			destroyedRenderObjectsQueue.push(entity->RenderID());
+			entity->RenderID(0);
 		}
 
 		if (!entity->HasProperty("Hidden") && entity->MeshName() != "")
