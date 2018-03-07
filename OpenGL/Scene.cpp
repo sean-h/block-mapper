@@ -366,6 +366,21 @@ void Scene::SaveScene(ApplicationContext * context) const
 	xmlDoc.SaveFile(filePath.c_str());
 }
 
+bool Scene::SaveSceneWithOverwriteConfirmation(ApplicationContext * context, std::string confirmedSceneName) const
+{
+	std::string filePath = context->ApplicationFileManager()->SaveFilePath() + this->sceneName + ".xml";
+	bool saveFileExists = context->ApplicationFileManager()->FileExists(filePath);
+
+	if (saveFileExists && this->sceneName != confirmedSceneName)
+	{
+		return false;
+	}
+
+	this->SaveScene(context);
+
+	return true;
+}
+
 void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 {
 	tinyxml2::XMLDocument xmlDoc;

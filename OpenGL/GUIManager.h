@@ -33,9 +33,14 @@ public:
 	void CloseFileSelector();
 
 private:
+	void SaveScene(ApplicationContext* context);
+
 	ImGuiContext* imGuiContext;
 	std::unordered_map<std::string, GUILocation> windowLocations;
 	bool mainMenuOpen;
 	bool modalWindowOpen;
 	std::shared_ptr<FileSelector> fileSelector;
+
+	bool confirmSceneOverwrite;
+	std::string lastSceneSaveName;
 };

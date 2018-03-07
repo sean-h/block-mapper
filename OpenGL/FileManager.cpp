@@ -83,3 +83,8 @@ std::vector<std::string> FileManager::SavedSceneFilenames() const
 
 	return sceneFilenames;
 }
+
+bool FileManager::FileExists(std::string filePath) const
+{
+	return std::experimental::filesystem::exists(filePath);
+}

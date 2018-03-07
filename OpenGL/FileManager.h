@@ -14,6 +14,7 @@ public:
 	std::string ExportFilePath() const { return exportFolderPath + "/"; }
 	std::string SaveFilePath() const { return saveFolderPath + "/"; }
 	std::vector<std::string> SavedSceneFilenames() const;
+	bool FileExists(std::string filePath) const;
 
 private:
 	const std::string applicationFolderName = "BlockEditor";

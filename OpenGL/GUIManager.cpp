@@ -16,6 +16,7 @@ GUIManager::GUIManager(Window* window)
 	windowLocations["Scene"] = GUILocation(0.0f, 40.0f, 150.0f, 200.0f);
 
 	mainMenuOpen = false;
+	confirmSceneOverwrite = false;
 }
 
 GUIManager::~GUIManager()
@@ -57,7 +58,7 @@ void GUIManager::Draw(ApplicationContext* context)
 			}
 			if (ImGui::MenuItem("Save", "Ctrl+S"))
 			{
-				context->ApplicationScene()->SaveScene(context);
+				this->SaveScene(context);
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem("Exit", "Ctrl+Q"))
@@ -89,6 +90,28 @@ void GUIManager::Draw(ApplicationContext* context)
 		ImGui::End();
 	}
 
+	if (confirmSceneOverwrite)
+	{
+		bool showConfirmSceneOverwrite = true;
+		ImGui::Begin("Confirm Scene Overwrite", &showConfirmSceneOverwrite, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+		ImGui::SetWindowPos(ImVec2(windowWidth / 2.0f - 200.0f, windowHeight / 2.0f - 40.0f));
+		ImGui::SetWindowSize(ImVec2(400.0f, 80.0f));
+		std::string overwriteText = "Are you sure you want to overwrite \"" + context->ApplicationScene()->SceneName() + "\"?";
+		ImGui::Text(overwriteText.c_str());
+		ImGui::Spacing();
+		if (ImGui::Button("No"))
+		{
+			confirmSceneOverwrite = false;
+		}
+		ImGui::SameLine(100.0f, 0.0f);
+		if (ImGui::Button("Yes"))
+		{
+			lastSceneSaveName = context->ApplicationScene()->SceneName();
+			this->SaveScene(context);
+		}
+		ImGui::End();
+	}
+
 	if (context->ApplicationDebug()->ItemCount() > 0)
 	{
 		bool showDebugWindow = true;
@@ -110,7 +133,7 @@ void GUIManager::Draw(ApplicationContext* context)
 		}
 		if (input->GetKeyDown(Input::Keys::KEY_S))
 		{
-			context->ApplicationScene()->SaveScene(context);
+			this->SaveScene(context);
 		}
 		if (input->GetKeyDown(Input::Keys::KEY_O))
 		{
@@ -123,7 +146,7 @@ void GUIManager::Draw(ApplicationContext* context)
 
 bool GUIManager::MouseOverGUIElement(float mouseX, float mouseY)
 {
-	if (fileSelector)
+	if (fileSelector || confirmSceneOverwrite)
 	{
 		return true;
 	}
@@ -167,6 +190,17 @@ void GUIManager::AcceptFileSelector(ApplicationContext* context, std::string fil
 void GUIManager::CloseFileSelector()
 {
 	fileSelector = nullptr;
+}
+
+void GUIManager::SaveScene(ApplicationContext * context)
+{
+	bool savedScene = context->ApplicationScene()->SaveSceneWithOverwriteConfirmation(context, lastSceneSaveName);
+	confirmSceneOverwrite = !savedScene;
+
+	if (savedScene)
+	{
+		lastSceneSaveName = context->ApplicationScene()->SceneName();
+	}
 }
 
 GUILocation::GUILocation()

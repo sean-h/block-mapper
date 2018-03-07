@@ -29,6 +29,7 @@ public:
 	void Export(ApplicationContext* context);
 	std::string SceneName() const { return std::string(sceneName); }
 	void SaveScene(ApplicationContext* context) const;
+	bool SaveSceneWithOverwriteConfirmation(ApplicationContext* context, std::string confirmedSceneName) const;
 	void LoadScene(ApplicationContext* context, std::string loadFilePath);
 
 	void RefreshEntityRenderData(std::shared_ptr<EntityHandle> entityHandle);
