@@ -28,7 +28,7 @@ public:
 	void Draw(ApplicationContext* context);
 	bool MouseOverGUIElement(float mouseX, float mouseY);
 	GUILocation WindowLocation(std::string windowName);
-	void OpenFileSelector();
+	void OpenFileSelector(ApplicationContext* context);
 	void AcceptFileSelector(ApplicationContext* context, std::string filename);
 	void CloseFileSelector();
 

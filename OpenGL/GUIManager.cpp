@@ -100,6 +100,24 @@ void GUIManager::Draw(ApplicationContext* context)
 		ImGui::End();
 	}
 
+	// Main Menu Keyboard Shortcuts
+	Input* input = context->ApplicationInput();
+	if (input->GetKey(Input::Keys::KEY_LEFT_CONTROL))
+	{
+		if (input->GetKeyDown(Input::Keys::KEY_Q))
+		{
+			context->ApplicationWindow()->Close();
+		}
+		if (input->GetKeyDown(Input::Keys::KEY_S))
+		{
+			context->ApplicationScene()->SaveScene(context);
+		}
+		if (input->GetKeyDown(Input::Keys::KEY_O))
+		{
+			this->OpenFileSelector(context);
+		}
+	}
+
 	ImGui::Render();
 }
 
@@ -129,8 +147,14 @@ GUILocation GUIManager::WindowLocation(std::string windowName)
 	return windowLocations[windowName];
 }
 
-void GUIManager::OpenFileSelector()
+void GUIManager::OpenFileSelector(ApplicationContext* context)
 {
+	auto filenames = context->ApplicationFileManager()->SavedSceneFilenames();
+
+	std::function<void(std::string)> acceptFunction = std::bind(&GUIManager::AcceptFileSelector, this, context, std::placeholders::_1);
+	std::function<void()> cancelFunction = std::bind(&GUIManager::CloseFileSelector, this);
+
+	fileSelector = std::make_unique<FileSelector>(filenames, acceptFunction, cancelFunction);
 }
 
 void GUIManager::AcceptFileSelector(ApplicationContext* context, std::string filename)
