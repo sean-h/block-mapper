@@ -1,20 +1,15 @@
 #pragma once
-#include "Tool.h"
-#include "Entity.h"
-#include "glm\gtc\matrix_transform.hpp"
+#include "PlaceBlockTool.h"
 
 class Scene;
 
-class DrawBlockTool : public Tool
+class DrawBlockTool : public PlaceBlockTool
 {
 public:
 	DrawBlockTool(ApplicationContext* context);
 	void Update(ApplicationContext* context);
 	void DrawGUI(ApplicationContext* context);
 	std::string Name() { return "Draw"; }
-	void PlaceBlocks(Scene* scene);
-	void RefreshHoverBlocks(ApplicationContext* context);
-	void DisableTool(ApplicationContext* context);
 
 private:
 	enum class DrawModes
@@ -32,11 +27,10 @@ private:
 		Canceled,
 	};
 
-	void ClearHoverBlocks(Scene* scene);
-	void RotateHoverBlocks(ApplicationContext* context, glm::vec3 axis, float angleDegrees);
-	bool GetHoverBlockPosition(ApplicationContext* context, glm::vec3& newBlockPosition);
+	void RefreshGhostBlocks(ApplicationContext* context);
+	void RotateGhostBlocks(ApplicationContext* context, glm::vec3 axis, float angleDegrees);
+	bool GetNewGhostBlockPosition(ApplicationContext* context, glm::vec3& newBlockPosition);
 
-	std::vector<std::shared_ptr<EntityHandle>> hoverBlocks;
 	DrawModes drawMode;
 	BuildStates buildState;
 	glm::quat drawRotation;

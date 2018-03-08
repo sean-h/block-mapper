@@ -6,8 +6,7 @@
 
 DrawBlockTool::DrawBlockTool(ApplicationContext* context)
 {
-	hoverBlocks.push_back(context->ApplicationScene()->CreateEntity());
-	this->RefreshHoverBlocks(context);
+	this->RefreshGhostBlocks(context);
 
 	selectedDrawModeIndex = 0;
 	drawMode = DrawModes::Point;
@@ -25,7 +24,7 @@ void DrawBlockTool::Update(ApplicationContext* context)
 	{
 		selectedBlockName = blockManager->SelectedBlockName();
 		selectedBlockColorIndex = blockManager->SelectedColorIndex();
-		this->RefreshHoverBlocks(context);
+		this->RefreshGhostBlocks(context);
 	}
 
 	if (input->MouseOverGUIElement())
@@ -51,23 +50,24 @@ void DrawBlockTool::Update(ApplicationContext* context)
 	else if (input->GetKeyDown(Input::Keys::MOUSE_2))
 	{
 		buildState = BuildStates::Canceled;
-		this->RefreshHoverBlocks(context);
+		this->RefreshGhostBlocks(context);
 	}
 
 	if (buildState == BuildStates::Completed)
 	{
-		this->PlaceBlocks(context->ApplicationScene());
+		this->Apply(context);
+		buildState = BuildStates::PlaceFirstBlock;
 	}
 
 	glm::vec3 newBlockPos;
-	if (this->GetHoverBlockPosition(context, newBlockPos))
+	if (this->GetNewGhostBlockPosition(context, newBlockPos))
 	{
 		if (buildState == BuildStates::PlaceFirstBlock)
 		{
 			if (drawStartPosition != newBlockPos)
 			{
 				drawStartPosition = newBlockPos;
-				this->RefreshHoverBlocks(context);
+				this->RefreshGhostBlocks(context);
 			}
 		}
 		else if (buildState == BuildStates::PlaceLastBlock)
@@ -75,34 +75,34 @@ void DrawBlockTool::Update(ApplicationContext* context)
 			if (drawEndPosition != newBlockPos)
 			{
 				drawEndPosition = newBlockPos;
-				this->RefreshHoverBlocks(context);
+				this->RefreshGhostBlocks(context);
 			}
 		}
 	}
 
 	if (input->GetKeyDown(Input::Keys::KEY_E))
 	{
-		this->RotateHoverBlocks(context, glm::vec3(0.0f, 1.0f, 0.0f), -90.0f);
+		this->RotateGhostBlocks(context, glm::vec3(0.0f, 1.0f, 0.0f), -90.0f);
 	}
 	else if (input->GetKeyDown(Input::Keys::KEY_Q))
 	{
-		this->RotateHoverBlocks(context, glm::vec3(0.0f, 1.0f, 0.0f), 90.0f);
+		this->RotateGhostBlocks(context, glm::vec3(0.0f, 1.0f, 0.0f), 90.0f);
 	}
 	else if (input->GetKeyDown(Input::Keys::KEY_W))
 	{
-		this->RotateHoverBlocks(context, glm::vec3(1.0f, 0.0f, 0.0f), 90.0f);
+		this->RotateGhostBlocks(context, glm::vec3(1.0f, 0.0f, 0.0f), 90.0f);
 	}
 	else if (input->GetKeyDown(Input::Keys::KEY_S))
 	{
-		this->RotateHoverBlocks(context, glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
+		this->RotateGhostBlocks(context, glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
 	}
 	else if (input->GetKeyDown(Input::Keys::KEY_A))
 	{
-		this->RotateHoverBlocks(context, glm::vec3(0.0f, 0.0f, 1.0f), 90.0f);
+		this->RotateGhostBlocks(context, glm::vec3(0.0f, 0.0f, 1.0f), 90.0f);
 	}
 	else if (input->GetKeyDown(Input::Keys::KEY_D))
 	{
-		this->RotateHoverBlocks(context, glm::vec3(0.0f, 0.0f, 1.0f), -90.0f);
+		this->RotateGhostBlocks(context, glm::vec3(0.0f, 0.0f, 1.0f), -90.0f);
 	}
 }
 
@@ -126,30 +126,10 @@ void DrawBlockTool::DrawGUI(ApplicationContext * context)
 	}
 }
 
-void DrawBlockTool::PlaceBlocks(Scene* scene)
-{
-	for (auto& hoverBlock : hoverBlocks)
-	{
-		auto newCubeHandle = scene->CreateEntity();
-		Entity* newCube = newCubeHandle->TargetEntity();
-		newCube->ObjectTransform()->Position(hoverBlock->TargetEntity()->ObjectTransform()->Position());
-		newCube->ObjectTransform()->Rotation(hoverBlock->TargetEntity()->ObjectTransform()->RotationQuaternion());
-		newCube->MeshName(hoverBlock->TargetEntity()->MeshName());
-		newCube->ColliderMeshName("Cube");
-		newCube->MaterialName("Solid");
-		newCube->AddProperty("Block", "");
-		newCube->MeshColorIndex(hoverBlock->TargetEntity()->MeshColorIndex());
-		scene->RefreshEntityRenderData(newCubeHandle);
-		scene->RefreshEntityCollisionData(newCubeHandle);
-	}
-
-	buildState = BuildStates::PlaceFirstBlock;
-}
-
-void DrawBlockTool::RefreshHoverBlocks(ApplicationContext * context)
+void DrawBlockTool::RefreshGhostBlocks(ApplicationContext * context)
 {
 	Scene* scene = context->ApplicationScene();
-	this->ClearHoverBlocks(scene);
+	this->ClearGhostBlocks(scene);
 
 	if (buildState == BuildStates::Canceled)
 	{
@@ -157,27 +137,13 @@ void DrawBlockTool::RefreshHoverBlocks(ApplicationContext * context)
 	}
 	else if (buildState == BuildStates::PlaceFirstBlock)
 	{
-		hoverBlocks.push_back(context->ApplicationScene()->CreateEntity());
-		hoverBlocks[0]->TargetEntity()->ObjectTransform()->Position(drawStartPosition);
-		hoverBlocks[0]->TargetEntity()->ObjectTransform()->Rotation(drawRotation);
-		hoverBlocks[0]->TargetEntity()->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
-		hoverBlocks[0]->TargetEntity()->MaterialName("Hover");
-		hoverBlocks[0]->TargetEntity()->MeshColorIndex(context->ApplicationBlockManager()->SelectedColorIndex());
-		scene->RefreshEntityRenderData(hoverBlocks[0]);
+		this->PlaceGhostBlock(context, drawStartPosition, drawRotation);
 		return;
 	}
 
 	if (drawMode == DrawModes::Point)
 	{
-		auto hoverBlock = context->ApplicationScene()->CreateEntity();
-		Entity* hoverBlockEntity = hoverBlock->TargetEntity();
-		hoverBlockEntity->MaterialName("Hover");
-		hoverBlockEntity->ObjectTransform()->Position(drawEndPosition);
-		hoverBlockEntity->ObjectTransform()->Rotation(drawRotation);
-		hoverBlockEntity->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
-		hoverBlockEntity->MeshColorIndex(context->ApplicationBlockManager()->SelectedColorIndex());
-		this->hoverBlocks.push_back(hoverBlock);
-		scene->RefreshEntityRenderData(hoverBlock);
+		this->PlaceGhostBlock(context, drawEndPosition, drawRotation);
 	}
 	else if (drawMode == DrawModes::Rectangle)
 	{
@@ -197,45 +163,20 @@ void DrawBlockTool::RefreshHoverBlocks(ApplicationContext * context)
 						this->drawStartPosition.x + (x * glm::sign(this->drawEndPosition.x - this->drawStartPosition.x)),
 						this->drawStartPosition.y + (y * glm::sign(this->drawEndPosition.y - this->drawStartPosition.y)),
 						this->drawStartPosition.z + (z * glm::sign(this->drawEndPosition.z - this->drawStartPosition.z)));
-
-					auto hoverBlock = context->ApplicationScene()->CreateEntity();
-					Entity* hoverBlockEntity = hoverBlock->TargetEntity();
-
-					hoverBlockEntity->MaterialName("Hover");
-					hoverBlockEntity->ObjectTransform()->Position(blockPosition);
-					hoverBlockEntity->ObjectTransform()->Rotation(drawRotation);
-					hoverBlockEntity->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
-					hoverBlockEntity->MeshColorIndex(context->ApplicationBlockManager()->SelectedColorIndex());
-					this->hoverBlocks.push_back(hoverBlock);
-					scene->RefreshEntityRenderData(hoverBlock);
+					this->PlaceGhostBlock(context, blockPosition, drawRotation);
 				}
 			}
 		}
 	}
 }
 
-void DrawBlockTool::DisableTool(ApplicationContext * context)
-{
-	Scene* scene = context->ApplicationScene();
-	this->ClearHoverBlocks(scene);
-}
-
-void DrawBlockTool::ClearHoverBlocks(Scene * scene)
-{
-	for (auto& hoverBlock : hoverBlocks)
-	{
-		scene->DestroyEntity(hoverBlock);
-	}
-	hoverBlocks.clear();
-}
-
-void DrawBlockTool::RotateHoverBlocks(ApplicationContext * context, glm::vec3 axis, float angleDegrees)
+void DrawBlockTool::RotateGhostBlocks(ApplicationContext * context, glm::vec3 axis, float angleDegrees)
 {
 	drawRotation = glm::rotate(glm::quat(), glm::radians(angleDegrees), axis) * drawRotation;
-	this->RefreshHoverBlocks(context);
+	this->RefreshGhostBlocks(context);
 }
 
-bool DrawBlockTool::GetHoverBlockPosition(ApplicationContext * context, glm::vec3 & newBlockPosition)
+bool DrawBlockTool::GetNewGhostBlockPosition(ApplicationContext * context, glm::vec3 & newBlockPosition)
 {
 	Window* window = context->ApplicationWindow();
 	Scene* scene = context->ApplicationScene();

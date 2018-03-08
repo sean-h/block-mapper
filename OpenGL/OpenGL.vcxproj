@@ -149,6 +149,7 @@
     <ClCompile Include="MoveBlockTool.cpp" />
     <ClCompile Include="OrbitController.cpp" />
     <ClCompile Include="Physics.cpp" />
+    <ClCompile Include="PlaceBlockTool.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneExporter.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="MoveBlockTool.h" />
     <ClInclude Include="OrbitController.h" />
     <ClInclude Include="Physics.h" />
+    <ClInclude Include="PlaceBlockTool.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneExporter.h" />
