@@ -32,37 +32,15 @@ void DrawBlockTool::Update(ApplicationContext* context)
 		return;
 	}
 
-	if (input->GetKeyDown(Input::Keys::MOUSE_1))
+	if (buildState == BuildStates::PlaceFirstBlock)
 	{
-		buildState = BuildStates::PlaceLastBlock;
-	}
-	else if (input->GetKeyUp(Input::Keys::MOUSE_1))
-	{
-		if (buildState == BuildStates::Canceled)
+		if (input->GetKeyDown(Input::Keys::MOUSE_1))
 		{
-			buildState = BuildStates::PlaceFirstBlock;
+			buildState = BuildStates::PlaceLastBlock;
 		}
-		else
-		{
-			buildState = BuildStates::Completed;
-		}
-	}
-	else if (input->GetKeyDown(Input::Keys::MOUSE_2))
-	{
-		buildState = BuildStates::Canceled;
-		this->RefreshGhostBlocks(context);
-	}
 
-	if (buildState == BuildStates::Completed)
-	{
-		this->Apply(context);
-		buildState = BuildStates::PlaceFirstBlock;
-	}
-
-	glm::vec3 newBlockPos;
-	if (this->GetNewGhostBlockPosition(context, newBlockPos))
-	{
-		if (buildState == BuildStates::PlaceFirstBlock)
+		glm::vec3 newBlockPos;
+		if (this->GetNewGhostBlockPosition(context, newBlockPos))
 		{
 			if (drawStartPosition != newBlockPos)
 			{
@@ -70,13 +48,39 @@ void DrawBlockTool::Update(ApplicationContext* context)
 				this->RefreshGhostBlocks(context);
 			}
 		}
-		else if (buildState == BuildStates::PlaceLastBlock)
+	}
+	else if (buildState == BuildStates::PlaceLastBlock)
+	{
+		if (input->GetKeyUp(Input::Keys::MOUSE_1))
+		{
+			buildState = BuildStates::Completed;
+		}
+		else if (input->GetKeyDown(Input::Keys::MOUSE_2))
+		{
+			buildState = BuildStates::Canceled;
+			this->RefreshGhostBlocks(context);
+		}
+
+		glm::vec3 newBlockPos;
+		if (this->GetNewGhostBlockPosition(context, newBlockPos))
 		{
 			if (drawEndPosition != newBlockPos)
 			{
 				drawEndPosition = newBlockPos;
 				this->RefreshGhostBlocks(context);
 			}
+		}
+	}
+	else if (buildState == BuildStates::Completed)
+	{
+		this->Apply(context);
+		buildState = BuildStates::PlaceFirstBlock;
+	}
+	else if (buildState == BuildStates::Canceled)
+	{
+		if (input->GetKeyUp(Input::Keys::MOUSE_1))
+		{
+			buildState = BuildStates::PlaceFirstBlock;
 		}
 	}
 
