@@ -11,6 +11,7 @@ void PlaceBlockTool::Apply(ApplicationContext * context)
 		entity->MaterialName("Solid");
 		entity->ColliderMeshName("Cube");
 		entity->AddProperty("Block", "");
+		entity->RemoveProperty("Temporary");
 		scene->RefreshEntityRenderData(block);
 		scene->RefreshEntityCollisionData(block);
 	}

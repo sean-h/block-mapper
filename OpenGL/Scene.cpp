@@ -281,6 +281,11 @@ void Scene::SaveScene(ApplicationContext * context) const
 	auto entitiesNode = xmlDoc.NewElement("Entities");
 	for (auto& entity : this->entities)
 	{
+		if (entity->HasProperty("Temporary"))
+		{
+			continue;
+		}
+
 		auto entityNode = xmlDoc.NewElement("Entity");
 
 		auto entityIDNode = xmlDoc.NewElement("ID");
