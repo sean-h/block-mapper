@@ -50,7 +50,8 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 	ImGui::SetWindowPos(ImVec2(windowLocation.xPosition, windowLocation.yPosition));
 	ImGui::SetWindowSize(ImVec2(windowLocation.width, windowLocation.height));
 
-	ImGui::Text(this->SelectedBlockName().c_str());
+	std::string selectedBlockText = this->SelectedBlockName() + "(" + std::to_string(this->selectedColorIndex) + ")";
+	ImGui::Text(selectedBlockText.c_str());
 
 	ImTextureID texID = (ImTextureID)context->ApplicationRenderer()->ModelPreviewTextureID();
 	ImGui::Image(texID, ImVec2(256, 256), ImVec2(1, 1), ImVec2(0, 0));
