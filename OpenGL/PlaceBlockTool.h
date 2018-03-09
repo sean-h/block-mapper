@@ -15,7 +15,7 @@ public:
 	void DisableTool(ApplicationContext* context);
 
 protected:
-	void Apply(ApplicationContext* context);
+	virtual void Apply(ApplicationContext* context);
 	void PlaceGhostBlock(ApplicationContext* context, glm::vec3 position, glm::quat rotation);
 	virtual void RefreshGhostBlocks(ApplicationContext* context) {}
 	void ClearGhostBlocks(Scene* scene);

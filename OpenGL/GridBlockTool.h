@@ -1,18 +1,16 @@
 #pragma once
-#include "Tool.h"
+#include "PlaceBlockTool.h"
 #include "Entity.h"
 #include <memory>
 #include <vector>
 #include "glm\glm.hpp"
 
-class GridBlockTool : public Tool
+class GridBlockTool : public PlaceBlockTool
 {
 public:
 	GridBlockTool(ApplicationContext* context);
 	void Update(ApplicationContext* context);
 	void DrawGUI(ApplicationContext* context);
-	void RefreshHoverBlock(ApplicationContext* context);
-	void DisableTool(ApplicationContext* context);
 
 private:
 	enum class BuildSteps
@@ -27,7 +25,7 @@ private:
 		FilledCube
 	};
 
-	void PlaceHoverBlocks(ApplicationContext* context);
+	void RefreshGhostBlocks(ApplicationContext* context);
 	void MoveBlock(ApplicationContext* context, glm::vec3 moveDirection);
 	void Apply(ApplicationContext* context);
 	void AdvanceBuildStep(ApplicationContext* context);

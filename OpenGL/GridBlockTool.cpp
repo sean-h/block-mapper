@@ -10,7 +10,7 @@ GridBlockTool::GridBlockTool(ApplicationContext * context)
 	selectedBlockName = "";
 	selectedBlockColorIndex = 0;
 
-	this->PlaceHoverBlocks(context);
+	this->RefreshGhostBlocks(context);
 }
 
 void GridBlockTool::Update(ApplicationContext * context)
@@ -22,7 +22,7 @@ void GridBlockTool::Update(ApplicationContext * context)
 	{
 		selectedBlockName = blockManager->SelectedBlockName();
 		selectedBlockColorIndex = blockManager->SelectedColorIndex();
-		this->PlaceHoverBlocks(context);
+		this->RefreshGhostBlocks(context);
 	}
 
 	if (input->MouseOverGUIElement())
@@ -65,29 +65,10 @@ void GridBlockTool::DrawGUI(ApplicationContext * context)
 {
 }
 
-void GridBlockTool::RefreshHoverBlock(ApplicationContext * context)
-{
-}
-
-void GridBlockTool::DisableTool(ApplicationContext * context)
+void GridBlockTool::RefreshGhostBlocks(ApplicationContext * context)
 {
 	Scene* scene = context->ApplicationScene();
-	for (auto& block : hoverBlocks)
-	{
-		scene->DestroyEntity(block);
-	}
-	hoverBlocks.clear();
-}
-
-void GridBlockTool::PlaceHoverBlocks(ApplicationContext * context)
-{
-	Scene* scene = context->ApplicationScene();
-
-	for (int i = 0; i < this->hoverBlocks.size(); i++)
-	{
-		scene->DestroyEntity(hoverBlocks[i]);
-	}
-	this->hoverBlocks.clear();
+	this->ClearGhostBlocks(scene);
 
 	glm::vec3 buildVector = this->lastBlockPosition - this->firstBlockPosition;
 
@@ -108,15 +89,7 @@ void GridBlockTool::PlaceHoverBlocks(ApplicationContext * context)
 						this->firstBlockPosition.y + (y * glm::sign(this->lastBlockPosition.y - this->firstBlockPosition.y)),
 						this->firstBlockPosition.z + (z * glm::sign(this->lastBlockPosition.z - this->firstBlockPosition.z)));
 
-					auto hoverBlock = context->ApplicationScene()->CreateEntity();
-					Entity* hoverBlockEntity = hoverBlock->TargetEntity();
-
-					hoverBlockEntity->MaterialName("Hover");
-					hoverBlockEntity->ObjectTransform()->Position(blockPosition);
-					hoverBlockEntity->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
-					scene->RefreshEntityRenderData(hoverBlock);
-
-					this->hoverBlocks.push_back(hoverBlock);
+					this->PlaceGhostBlock(context, blockPosition, glm::quat());
 				}
 			}
 		}
@@ -136,22 +109,12 @@ void GridBlockTool::MoveBlock(ApplicationContext * context, glm::vec3 moveDirect
 		this->lastBlockPosition += moveDirection;
 	}
 
-	this->PlaceHoverBlocks(context);
+	this->RefreshGhostBlocks(context);
 }
 
 void GridBlockTool::Apply(ApplicationContext * context)
 {
-	Scene* scene = context->ApplicationScene();
-	for (auto& block : hoverBlocks)
-	{
-		block->TargetEntity()->MaterialName("Solid");
-		block->TargetEntity()->AddProperty("Block", "");
-		block->TargetEntity()->ColliderMeshName("Cube");
-		scene->RefreshEntityRenderData(block);
-		scene->RefreshEntityCollisionData(block);
-	}
-	this->hoverBlocks.clear();
-
+	PlaceBlockTool::Apply(context);
 	this->buildStep = BuildSteps::PlaceFirstBlock;
 	this->firstBlockPosition = this->lastBlockPosition;
 }
