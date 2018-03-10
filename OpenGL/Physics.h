@@ -5,6 +5,7 @@
 
 class Scene;
 class Debug;
+class FileManager;
 
 struct RaycastHit
 {
@@ -52,7 +53,7 @@ struct PhysicsObject
 class Physics
 {
 public:
-	Physics();
+	Physics(FileManager* fileManager);
 	RaycastHit Raycast(Scene* scene, glm::vec3 origin, glm::vec3 direction, float distance);
 	std::vector<std::shared_ptr<EntityHandle>> FrustumIntersect(Debug* debug, Scene* scene, Frustum frustum);
 
@@ -61,7 +62,7 @@ public:
 	void DestroyPhysicsObject(unsigned int physicsObjectID);
 
 private:
-	void LoadColliders();
+	void LoadColliders(FileManager* fileManager);
 	std::unordered_map<std::string, Model*> colliders;
 	RaycastHit RayTriIntersect(glm::vec3 origin, glm::vec3 direction, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2);
 	bool PlaneAABIntersectOrInside(glm::vec3 AABBMin, glm::vec3 AABBMax, Plane plane);

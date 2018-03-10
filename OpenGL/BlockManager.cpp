@@ -9,6 +9,7 @@ BlockManager::BlockManager(FileManager * fileManager)
 	selectedBlockIndex = 0;
 	selectedColorIndex = 0;
 	selectedBlockColorCount = 0;
+	selectedColliderIndex = 0;
 	selectedBlockPreviewDirty = true;
 }
 
@@ -38,7 +39,7 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 {
 	if (selectedBlockPreviewDirty)
 	{
-		context->ApplicationRenderer()->RenderModelPreview(this->SelectedBlockName(), this->selectedColorIndex);
+		context->ApplicationRenderer()->RenderModelPreview(this->SelectedBlockName(), this->selectedColorIndex, this->SelectedColliderName());
 		selectedBlockPreviewDirty = false;
 		selectedBlockColorCount = context->ApplicationRenderer()->ModelUVIndexCount(SelectedBlockName());
 	}
@@ -50,8 +51,31 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 	ImGui::SetWindowPos(ImVec2(windowLocation.xPosition, windowLocation.yPosition));
 	ImGui::SetWindowSize(ImVec2(windowLocation.width, windowLocation.height));
 
-	std::string selectedBlockText = this->SelectedBlockName() + "(" + std::to_string(this->selectedColorIndex) + ")";
+	if (ImGui::SmallButton("-##mesh"))
+	{
+		this->SelectPreviousBlock();
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("+##mesh"))
+	{
+		this->SelectNextBlock();
+	}
+	ImGui::SameLine();
+	std::string selectedBlockText = "Mesh: " + this->SelectedBlockName() + " (" + std::to_string(this->selectedColorIndex) + ")";
 	ImGui::Text(selectedBlockText.c_str());
+
+	if (ImGui::SmallButton("-##collider"))
+	{
+		this->SelectPreviousCollider();
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("+##collider"))
+	{
+		this->SelectNextCollider();
+	}
+	ImGui::SameLine();
+	std::string colliderText = "Collider: " + this->SelectedColliderName();
+	ImGui::Text(colliderText.c_str());
 
 	ImTextureID texID = (ImTextureID)context->ApplicationRenderer()->ModelPreviewTextureID();
 	ImGui::Image(texID, ImVec2(256, 256), ImVec2(1, 1), ImVec2(0, 0));
@@ -84,6 +108,20 @@ void BlockManager::SelectNextColorIndex()
 void BlockManager::SelectPreviousColorIndex()
 {
 	selectedColorIndex = (((selectedColorIndex - 1) % selectedBlockColorCount) + selectedBlockColorCount) % selectedBlockColorCount;
+	selectedBlockPreviewDirty = true;
+}
+
+void BlockManager::SelectNextCollider()
+{
+	int blockCount = blockNames.size();
+	selectedColliderIndex = (((selectedColliderIndex + 1) % blockCount) + blockCount) % blockCount;
+	selectedBlockPreviewDirty = true;
+}
+
+void BlockManager::SelectPreviousCollider()
+{
+	int blockCount = blockNames.size();
+	selectedColliderIndex = (((selectedColliderIndex - 1) % blockCount) + blockCount) % blockCount;
 	selectedBlockPreviewDirty = true;
 }
 

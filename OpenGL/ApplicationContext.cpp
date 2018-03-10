@@ -9,7 +9,7 @@ ApplicationContext::ApplicationContext()
 	window->SetCallbackWindow(window.get());
 	fileManager = std::make_unique<FileManager>(FileManager());
 	renderer = std::make_unique<Renderer>(Renderer(fileManager.get()));
-	physics = std::make_unique<Physics>(Physics());
+	physics = std::make_unique<Physics>(Physics(fileManager.get()));
 	scene = std::make_unique<Scene>(Scene());
 	blockManager = std::make_unique<BlockManager>(BlockManager(fileManager.get()));
 	guiManager = std::make_unique<GUIManager>(GUIManager(window.get()));

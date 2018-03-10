@@ -40,6 +40,9 @@ std::vector<std::string> FileManager::BlockNames() const
 {
 	std::vector<std::string> blockNames;
 
+	// Add application blocks
+	blockNames.push_back("Cube");
+
 	for (auto &blockPath : blockPaths)
 	{
 		blockNames.push_back(blockPath.filename().stem().string());

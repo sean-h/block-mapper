@@ -128,7 +128,14 @@ void Scene::Update(ApplicationContext* context)
 		if (newPhysicsObjectsQueue.front()->EntityExists())
 		{
 			Entity* entity = newPhysicsObjectsQueue.front()->TargetEntity();
-			unsigned int physicsID = physics->CreatePhysicsObject(entity->ObjectTransform()->Position(), entity->ObjectTransform()->Scale(), entity->ColliderMeshName());
+
+			std::string colliderMeshName = "Cube";
+			if (!entity->HasProperty("Block"))
+			{
+				colliderMeshName = entity->ColliderMeshName();
+			}
+
+			unsigned int physicsID = physics->CreatePhysicsObject(entity->ObjectTransform()->Position(), entity->ObjectTransform()->Scale(), colliderMeshName);
 			entity->PhysicsID(physicsID);
 		}
 		newPhysicsObjectsQueue.pop();

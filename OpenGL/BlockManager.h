@@ -34,6 +34,9 @@ public:
 	void SelectPreviousBlock();
 	void SelectNextColorIndex();
 	void SelectPreviousColorIndex();
+	void SelectNextCollider();
+	void SelectPreviousCollider();
+	std::string SelectedColliderName() const { return blockNames[selectedColliderIndex]; }
 	BlockMap BlockPositionMap(Scene* scene);
 
 private:
@@ -41,5 +44,6 @@ private:
 	int selectedBlockIndex;
 	int selectedColorIndex;
 	int selectedBlockColorCount;
+	int selectedColliderIndex;
 	bool selectedBlockPreviewDirty;
 };

@@ -240,7 +240,7 @@ void Renderer::SetUpModelPreview()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Renderer::RenderModelPreview(std::string modelName, int meshColorIndex)
+void Renderer::RenderModelPreview(std::string modelName, int meshColorIndex, std::string colliderModelName)
 {
 	glViewport(0, 0, modelPreviewTextureSize, modelPreviewTextureSize);
 	glBindFramebuffer(GL_FRAMEBUFFER, this->modelPreviewFBO);
@@ -260,15 +260,22 @@ void Renderer::RenderModelPreview(std::string modelName, int meshColorIndex)
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 3.0f));
 		model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-		defaultShader->setMat4("view", glm::value_ptr(view));
-		defaultShader->setMat4("projection", glm::value_ptr(projection));
-		defaultShader->setMat4("model", glm::value_ptr(model));
-		defaultShader->setVec3("objectColor", glm::vec3(1.0f, 1.0f, 1.0f));
-		defaultShader->setVec3("cameraPosition", glm::vec3(0.0f, 0.0f, 0.0f));
-		defaultShader->setFloat("inverseColorMultiplier", 0.0f);
+		defaultShader->setMat4(defaultShader->viewID, glm::value_ptr(view));
+		defaultShader->setMat4(defaultShader->projectionID, glm::value_ptr(projection));
+		defaultShader->setMat4(defaultShader->modelID, glm::value_ptr(model));
+		defaultShader->setVec3(defaultShader->objectColorID, glm::vec3(1.0f, 1.0f, 1.0f));
+		defaultShader->setVec3(defaultShader->cameraPositionID, glm::vec3(0.0f, 0.0f, 0.0f));
+		defaultShader->setFloat(defaultShader->inverseColorMultiplierID, 0.0f);
 		models[modelName]->Draw(*defaultShader, meshColorIndex);
+
+		if (colliderModelName != "")
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			defaultShader->setFloat(defaultShader->inverseColorMultiplierID, 1.0f);
+			models[colliderModelName]->Draw(*defaultShader);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
 	}
 	else
 	{

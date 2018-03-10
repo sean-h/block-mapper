@@ -1,11 +1,12 @@
 #include "Physics.h"
 #include "Scene.h"
 #include "Debug.h"
+#include "FileManager.h"
 #include <iostream>
 
-Physics::Physics()
+Physics::Physics(FileManager* fileManager)
 {
-	LoadColliders();
+	LoadColliders(fileManager);
 
 	physicsObjectCounter = 0;
 }
@@ -163,11 +164,22 @@ void Physics::DestroyPhysicsObject(unsigned int physicsObjectID)
 	physicsObjects.erase(physicsObjectID);
 }
 
-void Physics::LoadColliders()
+void Physics::LoadColliders(FileManager* fileManager)
 {
 	this->colliders["Cube"] = new Model("Cube.fbx");
 	this->colliders["Plane"] = new Model("Plane.fbx");
 	this->colliders["PlaneBottom"] = new Model("PlaneBottom.fbx");
+
+	for (auto &collider : fileManager->BlockPaths())
+	{
+		this->colliders[collider.first] = new Model(collider.second);
+
+		if (this->colliders[collider.first]->ActiveMesh() == nullptr)
+		{
+			std::cout << "Could not load collider: " << collider.first << std::endl;
+			colliders.erase(collider.first);
+		}
+	}
 }
 
 RaycastHit Physics::RayTriIntersect(glm::vec3 origin, glm::vec3 direction, glm::vec3 p0, glm::vec3 p1, glm::vec3 p2)

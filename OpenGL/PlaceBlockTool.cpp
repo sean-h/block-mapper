@@ -9,7 +9,7 @@ void PlaceBlockTool::Apply(ApplicationContext * context)
 	{
 		Entity* entity = block->TargetEntity();
 		entity->MaterialName("Solid");
-		entity->ColliderMeshName("Cube");
+		entity->ColliderMeshName(context->ApplicationBlockManager()->SelectedColliderName());
 		entity->AddProperty("Block", "");
 		entity->RemoveProperty("Temporary");
 		scene->RefreshEntityRenderData(block);
