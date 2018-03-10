@@ -49,6 +49,7 @@ void MoveBlockTool::MoveBlocks(ApplicationContext * context, glm::vec3 direction
 		{
 			block->TargetEntity()->ObjectTransform()->Translate(direction);
 			scene->RefreshEntityRenderModelMatrix(block);
+			scene->RefreshEntityCollisionData(block);
 		}
 	}
 }
