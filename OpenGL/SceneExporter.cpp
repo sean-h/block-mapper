@@ -1,5 +1,6 @@
 #include "SceneExporter.h"
 #include <vector>
+#include <set>
 
 void SceneExporter::Export(ApplicationContext * context)
 {
@@ -12,24 +13,40 @@ void SceneExporter::Export(ApplicationContext * context)
 	exportScene.mNumMaterials = 1;
 	exportScene.mMaterials[0] = new aiMaterial();
 
-	exportScene.mMeshes = new aiMesh*[context->ApplicationRenderer()->ModelCount()];
+	// Determine which meshes are used in the scene
+	std::set<std::pair<std::string, int>> usedMeshes;
+	for (auto& entity : context->ApplicationScene()->Entities())
+	{
+		if (!entity->HasProperty("Block"))
+		{
+			continue;
+		}
+
+		if (entity->MeshName() != "")
+		{
+			usedMeshes.insert(std::make_pair<std::string, int>(entity->MeshName(), entity->MeshColorIndex()));
+		}
+
+		if (entity->ColliderMeshName() != "")
+		{
+			usedMeshes.insert(std::make_pair<std::string, int>(entity->ColliderMeshName(), 0));
+		}
+	}
+
+	exportScene.mMeshes = new aiMesh*[usedMeshes.size()];
 	exportScene.mMeshes[0] = nullptr;
-	exportScene.mNumMeshes = context->ApplicationRenderer()->ModelCount();
+	exportScene.mNumMeshes = usedMeshes.size();
 
 	// Load mesh data
+	auto allModels = context->ApplicationRenderer()->Models();
 	int meshIndex = 0;
-	for (auto &modelTuple : context->ApplicationRenderer()->Models())
+	for (auto& usedMesh : usedMeshes)
 	{
-		Model* model = modelTuple.second;
-		for (int colorIndex = 0; colorIndex < model->UVIndexCount(); colorIndex++)
-		{
-			Mesh* mesh = model->GetMesh(colorIndex);
-
-			exportScene.mMeshes[meshIndex] = new aiMesh();
-			this->LoadMeshData(&exportScene, mesh, meshIndex);
-			meshIndexes[modelTuple.first][colorIndex] = meshIndex;
-			meshIndex++;
-		}
+		Mesh* mesh = allModels[usedMesh.first]->GetMesh(usedMesh.second);
+		exportScene.mMeshes[meshIndex] = new aiMesh();
+		this->LoadMeshData(&exportScene, mesh, meshIndex);
+		meshIndexes[usedMesh.first][usedMesh.second] = meshIndex;
+		meshIndex++;
 	}
 
 	// Add all entities as children to the root node
