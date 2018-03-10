@@ -16,6 +16,13 @@ public:
 	void Update(ApplicationContext* context);
 	void DrawGUI(ApplicationContext* context);
 
+	enum class Planes
+	{
+		XY,
+		XZ,
+		YZ,
+	};
+
 private:
 	enum class SelectionModes
 	{
@@ -23,11 +30,13 @@ private:
 		Region,
 		Border,
 		Box,
+		Plane,
 	};
 
 	void SelectSingle(EntitySelectionManager* selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity);
 	void SelectRegion(EntitySelectionManager* selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap);
 	void SelectBorder(EntitySelectionManager* selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap);
+	void SelectPlane(EntitySelectionManager* selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap);
 
 	SelectionModes selectionMode;
 	int selectionModeIndex;
@@ -36,3 +45,4 @@ private:
 };
 
 std::vector<glm::ivec3> AdjacentPositions(glm::ivec3 position);
+std::vector<glm::ivec3> AdjacentPlanePositions(glm::ivec3 position, SelectBlockTool::Planes plane);

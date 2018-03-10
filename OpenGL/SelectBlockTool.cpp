@@ -126,6 +126,10 @@ void SelectBlockTool::Update(ApplicationContext * context)
 			{
 				this->SelectBorder(selectionManager, scene, hit.entity, context->ApplicationBlockManager()->BlockPositionMap(scene));
 			}
+			else if (selectionMode == SelectionModes::Plane)
+			{
+				this->SelectPlane(selectionManager, scene, hit.entity, context->ApplicationBlockManager()->BlockPositionMap(scene));
+			}
 		}
 	}
 }
@@ -153,6 +157,11 @@ void SelectBlockTool::DrawGUI(ApplicationContext * context)
 	if (GUI::ToggleButton("Box", 3, selectionModeIndex))
 	{
 		selectionMode = SelectionModes::Box;
+	}
+
+	if (GUI::ToggleButton("Plane", 4, selectionModeIndex))
+	{
+		selectionMode = SelectionModes::Plane;
 	}
 }
 
@@ -236,6 +245,87 @@ void SelectBlockTool::SelectBorder(EntitySelectionManager * selectionManager, Sc
 	}
 }
 
+void SelectBlockTool::SelectPlane(EntitySelectionManager * selectionManager, Scene * scene, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap)
+{
+	// Determine plane
+	glm::ivec3 hitEntityGridPosition = hitEntity->TargetEntity()->ObjectTransform()->GridPosition();
+	int xBias = 0;
+	int yBias = 0;
+	int zBias = 0;
+	if (blockMap[hitEntityGridPosition + glm::ivec3(1, 0, 0)])
+		xBias++;
+	if (blockMap[hitEntityGridPosition + glm::ivec3(-1, 0, 0)])
+		xBias++;
+	if (blockMap[hitEntityGridPosition + glm::ivec3(0, 1, 0)])
+		yBias++;
+	if (blockMap[hitEntityGridPosition + glm::ivec3(0, -1, 0)])
+		yBias++;
+	if (blockMap[hitEntityGridPosition + glm::ivec3(0, 0, 1)])
+		zBias++;
+	if (blockMap[hitEntityGridPosition + glm::ivec3(0, 0, -1)])
+		zBias++;
+
+	int xyBias = xBias + yBias;
+	int xzBias = xBias + zBias;
+	int yzBias = yBias + zBias;
+
+	Planes plane;
+
+	if (xyBias >= xzBias && xyBias >= yzBias)
+	{
+		plane = Planes::XY;
+	}
+	else if (yzBias >= xyBias && yzBias >= xzBias)
+	{
+		plane = Planes::YZ;
+	}
+	else
+	{
+		plane = Planes::XZ;
+	}
+
+	std::set<glm::ivec3> visited;
+	std::stack<glm::ivec3> searchFrom;
+	searchFrom.push(hitEntityGridPosition);
+
+	while (searchFrom.size() > 0)
+	{
+		auto adjacent = AdjacentPlanePositions(searchFrom.top(), plane);
+		searchFrom.pop();
+
+		for (auto& pos : adjacent)
+		{
+			if (visited.find(pos) != visited.end())
+			{
+				continue;
+			}
+
+			visited.insert(pos);
+
+			auto adjacentBlock = blockMap[pos];
+			if (adjacentBlock)
+			{
+				int neighbourCount = 0;
+				auto neighbours = AdjacentPlanePositions(pos, plane);
+				for (auto& n : neighbours)
+				{
+					if (blockMap[n])
+					{
+						neighbourCount++;
+					}
+				}
+
+				if (neighbourCount >= 3)
+				{
+					selectionManager->SelectEntity(scene, adjacentBlock);
+					searchFrom.push(pos);
+				}
+				
+			}
+		}
+	}
+}
+
 std::vector<glm::ivec3> AdjacentPositions(glm::ivec3 position)
 {
 	std::vector<glm::ivec3> adjacent;
@@ -245,5 +335,34 @@ std::vector<glm::ivec3> AdjacentPositions(glm::ivec3 position)
 	adjacent.push_back(position + glm::ivec3(0, -1, 0));
 	adjacent.push_back(position + glm::ivec3(0, 0, 1));
 	adjacent.push_back(position + glm::ivec3(0, 0, -1));
+	return adjacent;
+}
+
+std::vector<glm::ivec3> AdjacentPlanePositions(glm::ivec3 position, SelectBlockTool::Planes plane)
+{
+	std::vector<glm::ivec3> adjacent;
+
+	if (plane == SelectBlockTool::Planes::XY)
+	{
+		adjacent.push_back(position + glm::ivec3(1, 0, 0));
+		adjacent.push_back(position + glm::ivec3(-1, 0, 0));
+		adjacent.push_back(position + glm::ivec3(0, 1, 0));
+		adjacent.push_back(position + glm::ivec3(0, -1, 0));
+	}
+	else if (plane == SelectBlockTool::Planes::XZ)
+	{
+		adjacent.push_back(position + glm::ivec3(1, 0, 0));
+		adjacent.push_back(position + glm::ivec3(-1, 0, 0));
+		adjacent.push_back(position + glm::ivec3(0, 0, 1));
+		adjacent.push_back(position + glm::ivec3(0, 0, -1));
+	}
+	else if (plane == SelectBlockTool::Planes::YZ)
+	{
+		adjacent.push_back(position + glm::ivec3(0, 1, 0));
+		adjacent.push_back(position + glm::ivec3(0, -1, 0));
+		adjacent.push_back(position + glm::ivec3(0, 0, 1));
+		adjacent.push_back(position + glm::ivec3(0, 0, -1));
+	}
+
 	return adjacent;
 }
