@@ -30,6 +30,10 @@ void Scene::Update(ApplicationContext* context)
 		{
 			gridPlane->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, 1.0f, 0.0f));
 			gridPlaneBottom->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, 1.0f, 0.0f));
+			this->RefreshEntityCollisionData(gridPlane);
+			this->RefreshEntityCollisionData(gridPlaneBottom);
+			this->RefreshEntityRenderData(gridPlane);
+			this->RefreshEntityRenderData(gridPlaneBottom);
 		}
 	}
 	else if (input->GetKeyDown(Input::Keys::KEY_MINUS))
@@ -38,6 +42,10 @@ void Scene::Update(ApplicationContext* context)
 		{
 			gridPlane->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, -1.0f, 0.0f));
 			gridPlaneBottom->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, -1.0f, 0.0f));
+			this->RefreshEntityCollisionData(gridPlane);
+			this->RefreshEntityCollisionData(gridPlaneBottom);
+			this->RefreshEntityRenderData(gridPlane);
+			this->RefreshEntityRenderData(gridPlaneBottom);
 		}
 	}
 
