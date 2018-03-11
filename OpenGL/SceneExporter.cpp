@@ -5,63 +5,81 @@
 
 void SceneExporter::Export(ApplicationContext * context)
 {
-	std::string exportFilePath = context->ApplicationFileManager()->ExportFilePath() + context->ApplicationScene()->SceneName() + ".dae";
-	aiScene exportScene;
-
-	exportScene.mRootNode = new aiNode();
-
-	exportScene.mMaterials = new aiMaterial*[1];
-	exportScene.mNumMaterials = 1;
-	exportScene.mMaterials[0] = new aiMaterial();
-
-	// Determine which meshes are used in the scene
-	std::set<std::pair<std::string, int>> usedMeshes;
-	for (auto& entity : context->ApplicationScene()->Entities())
+	// Load Meshes
+	for (auto& model : context->ApplicationRenderer()->Models())
 	{
-		if (!entity->HasProperty("Block"))
+		for (int i = 0; i < model.second->UVIndexCount(); i++)
 		{
-			continue;
-		}
-
-		if (entity->MeshName() != "")
-		{
-			usedMeshes.insert(std::make_pair<std::string, int>(entity->MeshName(), entity->MeshColorIndex()));
-		}
-
-		if (entity->ColliderMeshName() != "")
-		{
-			usedMeshes.insert(std::make_pair<std::string, int>(entity->ColliderMeshName(), 0));
+			std::string meshName = model.first + std::to_string(i);
+			this->meshes[meshName] = model.second->GetMesh(i);
 		}
 	}
 
-	exportScene.mMeshes = new aiMesh*[usedMeshes.size()];
-	exportScene.mMeshes[0] = nullptr;
-	exportScene.mNumMeshes = usedMeshes.size();
-
-	// Load mesh data
-	auto allModels = context->ApplicationRenderer()->Models();
-	int meshIndex = 0;
-	for (auto& usedMesh : usedMeshes)
+	// Create Export Meshes
+	for (auto& mesh : this->meshes)
 	{
-		Mesh* mesh = allModels[usedMesh.first]->GetMesh(usedMesh.second);
-		exportScene.mMeshes[meshIndex] = new aiMesh();
-		ExportMeshData meshData = this->GetMeshData(mesh);
-		std::string meshName = usedMesh.first + std::to_string(usedMesh.second);
-		exportMeshes[meshName] = std::make_shared<ExportMeshData>(meshData);
-		exportMeshesList.push_back(exportMeshes[meshName]);
-		this->AddMeshDataToScene(&exportScene, &meshData, meshIndex);
-		meshIndexes[usedMesh.first][usedMesh.second] = meshIndex;
-		meshIndex++;
+		ExportMeshData meshData = this->CreateExportMeshData(mesh.second);
+		meshData.name = mesh.first;
+		exportMeshes[mesh.first] = std::make_shared<ExportMeshData>(meshData);
+		exportMeshUseCount[mesh.first] = 0;
 	}
 
+	// Create Export Objects
+	std::vector<ExportObject> exportMeshObjects;
 	for (auto &e : context->ApplicationScene()->Entities())
 	{
 		if (e->HasProperty("Block"))
 		{
-			CreateExportObject(e.get());
+			this->exportObjects.push_back(CreateMeshExportObject(e.get()));
+			this->exportObjects.push_back(CreateCollisionExportObject(e.get()));
 		}
 	}
 
+	// TODO: Merge Export Objects / Create merged Export Meshes
+
+	// Determine how many times each export mesh is used
+	for (auto& exportObject : this->exportObjects)
+	{
+		std::string meshName = exportObject.exportMeshData->name;
+		this->exportMeshUseCount[meshName]++;
+	}
+
+	// Remove unused Export Meshes
+	for (auto& meshCount : this->exportMeshUseCount)
+	{
+		if (meshCount.second == 0)
+		{
+			this->exportMeshes.erase(meshCount.first);
+		}
+	}
+
+	// Create export meshes list
+	for (auto& mesh : this->exportMeshes)
+	{
+		this->exportMeshesList.push_back(mesh.second);
+	}
+
+	// Create export scene
+	std::string exportFilePath = context->ApplicationFileManager()->ExportFilePath() + context->ApplicationScene()->SceneName() + ".dae";
+	aiScene exportScene;
+	exportScene.mRootNode = new aiNode();
+	exportScene.mMaterials = new aiMaterial*[1];
+	exportScene.mNumMaterials = 1;
+	exportScene.mMaterials[0] = new aiMaterial();
+
+	// Create scene meshes
+	exportScene.mMeshes = new aiMesh*[exportMeshesList.size()];
+	exportScene.mMeshes[0] = nullptr;
+	exportScene.mNumMeshes = exportMeshesList.size();
+
+	int meshIndex = 0;
+	for (auto& exportMesh : exportMeshesList)
+	{
+		this->AddMeshDataToScene(&exportScene, exportMesh.get(), meshIndex);
+		meshIndex++;
+	}
+
+	// Place export objects in scene
 	aiNode** children = new aiNode*[exportObjects.size()];
 	for (int i = 0; i < exportObjects.size(); i++)
 	{
@@ -78,7 +96,7 @@ void SceneExporter::Export(ApplicationContext * context)
 	exporter.Export(&exportScene, "collada", exportFilePath);
 }
 
-ExportMeshData SceneExporter::GetMeshData(Mesh * mesh)
+ExportMeshData SceneExporter::CreateExportMeshData(Mesh * mesh)
 {
 	ExportMeshData meshData;
 
@@ -127,6 +145,8 @@ ExportMeshData SceneExporter::GetMeshData(Mesh * mesh)
 
 void SceneExporter::AddMeshDataToScene(aiScene * scene, ExportMeshData * meshData, int meshIndex)
 {
+	scene->mMeshes[meshIndex] = new aiMesh();
+
 	// Vertex Positions
 	scene->mMeshes[meshIndex]->mNumVertices = meshData->vertexPositions.size();
 	scene->mMeshes[meshIndex]->mVertices = new aiVector3D[meshData->vertexPositions.size()];
@@ -158,7 +178,7 @@ void SceneExporter::AddMeshDataToScene(aiScene * scene, ExportMeshData * meshDat
 	}
 }
 
-void SceneExporter::CreateExportObject(Entity * entity)
+ExportObject SceneExporter::CreateMeshExportObject(Entity * entity)
 {
 	ExportObject exportObject;
 
@@ -171,17 +191,22 @@ void SceneExporter::CreateExportObject(Entity * entity)
 		entity->ObjectTransform()->RotationQuaternion(),
 		entity->ObjectTransform()->Scale());
 	exportObject.transformMatrix = transformation;
-	this->exportObjects.push_back(exportObject);
 
-	if (entity->ColliderMeshName() != "")
-	{
-		ExportObject colliderObject;
-		std::string colliderMeshName = entity->ColliderMeshName() + "0";
-		colliderObject.exportMeshData = this->exportMeshes[colliderMeshName];
-		colliderObject.name = "Collider_" + entity->MeshName() + "_" + std::to_string(entity->ID());
-		colliderObject.transformMatrix = transformation;
-		this->exportObjects.push_back(colliderObject);
-	}
+	return exportObject;
+}
+
+ExportObject SceneExporter::CreateCollisionExportObject(Entity * entity)
+{
+	ExportObject colliderObject;
+	std::string colliderMeshName = entity->ColliderMeshName() + "0";
+	colliderObject.exportMeshData = this->exportMeshes[colliderMeshName];
+	colliderObject.name = "Collider_" + entity->MeshName() + "_" + std::to_string(entity->ID());
+	aiMatrix4x4 transformation = TransformMatrix(
+		entity->ObjectTransform()->Position(),
+		entity->ObjectTransform()->RotationQuaternion(),
+		entity->ObjectTransform()->Scale());
+	colliderObject.transformMatrix = transformation;
+	return colliderObject;
 }
 
 int SceneExporter::GetExportMeshDataID(std::shared_ptr<ExportMeshData> exportMeshData)
@@ -197,16 +222,57 @@ int SceneExporter::GetExportMeshDataID(std::shared_ptr<ExportMeshData> exportMes
 	return -1;
 }
 
-void ExportMeshData::TransformVertexPositions(glm::mat4 transformMatrix)
+std::shared_ptr<ExportMeshData> SceneExporter::GetExportMeshData(std::string meshName)
+{
+	if (exportMeshes.find(meshName) != exportMeshes.end())
+	{
+		return exportMeshes[meshName];
+	}
+
+	ExportMeshData meshData = this->CreateExportMeshData(this->meshes[meshName]);
+	exportMeshes[meshName] = std::make_shared<ExportMeshData>(meshData);
+
+	return exportMeshes[meshName];
+}
+
+ExportMeshData::ExportMeshData(std::vector<ExportMeshData> meshDataList)
+{
+	int vertexCounter = 0;
+	for (auto& data : meshDataList)
+	{
+		for (auto& face : data.faces)
+		{
+			aiFace f = face;
+			for (int i = 0; i < f.mNumIndices; i++)
+			{
+				f.mIndices[i] += vertexCounter;
+			}
+			this->faces.push_back(f);
+		}
+
+		for (auto& vertex : data.vertexPositions)
+		{
+			this->vertexPositions.push_back(vertex);
+			vertexCounter++;
+		}
+
+		for (auto& normal : data.vertexNormals)
+		{
+			this->vertexNormals.push_back(normal);
+		}
+
+		for (auto& texCoord : data.vertexTextureCoords)
+		{
+			this->vertexTextureCoords.push_back(texCoord);
+		}
+	}
+}
+
+void ExportMeshData::TransformVertexPositions(aiMatrix4x4 transformMatrix)
 {
 	for (auto& vertexPosition : vertexPositions)
 	{
-		glm::vec4 v(vertexPosition.x, vertexPosition.y, vertexPosition.z, 1.0f);
-		glm::vec4 newPosition = transformMatrix * v;
-
-		vertexPosition.x = newPosition.x;
-		vertexPosition.y = newPosition.y;
-		vertexPosition.z = newPosition.z;
+		vertexPosition = transformMatrix * vertexPosition;
 	}
 }
 
