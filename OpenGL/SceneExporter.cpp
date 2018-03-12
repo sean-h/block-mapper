@@ -2,6 +2,7 @@
 #include "glm\gtc\matrix_transform.hpp"
 #include <vector>
 #include <set>
+#include <stack>
 
 void SceneExporter::Export(ApplicationContext * context)
 {
@@ -25,7 +26,6 @@ void SceneExporter::Export(ApplicationContext * context)
 	}
 
 	// Create Export Objects
-	std::vector<ExportObject> exportMeshObjects;
 	for (auto &e : context->ApplicationScene()->Entities())
 	{
 		if (e->HasProperty("Block"))
@@ -35,7 +35,8 @@ void SceneExporter::Export(ApplicationContext * context)
 		}
 	}
 
-	// TODO: Merge Export Objects / Create merged Export Meshes
+	// Merge Export Objects / Create merged Export Meshes
+	this->MergeMeshes();
 
 	// Determine how many times each export mesh is used
 	for (auto& exportObject : this->exportObjects)
@@ -185,6 +186,9 @@ ExportObject SceneExporter::CreateMeshExportObject(Entity * entity)
 	std::string meshName = entity->MeshName() + std::to_string(entity->MeshColorIndex());
 	exportObject.exportMeshData = this->exportMeshes[meshName];
 	exportObject.name = entity->MeshName() + "_" + std::to_string(entity->ID());
+	exportObject.gridPosition = entity->ObjectTransform()->GridPosition();
+
+	exportObject.objectType = ExportObject::ObjectType::Mesh;
 
 	aiMatrix4x4 transformation = TransformMatrix(
 		entity->ObjectTransform()->Position(),
@@ -201,6 +205,10 @@ ExportObject SceneExporter::CreateCollisionExportObject(Entity * entity)
 	std::string colliderMeshName = entity->ColliderMeshName() + "0";
 	colliderObject.exportMeshData = this->exportMeshes[colliderMeshName];
 	colliderObject.name = "Collider_" + entity->MeshName() + "_" + std::to_string(entity->ID());
+	colliderObject.gridPosition = entity->ObjectTransform()->GridPosition();
+
+	colliderObject.objectType = ExportObject::ObjectType::Collider;
+
 	aiMatrix4x4 transformation = TransformMatrix(
 		entity->ObjectTransform()->Position(),
 		entity->ObjectTransform()->RotationQuaternion(),
@@ -233,6 +241,225 @@ std::shared_ptr<ExportMeshData> SceneExporter::GetExportMeshData(std::string mes
 	exportMeshes[meshName] = std::make_shared<ExportMeshData>(meshData);
 
 	return exportMeshes[meshName];
+}
+
+void SceneExporter::MergeMeshes()
+{
+	ExportMap meshObjectsMap;
+	ExportMap collisionObjectsMap;
+	for (auto& obj : exportObjects)
+	{
+		if (obj.objectType == ExportObject::ObjectType::Mesh)
+		{
+			if (meshObjectsMap.find(obj.gridPosition) != meshObjectsMap.end())
+			{
+				int a = 0;
+			}
+
+			meshObjectsMap[obj.gridPosition] = &obj;
+		}
+		else if (obj.objectType == ExportObject::ObjectType::Collider)
+		{
+			collisionObjectsMap[obj.gridPosition] = &obj;
+		}
+	}
+
+	auto mergedMeshObjects = MergeExportObjects(meshObjectsMap, "MergedMesh");
+	auto mergedCollisionObjects = MergeExportObjects(collisionObjectsMap, "ColliderMergedMesh");
+
+	this->exportObjects.clear();
+	this->exportObjects.insert(this->exportObjects.end(), mergedMeshObjects.begin(), mergedMeshObjects.end());
+	this->exportObjects.insert(this->exportObjects.end(), mergedCollisionObjects.begin(), mergedCollisionObjects.end());
+}
+
+std::vector<glm::ivec3> SceneExporter::AdjacentPlanePositions(glm::ivec3 position, SceneExporter::Planes plane)
+{
+	std::vector<glm::ivec3> adjacent;
+
+	if (plane == SceneExporter::Planes::XY)
+	{
+		adjacent.push_back(position + glm::ivec3(1, 0, 0));
+		adjacent.push_back(position + glm::ivec3(-1, 0, 0));
+		adjacent.push_back(position + glm::ivec3(0, 1, 0));
+		adjacent.push_back(position + glm::ivec3(0, -1, 0));
+	}
+	else if (plane == SceneExporter::Planes::XZ)
+	{
+		adjacent.push_back(position + glm::ivec3(1, 0, 0));
+		adjacent.push_back(position + glm::ivec3(-1, 0, 0));
+		adjacent.push_back(position + glm::ivec3(0, 0, 1));
+		adjacent.push_back(position + glm::ivec3(0, 0, -1));
+	}
+	else if (plane == SceneExporter::Planes::YZ)
+	{
+		adjacent.push_back(position + glm::ivec3(0, 1, 0));
+		adjacent.push_back(position + glm::ivec3(0, -1, 0));
+		adjacent.push_back(position + glm::ivec3(0, 0, 1));
+		adjacent.push_back(position + glm::ivec3(0, 0, -1));
+	}
+
+	return adjacent;
+}
+
+SceneExporter::Planes SceneExporter::DetermineMergePlane(ExportMap exportMap, ExportObject anchorObject)
+{
+	glm::ivec3 anchorPosition = anchorObject.gridPosition;
+	int xBias = 0;
+	int yBias = 0;
+	int zBias = 0;
+	if (exportMap.find(anchorPosition + glm::ivec3(1, 0, 0)) != exportMap.end())
+		xBias++;
+	if (exportMap.find(anchorPosition + glm::ivec3(-1, 0, 0)) != exportMap.end())
+		xBias++;
+	if (exportMap.find(anchorPosition + glm::ivec3(0, 1, 0)) != exportMap.end())
+		yBias++;
+	if (exportMap.find(anchorPosition + glm::ivec3(0, -1, 0)) != exportMap.end())
+		yBias++;
+	if (exportMap.find(anchorPosition + glm::ivec3(0, 0, 1)) != exportMap.end())
+		zBias++;
+	if (exportMap.find(anchorPosition + glm::ivec3(0, 0, -1)) != exportMap.end())
+		zBias++;
+
+	int xyBias = xBias + yBias;
+	int xzBias = xBias + zBias;
+	int yzBias = yBias + zBias;
+
+	Planes plane;
+
+	if (xyBias >= xzBias && xyBias >= yzBias)
+	{
+		plane = Planes::XY;
+	}
+	else if (yzBias >= xyBias && yzBias >= xzBias)
+	{
+		plane = Planes::YZ;
+	}
+	else
+	{
+		plane = Planes::XZ;
+	}
+
+	return plane;
+}
+
+ExportMap SceneExporter::PlaneAdjacentExportObjects(ExportMap exportMap, glm::ivec3 startPosition, SceneExporter::Planes plane)
+{
+	ExportMap adjacentExportObjects;
+
+	std::set<glm::ivec3> visited;
+	std::stack<glm::ivec3> searchFrom;
+	searchFrom.push(startPosition);
+
+	while (searchFrom.size() > 0)
+	{
+		auto adjacent = AdjacentPlanePositions(searchFrom.top(), plane);
+		searchFrom.pop();
+
+		for (auto& pos : adjacent)
+		{
+			if (visited.find(pos) != visited.end())
+			{
+				continue;
+			}
+
+			visited.insert(pos);
+
+			auto adjacentBlock = exportMap[pos];
+			if (adjacentBlock)
+			{
+				int neighbourCount = 0;
+				auto neighbours = AdjacentPlanePositions(pos, plane);
+				for (auto& n : neighbours)
+				{
+					if (exportMap[n])
+					{
+						neighbourCount++;
+					}
+				}
+
+				if (neighbourCount >= 3)
+				{
+					adjacentExportObjects[pos] = exportMap[pos];
+					searchFrom.push(pos);
+				}
+
+			}
+		}
+	}
+
+	return adjacentExportObjects;
+}
+
+std::vector<ExportObject> SceneExporter::MergeExportObjects(ExportMap exportMap, std::string meshnamePrefix)
+{
+	ExportMap remainingMap = exportMap;
+	std::vector<ExportObject> mergedMeshObjects;
+	while (remainingMap.size() > 0)
+	{
+		ExportObject* obj = remainingMap.begin()->second;
+		Planes mergePlane = this->DetermineMergePlane(exportMap, *obj);
+		ExportMap adjacentObjects = this->PlaneAdjacentExportObjects(exportMap, obj->gridPosition, mergePlane);
+
+		int remainingAdjacentObjects = 0;
+		for (auto& obj : adjacentObjects)
+		{
+			if (remainingMap.find(obj.first) == remainingMap.end())
+			{
+				// Object has already been merged
+				continue;
+			}
+			remainingAdjacentObjects++;
+		}
+
+		if (remainingAdjacentObjects == 0)
+		{
+			// No adjacent objects, add original object with original data to object vector
+			mergedMeshObjects.push_back(*obj);
+			remainingMap.erase(remainingMap.begin()->first);
+		}
+		else
+		{
+			adjacentObjects[obj->gridPosition] = obj;
+			std::vector<ExportMeshData> transformedMeshData;
+			for (auto& obj : adjacentObjects)
+			{
+				if (remainingMap.find(obj.first) == remainingMap.end())
+				{
+					continue;
+				}
+
+				ExportMeshData meshData(*obj.second->exportMeshData);
+				meshData.TransformVertexPositions(obj.second->transformMatrix);
+				transformedMeshData.push_back(meshData);
+			}
+
+			ExportMeshData mergedMeshData(transformedMeshData);
+			mergedMeshData.name = meshnamePrefix + std::to_string(mergedMeshObjects.size());
+			exportMeshes[mergedMeshData.name] = std::make_shared<ExportMeshData>(mergedMeshData);
+			exportMeshUseCount[mergedMeshData.name] = 0;
+
+			ExportObject mergedMeshObject;
+			mergedMeshObject.name = meshnamePrefix + "Object" + std::to_string(mergedMeshObjects.size());
+			mergedMeshObject.exportMeshData = exportMeshes[mergedMeshData.name];
+			mergedMeshObjects.push_back(mergedMeshObject);
+		}
+
+		for (auto& adjacentObject : adjacentObjects)
+		{
+			remainingMap.erase(adjacentObject.first);
+		}
+	}
+
+	return mergedMeshObjects;
+}
+
+ExportMeshData::ExportMeshData(const ExportMeshData & meshData)
+{
+	this->name = meshData.name;
+	this->vertexPositions = meshData.vertexPositions;
+	this->vertexNormals = meshData.vertexNormals;
+	this->vertexTextureCoords = meshData.vertexTextureCoords;
+	this->faces = meshData.faces;
 }
 
 ExportMeshData::ExportMeshData(std::vector<ExportMeshData> meshDataList)
