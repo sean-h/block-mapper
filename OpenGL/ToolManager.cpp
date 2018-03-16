@@ -92,6 +92,12 @@ void ToolManager::DrawGUI(ApplicationContext * context)
 	ImGui::End();
 }
 
+void ToolManager::Deserialize(ApplicationContext* context)
+{
+	activeTool = std::make_unique<DrawBlockTool>(DrawBlockTool(context));
+	this->selectedToolButtonIndex = 2;
+}
+
 bool ToolManager::ToggleButton(std::string text, int id, int & selectedButton)
 {
 	if (id == selectedButton)

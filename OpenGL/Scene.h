@@ -41,7 +41,7 @@ public:
 	RaycastHit Raycast(Physics* physics, glm::vec3 origin, glm::vec3 direction, float distance);
 
 private:
-	void ClearScene();
+	void ClearScene(ApplicationContext* context);
 	std::shared_ptr<EntityHandle> CreateEntity(int entityID);
 	void CreateGridPlanes();
 

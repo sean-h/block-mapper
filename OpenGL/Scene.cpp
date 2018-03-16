@@ -406,7 +406,7 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 	tinyxml2::XMLDocument xmlDoc;
 	xmlDoc.LoadFile(loadFilePath.c_str());
 
-	//this->ClearScene();
+	this->ClearScene(context);
 
 	auto sceneNode = xmlDoc.FirstChild();
 
@@ -485,6 +485,49 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 		this->RefreshEntityRenderData(entity);
 		this->RefreshEntityCollisionData(entity);
 	}
+
+	auto componentsNode = sceneNode->FirstChildElement("Components");
+	for (auto componentNode = componentsNode->FirstChild(); componentNode != nullptr; componentNode = componentNode->NextSibling())
+	{
+		std::string componentType = componentNode->ToElement()->Attribute("Type");
+		std::unordered_map<std::string, std::string> componentAttributes;
+		for (auto attributeNode = componentNode->FirstChild(); attributeNode != nullptr; attributeNode = attributeNode->NextSibling())
+		{
+			componentAttributes[attributeNode->Value()] = attributeNode->ToElement()->GetText();
+		}
+
+		int ownerID = std::stoi(componentAttributes["Owner"]);
+
+		Entity* componentOwner = nullptr;
+		for (auto& entity : entities)
+		{
+			if (entity->ID() == ownerID)
+			{
+				componentOwner = entity.get();
+				break;
+			}
+		}
+
+		Component* component = nullptr;
+
+		if (componentType == "Camera")
+		{
+			component = AddComponentToEntity(componentOwner, std::unique_ptr<Component>(new Camera()));
+			this->camera = dynamic_cast<Camera*>(component);
+		}
+		else if (componentType == "FPSController")
+		{
+			component = AddComponentToEntity(componentOwner, std::unique_ptr<Component>(new FPSController()));
+		}
+		else if (componentType == "OrbitController")
+		{
+			component = AddComponentToEntity(componentOwner, std::unique_ptr<Component>(new OrbitController()));
+		}
+
+		component->Deserialize(componentAttributes);
+	}
+
+	context->ApplicationToolManager()->Deserialize(context);
 }
 
 void Scene::RefreshEntityRenderData(std::shared_ptr<EntityHandle> entityHandle)
@@ -560,12 +603,15 @@ RaycastHit Scene::Raycast(Physics * physics, glm::vec3 origin, glm::vec3 directi
 	return hit;
 }
 
-void Scene::ClearScene()
+void Scene::ClearScene(ApplicationContext* context)
 {
 	this->entities.clear();
 	this->components.clear();
 	this->camera = nullptr;
 	this->entityCounter = 0;
+
+	context->ApplicationRenderer()->ClearScene();
+	context->ApplicationPhysics()->ClearScene();
 }
 
 std::shared_ptr<EntityHandle> Scene::CreateEntity(int entityID)

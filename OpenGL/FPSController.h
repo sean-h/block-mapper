@@ -7,6 +7,7 @@ public:
 	FPSController() { }
 	std::string Type() const { return "FPSController"; }
 	std::unordered_map<std::string, std::string> Serialize() const { return std::unordered_map<std::string, std::string>(); }
+	void Deserialize(std::unordered_map<std::string, std::string> attributes) { }
 	void Update(ApplicationContext* context);
 	void OnAttachToEntity();
 

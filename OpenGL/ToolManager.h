@@ -11,6 +11,7 @@ public:
 	ToolManager(ApplicationContext* context);
 	void Update(ApplicationContext* context);
 	void DrawGUI(ApplicationContext* context);
+	void Deserialize(ApplicationContext* context);
 
 private:
 	std::unique_ptr<Tool> activeTool;

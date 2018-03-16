@@ -22,6 +22,10 @@ std::unordered_map<std::string, std::string> OrbitController::Serialize() const
 	return dataMap;
 }
 
+void OrbitController::Deserialize(std::unordered_map<std::string, std::string> attributes)
+{
+}
+
 void OrbitController::OnAttachToEntity()
 {
 	Transform* transform = this->Owner()->ObjectTransform();

@@ -34,6 +34,7 @@ public:
 	int AddRenderObject(std::string meshName, int meshColorIndex, std::string materialName, glm::mat4 modelMatrix);
 	void RemoveRenderObject(int id);
 	void UpdateRenderObjectModelMatrix(int id, glm::mat4 modelMatrix);
+	void ClearScene();
 
 private:
 	void LoadShaders();

@@ -209,7 +209,6 @@ bool DrawBlockTool::GetNewGhostBlockPosition(ApplicationContext * context, glm::
 		else
 		{
 			newPos = hitEntity->ObjectTransform()->Position() + hit.normal;
-			context->ApplicationDebug()->LogToUI("Draw Position", newPos);
 		}
 
 		newBlockPosition = newPos;

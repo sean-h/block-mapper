@@ -8,6 +8,7 @@ public:
 	OrbitController();
 	std::string Type() const { return "OrbitController"; }
 	std::unordered_map<std::string, std::string> Serialize() const;
+	void Deserialize(std::unordered_map<std::string, std::string> attributes);
 	void OnAttachToEntity();
 	void Update(ApplicationContext* context);
 

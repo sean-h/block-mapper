@@ -164,6 +164,11 @@ void Physics::DestroyPhysicsObject(unsigned int physicsObjectID)
 	physicsObjects.erase(physicsObjectID);
 }
 
+void Physics::ClearScene()
+{
+	physicsObjects.clear();
+}
+
 void Physics::LoadColliders(FileManager* fileManager)
 {
 	this->colliders["Cube"] = new Model("Cube.fbx");

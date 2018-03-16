@@ -332,3 +332,8 @@ void Renderer::UpdateRenderObjectModelMatrix(int id, glm::mat4 modelMatrix)
 
 	this->renderObjects[id].modelMatrix = modelMatrix;
 }
+
+void Renderer::ClearScene()
+{
+	renderObjects.clear();
+}

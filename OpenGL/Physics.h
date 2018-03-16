@@ -60,6 +60,7 @@ public:
 	unsigned int CreatePhysicsObject(glm::vec3 position, glm::vec3 scale, std::string colliderMeshName);
 	void UpdatePhysicsObjectPosition(unsigned int physicsObjectID, glm::vec3 position);
 	void DestroyPhysicsObject(unsigned int physicsObjectID);
+	void ClearScene();
 
 private:
 	void LoadColliders(FileManager* fileManager);

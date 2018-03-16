@@ -7,6 +7,7 @@ class Camera : public Component
 public:
 	std::string Type() const { return "Camera"; }
 	std::unordered_map<std::string, std::string> Serialize() const;
+	void Deserialize(std::unordered_map<std::string, std::string> attributes) { }
 	glm::mat4 ViewMatrix();
 	glm::mat4 ProjectionMatrix(float windowWidth, float windowHeight);
 	glm::vec3 ScreenToWorldDirection(float screenX, float screenY, float windowWidth, float windowHeight);
