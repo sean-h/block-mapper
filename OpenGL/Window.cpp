@@ -11,7 +11,7 @@ Window::Window(int width, int height)
 
 	SetWindowHints();
 	
-	std::unique_ptr<GLFWwindow, DestroyglfwWin> window(glfwCreateWindow(this->width, this->height, "OpenGL", NULL, NULL));
+	std::unique_ptr<GLFWwindow, DestroyglfwWin> window(glfwCreateWindow(this->width, this->height, "Block Editor", NULL, NULL));
 	
 	if (window == NULL)
 	{
