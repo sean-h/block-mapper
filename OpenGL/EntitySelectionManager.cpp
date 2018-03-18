@@ -1,5 +1,6 @@
 #include "EntitySelectionManager.h"
 #include "Scene.h"
+#include "imgui.h"
 
 void EntitySelectionManager::SelectEntity(Scene* scene, std::shared_ptr<EntityHandle> entityHandle)
 {
@@ -40,4 +41,11 @@ void EntitySelectionManager::DeselectAll(Scene* scene)
 std::vector<std::shared_ptr<EntityHandle>>& EntitySelectionManager::SelectedEntities()
 {
 	return selectedEntities;
+}
+
+void EntitySelectionManager::DrawGUI(ApplicationContext * context)
+{
+	ImGui::Text("Entity Properties");
+	std::string selectionCount = "Count: " + std::to_string(selectedEntities.size());
+	ImGui::Text(selectionCount.c_str());
 }

@@ -14,6 +14,7 @@ GUIManager::GUIManager(Window* window)
 	windowLocations["ActiveTool"] = GUILocation(10.0f, 250.0f, 150.0f, 200.0f);
 	windowLocations["BlockManager"] = GUILocation(10.0f, 550.0f, 275.0f, 300.0f);
 	windowLocations["Scene"] = GUILocation(0.0f, 40.0f, 150.0f, 200.0f);
+	windowLocations["SelectionManager"] = GUILocation(0.0f, 260.0f, 150.0f, 200.0f);
 
 	mainMenuOpen = false;
 	confirmSceneOverwrite = false;
@@ -36,6 +37,7 @@ void GUIManager::Draw(ApplicationContext* context)
 	windowLocations["BlockManager"] = GUILocation(10.0f, windowHeight - 310.0f, 275.0f, 300.0f);
 	windowLocations["MainMenuBar"] = GUILocation(0.0f, 0.0f, windowWidth, 20.0f);
 	windowLocations["Scene"] = GUILocation(windowWidth - 160.0f, 40.0f, 150.0f, 200.0f);
+	windowLocations["SelectionManager"] = GUILocation(windowWidth - 160.0f, 260.0f, 150.0f, 200.0f);
 
 	mainMenuOpen = false;
 	if (ImGui::BeginMainMenuBar())
@@ -78,6 +80,13 @@ void GUIManager::Draw(ApplicationContext* context)
 	ImGui::SetWindowPos(ImVec2(windowLocations["Scene"].xPosition, windowLocations["Scene"].yPosition));
 	ImGui::SetWindowSize(ImVec2(windowLocations["Scene"].width, windowLocations["Scene"].height));
 	context->ApplicationScene()->DrawGUI(context);
+	ImGui::End();
+
+	bool selectionManagerWindowOpen = true;
+	ImGui::Begin("Selection Manager", &selectionManagerWindowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+	ImGui::SetWindowPos(ImVec2(windowLocations["SelectionManager"].xPosition, windowLocations["SelectionManager"].yPosition));
+	ImGui::SetWindowSize(ImVec2(windowLocations["SelectionManager"].width, windowLocations["SelectionManager"].height));
+	context->ApplicationEntitySelectionManager()->DrawGUI(context);
 	ImGui::End();
 
 	if (fileSelector)
