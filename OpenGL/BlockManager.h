@@ -22,6 +22,14 @@ struct ivec3_hash
 
 typedef std::unordered_map<glm::ivec3, std::shared_ptr<EntityHandle>, ivec3_hash, ivec3_hash> BlockMap;
 
+struct BlockPreset
+{
+	std::string name;
+	std::string meshName;
+	int colorIndex;
+	std::string colliderName;
+};
+
 class BlockManager
 {
 public:
@@ -30,20 +38,27 @@ public:
 	void DrawGUI(ApplicationContext* context);
 	std::string SelectedBlockName() const { return blockNames[selectedBlockIndex]; }
 	int SelectedColorIndex() const { return selectedColorIndex; }
+	std::string SelectedColliderName() const { return blockNames[selectedColliderIndex]; }
+	BlockMap BlockPositionMap(Scene* scene);
+
+private:
 	void SelectNextBlock();
 	void SelectPreviousBlock();
 	void SelectNextColorIndex();
 	void SelectPreviousColorIndex();
 	void SelectNextCollider();
 	void SelectPreviousCollider();
-	std::string SelectedColliderName() const { return blockNames[selectedColliderIndex]; }
-	BlockMap BlockPositionMap(Scene* scene);
+	void CreatePreset();
+	void SelectNextPreset();
+	void SelectPreviousPreset();
 
-private:
 	std::vector<std::string> blockNames;
 	int selectedBlockIndex;
 	int selectedColorIndex;
 	int selectedBlockColorCount;
 	int selectedColliderIndex;
 	bool selectedBlockPreviewDirty;
+	std::vector<BlockPreset> blockPresets;
+	int selectedPreset;
+	char newPresetName[32] = { 0 };
 };

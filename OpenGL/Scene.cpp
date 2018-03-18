@@ -527,6 +527,8 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 		component->Deserialize(componentAttributes);
 	}
 
+	this->CreateGridPlanes();
+
 	context->ApplicationToolManager()->Deserialize(context);
 }
 
@@ -635,6 +637,7 @@ void Scene::CreateGridPlanes()
 	gridPlaneEntity->MeshName("Plane");
 	gridPlaneEntity->ColliderMeshName("Plane");
 	gridPlaneEntity->MaterialName("Grid");
+	gridPlaneEntity->AddProperty("Temporary", "");
 	newRenderObjectsQueue.push(gridPlane);
 	RefreshEntityCollisionData(gridPlane);
 
@@ -645,6 +648,7 @@ void Scene::CreateGridPlanes()
 	gridPlaneBottomEntity->MeshName("PlaneBottom");
 	gridPlaneBottomEntity->ColliderMeshName("PlaneBottom");
 	gridPlaneBottomEntity->MaterialName("Grid");
+	gridPlaneBottomEntity->AddProperty("Temporary", "");
 	newRenderObjectsQueue.push(gridPlaneBottom);
 	RefreshEntityCollisionData(gridPlaneBottom);
 }

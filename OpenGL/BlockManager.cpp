@@ -11,6 +11,8 @@ BlockManager::BlockManager(FileManager * fileManager)
 	selectedBlockColorCount = 0;
 	selectedColliderIndex = 0;
 	selectedBlockPreviewDirty = true;
+
+	strcpy_s(this->newPresetName, 32, "New Preset");
 }
 
 void BlockManager::Update(ApplicationContext * context)
@@ -51,6 +53,36 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 	ImGui::SetWindowPos(ImVec2(windowLocation.xPosition, windowLocation.yPosition));
 	ImGui::SetWindowSize(ImVec2(windowLocation.width, windowLocation.height));
 
+	// Presets
+	if (ImGui::SmallButton("-##preset"))
+	{
+		this->SelectPreviousPreset();
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("+##preset"))
+	{
+		this->SelectNextPreset();
+	}
+	ImGui::SameLine();
+	std::string selectedPresetText = "";
+	if (selectedPreset >= 0)
+	{
+		selectedPresetText = "Preset: " + this->blockPresets[selectedPreset].name;
+		ImGui::Text(selectedPresetText.c_str());
+	}
+	else
+	{
+		ImGui::PushItemWidth(160.0f);
+		ImGui::InputText("", this->newPresetName, IM_ARRAYSIZE(this->newPresetName));
+		ImGui::SameLine();
+		if (ImGui::Button("Create"))
+		{
+			CreatePreset();
+		}
+	}
+	
+
+	// Meshes
 	if (ImGui::SmallButton("-##mesh"))
 	{
 		this->SelectPreviousBlock();
@@ -64,6 +96,7 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 	std::string selectedBlockText = "Mesh: " + this->SelectedBlockName() + " (" + std::to_string(this->selectedColorIndex) + ")";
 	ImGui::Text(selectedBlockText.c_str());
 
+	// Colliders
 	if (ImGui::SmallButton("-##collider"))
 	{
 		this->SelectPreviousCollider();
@@ -77,6 +110,21 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 	std::string colliderText = "Collider: " + this->SelectedColliderName();
 	ImGui::Text(colliderText.c_str());
 
+	// Color Index
+	if (ImGui::SmallButton("-##color"))
+	{
+		this->SelectPreviousColorIndex();
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("+##color"))
+	{
+		this->SelectNextColorIndex();
+	}
+	ImGui::SameLine();
+	std::string colorText = "Color: " + std::to_string(this->SelectedColorIndex());
+	ImGui::Text(colorText.c_str());
+
+	// Preview Image
 	ImTextureID texID = (ImTextureID)context->ApplicationRenderer()->ModelPreviewTextureID();
 	ImGui::Image(texID, ImVec2(256, 256), ImVec2(1, 1), ImVec2(0, 0));
 
@@ -89,6 +137,7 @@ void BlockManager::SelectNextBlock()
 	selectedBlockIndex = (((selectedBlockIndex + 1) % blockCount) + blockCount) % blockCount;
 	selectedBlockPreviewDirty = true;
 	selectedColorIndex = 0;
+	selectedPreset = -1;
 }
 
 void BlockManager::SelectPreviousBlock()
@@ -97,18 +146,21 @@ void BlockManager::SelectPreviousBlock()
 	selectedBlockIndex = (((selectedBlockIndex - 1) % blockCount) + blockCount) % blockCount;
 	selectedBlockPreviewDirty = true;
 	selectedColorIndex = 0;
+	selectedPreset = -1;
 }
 
 void BlockManager::SelectNextColorIndex()
 {
 	selectedColorIndex = (((selectedColorIndex + 1) % selectedBlockColorCount) + selectedBlockColorCount) % selectedBlockColorCount;
 	selectedBlockPreviewDirty = true;
+	selectedPreset = -1;
 }
 
 void BlockManager::SelectPreviousColorIndex()
 {
 	selectedColorIndex = (((selectedColorIndex - 1) % selectedBlockColorCount) + selectedBlockColorCount) % selectedBlockColorCount;
 	selectedBlockPreviewDirty = true;
+	selectedPreset = -1;
 }
 
 void BlockManager::SelectNextCollider()
@@ -116,6 +168,7 @@ void BlockManager::SelectNextCollider()
 	int blockCount = blockNames.size();
 	selectedColliderIndex = (((selectedColliderIndex + 1) % blockCount) + blockCount) % blockCount;
 	selectedBlockPreviewDirty = true;
+	selectedPreset = -1;
 }
 
 void BlockManager::SelectPreviousCollider()
@@ -123,6 +176,7 @@ void BlockManager::SelectPreviousCollider()
 	int blockCount = blockNames.size();
 	selectedColliderIndex = (((selectedColliderIndex - 1) % blockCount) + blockCount) % blockCount;
 	selectedBlockPreviewDirty = true;
+	selectedPreset = -1;
 }
 
 BlockMap BlockManager::BlockPositionMap(Scene * scene)
@@ -138,4 +192,35 @@ BlockMap BlockManager::BlockPositionMap(Scene * scene)
 	}
 
 	return blockMap;
+}
+
+void BlockManager::CreatePreset()
+{
+	BlockPreset preset;
+	preset.name = newPresetName;
+	preset.meshName = blockNames[selectedBlockIndex];
+	preset.colliderName = blockNames[selectedColliderIndex];
+	preset.colorIndex = selectedColorIndex;
+	blockPresets.push_back(preset);
+	selectedPreset = blockPresets.size() - 1;
+}
+
+void BlockManager::SelectNextPreset()
+{
+	int presetCount = blockPresets.size();
+	selectedPreset = (((selectedPreset + 1) % presetCount) + presetCount) % presetCount;
+	selectedBlockIndex = std::distance(blockNames.begin(), std::find(blockNames.begin(), blockNames.end(), blockPresets[selectedPreset].meshName));
+	selectedColliderIndex = std::distance(blockNames.begin(), std::find(blockNames.begin(), blockNames.end(), blockPresets[selectedPreset].colliderName));
+	selectedColorIndex = blockPresets[selectedPreset].colorIndex;
+	selectedBlockPreviewDirty = true;
+}
+
+void BlockManager::SelectPreviousPreset()
+{
+	int presetCount = blockPresets.size();
+	selectedPreset = (((selectedPreset - 1) % presetCount) + presetCount) % presetCount;
+	selectedBlockIndex = std::distance(blockNames.begin(), std::find(blockNames.begin(), blockNames.end(), blockPresets[selectedPreset].meshName));
+	selectedColliderIndex = std::distance(blockNames.begin(), std::find(blockNames.begin(), blockNames.end(), blockPresets[selectedPreset].colliderName));
+	selectedColorIndex = blockPresets[selectedPreset].colorIndex;
+	selectedBlockPreviewDirty = true;
 }
