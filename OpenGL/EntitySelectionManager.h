@@ -17,5 +17,11 @@ public:
 	void DrawGUI(ApplicationContext* context);
 
 private:
+	void SelectedEntityListChanged();
+
 	std::vector<std::shared_ptr<EntityHandle>> selectedEntities;
+	std::string selectionCountText;
+	std::string meshText;
+	std::string colliderText;
+	std::string uvText;
 };
