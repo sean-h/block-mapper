@@ -172,7 +172,7 @@ void SelectBlockTool::DrawGUI(ApplicationContext * context)
 
 void SelectBlockTool::SelectSingle(EntitySelectionManager * selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity)
 {
-	selectionManager->SelectEntity(scene, hitEntity);
+	selectionManager->ToggleSelectEntity(scene, hitEntity);
 }
 
 void SelectBlockTool::SelectRegion(EntitySelectionManager * selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap)

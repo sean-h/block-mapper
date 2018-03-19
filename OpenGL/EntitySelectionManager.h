@@ -10,6 +10,7 @@ class EntitySelectionManager
 {
 public:
 	void SelectEntity(Scene* scene, std::shared_ptr<EntityHandle> entityHandle);
+	void ToggleSelectEntity(Scene* scene, std::shared_ptr<EntityHandle> entityHandle);
 	void DeselectEntity(Scene* scene, std::shared_ptr<EntityHandle> entityHandle);
 	void DeselectAll(Scene* scene);
 	std::vector<std::shared_ptr<EntityHandle>>& SelectedEntities();
