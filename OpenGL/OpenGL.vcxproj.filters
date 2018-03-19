@@ -282,5 +282,8 @@
     <Image Include="container2_specular.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Icons.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -15,6 +15,15 @@ DrawBlockTool::DrawBlockTool(ApplicationContext* context)
 	selectedBlockColorIndex = 0;
 }
 
+DrawBlockTool::DrawBlockTool(ApplicationContext * context, DrawModes drawMode)
+{
+	this->RefreshGhostBlocks(context);
+	this->drawMode = drawMode;
+	buildState = BuildStates::PlaceFirstBlock;
+	selectedBlockName = "";
+	selectedBlockColorIndex = 0;
+}
+
 void DrawBlockTool::Update(ApplicationContext* context)
 {
 	Input* input = context->ApplicationInput();

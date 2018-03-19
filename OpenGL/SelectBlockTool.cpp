@@ -14,6 +14,11 @@ SelectBlockTool::SelectBlockTool(ApplicationContext * context)
 	selectionModeIndex = 0;
 }
 
+SelectBlockTool::SelectBlockTool(ApplicationContext * context, SelectionModes selectionMode)
+{
+	this->selectionMode = selectionMode;
+}
+
 void SelectBlockTool::Update(ApplicationContext * context)
 {
 	Input* input = context->ApplicationInput();

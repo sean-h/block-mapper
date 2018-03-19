@@ -186,6 +186,8 @@ void Renderer::LoadTextures(FileManager * fileManager)
 	{
 		this->textureIDs[texture.first] = this->loadTexture(texture.second.c_str());
 	}
+
+	iconTextureID = this->loadTexture("Icons.png");
 }
 
 unsigned int Renderer::loadTexture(char const * path)

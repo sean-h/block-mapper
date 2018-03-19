@@ -10,8 +10,7 @@ GUIManager::GUIManager(Window* window)
 	ImGui_ImplGlfwGL3_Init(window->GLFWWindow(), true);
 
 	windowLocations["MainMenuBar"] = GUILocation(0.0f, 0.0f, 1000.0f, 10.0f);
-	windowLocations["Tools"] = GUILocation(10.0f, 40.0f, 150.0f, 200.0f);
-	windowLocations["ActiveTool"] = GUILocation(10.0f, 250.0f, 150.0f, 200.0f);
+	windowLocations["Tools"] = GUILocation(10.0f, 40.0f, 115.0f, 210.0f);
 	windowLocations["BlockManager"] = GUILocation(10.0f, 550.0f, 275.0f, 300.0f);
 	windowLocations["Scene"] = GUILocation(0.0f, 40.0f, 150.0f, 200.0f);
 	windowLocations["SelectionManager"] = GUILocation(0.0f, 260.0f, 150.0f, 200.0f);
@@ -72,7 +71,13 @@ void GUIManager::Draw(ApplicationContext* context)
 		ImGui::EndMainMenuBar();
 	}
 
+	bool toolsWindowOpen = true;
+	ImGui::Begin("Tools", &toolsWindowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+	ImGui::SetWindowPos(ImVec2(windowLocations["Tools"].xPosition, windowLocations["Tools"].yPosition));
+	ImGui::SetWindowSize(ImVec2(windowLocations["Tools"].width, windowLocations["Tools"].height));
 	context->ApplicationToolManager()->DrawGUI(context);
+	ImGui::End();
+
 	context->ApplicationBlockManager()->DrawGUI(context);
 
 	bool sceneWindowOpen = true;

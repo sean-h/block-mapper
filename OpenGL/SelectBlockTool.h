@@ -12,7 +12,17 @@ class EntityHandle;
 class SelectBlockTool : public Tool
 {
 public:
+	enum class SelectionModes
+	{
+		Single,
+		Region,
+		Border,
+		Box,
+		Plane,
+	};
+
 	SelectBlockTool(ApplicationContext* context);
+	SelectBlockTool(ApplicationContext* context, SelectionModes selectionMode);
 	void Update(ApplicationContext* context);
 	void DrawGUI(ApplicationContext* context);
 
@@ -24,15 +34,6 @@ public:
 	};
 
 private:
-	enum class SelectionModes
-	{
-		Single,
-		Region,
-		Border,
-		Box,
-		Plane,
-	};
-
 	void SelectSingle(EntitySelectionManager* selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity);
 	void SelectRegion(EntitySelectionManager* selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap);
 	void SelectBorder(EntitySelectionManager* selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap);

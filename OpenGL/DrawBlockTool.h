@@ -6,12 +6,6 @@ class Scene;
 class DrawBlockTool : public PlaceBlockTool
 {
 public:
-	DrawBlockTool(ApplicationContext* context);
-	void Update(ApplicationContext* context);
-	void DrawGUI(ApplicationContext* context);
-	std::string Name() { return "Draw"; }
-
-private:
 	enum class DrawModes
 	{
 		Point,
@@ -19,6 +13,13 @@ private:
 		Rectangle,
 	};
 
+	DrawBlockTool(ApplicationContext* context);
+	DrawBlockTool(ApplicationContext* context, DrawModes drawMode);
+	void Update(ApplicationContext* context);
+	void DrawGUI(ApplicationContext* context);
+	std::string Name() { return "Draw"; }
+
+private:
 	enum class BuildStates
 	{
 		PlaceFirstBlock,

@@ -52,6 +52,13 @@ private:
 	void SelectNextPreset();
 	void SelectPreviousPreset();
 
+	enum class ColorPlacementMode
+	{
+		Single,
+		Random,
+		Checker,
+	};
+
 	std::vector<std::string> blockNames;
 	int selectedBlockIndex;
 	int selectedColorIndex;
@@ -61,4 +68,5 @@ private:
 	std::vector<BlockPreset> blockPresets;
 	int selectedPreset;
 	char newPresetName[32] = { 0 };
+	ColorPlacementMode currentColorPlacementMode;
 };
