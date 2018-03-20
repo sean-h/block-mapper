@@ -13,6 +13,33 @@ BlockManager::BlockManager(FileManager * fileManager)
 	selectedBlockPreviewDirty = true;
 
 	strcpy_s(this->newPresetName, 32, "New Preset");
+
+	BlockPreset greyCube;
+	greyCube.meshName = "CubeBeveled";
+	greyCube.colliderName = "Cube";
+	greyCube.colorIndex = 1;
+
+	BlockPreset blackCube;
+	blackCube.meshName = "CubeBeveled";
+	blackCube.colliderName = "Cube";
+	blackCube.colorIndex = 2;
+
+	Brush defaultBrush;
+	defaultBrush.name = "Default";
+	defaultBrush.blockPattern = BlockPattern::Single;
+	defaultBrush.blockPresets.push_back(greyCube);
+
+	Brush checkerBrush;
+	checkerBrush.name = "Checker";
+	checkerBrush.blockPattern = BlockPattern::Checker;
+	checkerBrush.blockPresets.push_back(greyCube);
+	checkerBrush.blockPresets.push_back(blackCube);
+
+	brushes.push_back(defaultBrush);
+	brushes.push_back(checkerBrush);
+
+	selectedBrushIndex = 0;
+	placementMode = PlacementMode::Detail;
 }
 
 void BlockManager::Update(ApplicationContext * context)
@@ -53,76 +80,108 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 	ImGui::SetWindowPos(ImVec2(windowLocation.xPosition, windowLocation.yPosition));
 	ImGui::SetWindowSize(ImVec2(windowLocation.width, windowLocation.height));
 
-	// Presets
-	if (ImGui::SmallButton("-##preset"))
+	if (ImGui::SmallButton("-##placementmode"))
 	{
-		this->SelectPreviousPreset();
+		this->SelectPreviousPlacementMode();
 	}
 	ImGui::SameLine();
-	if (ImGui::SmallButton("+##preset"))
+	if (ImGui::SmallButton("+##placementmode"))
 	{
-		this->SelectNextPreset();
+		this->SelectNextPlacementMode();
 	}
 	ImGui::SameLine();
-	std::string selectedPresetText = "";
-	if (selectedPreset >= 0)
+	std::string placementModeText = "Mode: " + PlacementModeText();
+	ImGui::Text(placementModeText.c_str());
+
+	if (placementMode == PlacementMode::Detail)
 	{
-		selectedPresetText = "Preset: " + this->blockPresets[selectedPreset].name;
-		ImGui::Text(selectedPresetText.c_str());
-	}
-	else
-	{
-		ImGui::PushItemWidth(160.0f);
-		ImGui::InputText("", this->newPresetName, IM_ARRAYSIZE(this->newPresetName));
-		ImGui::SameLine();
-		if (ImGui::Button("Create"))
+		// Presets
+		if (ImGui::SmallButton("-##preset"))
 		{
-			CreatePreset();
+			this->SelectPreviousPreset();
 		}
-	}
-	
+		ImGui::SameLine();
+		if (ImGui::SmallButton("+##preset"))
+		{
+			this->SelectNextPreset();
+		}
+		ImGui::SameLine();
+		std::string selectedPresetText = "";
+		if (selectedPreset >= 0)
+		{
+			selectedPresetText = "Preset: " + this->blockPresets[selectedPreset].name;
+			ImGui::Text(selectedPresetText.c_str());
+		}
+		else
+		{
+			ImGui::PushItemWidth(160.0f);
+			ImGui::InputText("", this->newPresetName, IM_ARRAYSIZE(this->newPresetName));
+			ImGui::SameLine();
+			if (ImGui::Button("Create"))
+			{
+				CreatePreset();
+			}
+		}
 
-	// Meshes
-	if (ImGui::SmallButton("-##mesh"))
-	{
-		this->SelectPreviousBlock();
-	}
-	ImGui::SameLine();
-	if (ImGui::SmallButton("+##mesh"))
-	{
-		this->SelectNextBlock();
-	}
-	ImGui::SameLine();
-	std::string selectedBlockText = "Mesh: " + this->SelectedBlockName() + " (" + std::to_string(this->selectedColorIndex) + ")";
-	ImGui::Text(selectedBlockText.c_str());
+		// Meshes
+		if (ImGui::SmallButton("-##mesh"))
+		{
+			this->SelectPreviousBlock();
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("+##mesh"))
+		{
+			this->SelectNextBlock();
+		}
+		ImGui::SameLine();
+		std::string selectedBlockText = "Mesh: " + this->SelectedBlockName() + " (" + std::to_string(this->selectedColorIndex) + ")";
+		ImGui::Text(selectedBlockText.c_str());
 
-	// Colliders
-	if (ImGui::SmallButton("-##collider"))
-	{
-		this->SelectPreviousCollider();
-	}
-	ImGui::SameLine();
-	if (ImGui::SmallButton("+##collider"))
-	{
-		this->SelectNextCollider();
-	}
-	ImGui::SameLine();
-	std::string colliderText = "Collider: " + this->SelectedColliderName();
-	ImGui::Text(colliderText.c_str());
+		// Colliders
+		if (ImGui::SmallButton("-##collider"))
+		{
+			this->SelectPreviousCollider();
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("+##collider"))
+		{
+			this->SelectNextCollider();
+		}
+		ImGui::SameLine();
+		std::string colliderText = "Collider: " + this->SelectedColliderName();
+		ImGui::Text(colliderText.c_str());
 
-	// Color Index
-	if (ImGui::SmallButton("-##color"))
-	{
-		this->SelectPreviousColorIndex();
+		// Color Index
+		if (ImGui::SmallButton("-##color"))
+		{
+			this->SelectPreviousColorIndex();
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("+##color"))
+		{
+			this->SelectNextColorIndex();
+		}
+		ImGui::SameLine();
+		std::string colorText = "Color: " + std::to_string(this->SelectedColorIndex());
+		ImGui::Text(colorText.c_str());
 	}
-	ImGui::SameLine();
-	if (ImGui::SmallButton("+##color"))
+	else if (placementMode == PlacementMode::Brush)
 	{
-		this->SelectNextColorIndex();
+		// Brushes
+		if (ImGui::SmallButton("-##brush"))
+		{
+			this->SelectPreviousBrush();
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("+##brush"))
+		{
+			this->SelectNextBrush();
+		}
+		ImGui::SameLine();
+		std::string brushText = "Brush: " + brushes[selectedBrushIndex].name;
+		ImGui::Text(brushText.c_str());
 	}
-	ImGui::SameLine();
-	std::string colorText = "Color: " + std::to_string(this->SelectedColorIndex());
-	ImGui::Text(colorText.c_str());
+
 
 	// Preview Image
 	ImTextureID texID = (ImTextureID)context->ApplicationRenderer()->ModelPreviewTextureID();
@@ -194,6 +253,35 @@ BlockMap BlockManager::BlockPositionMap(Scene * scene)
 	return blockMap;
 }
 
+BlockPreset BlockManager::GetBlockPresetAtPosition(glm::ivec3 position)
+{
+	if (placementMode == PlacementMode::Detail)
+	{
+		BlockPreset preset;
+		preset.meshName = SelectedBlockName();
+		preset.colliderName = SelectedColliderName();
+		preset.colorIndex = SelectedColorIndex();
+		return preset;
+	}
+	else if (placementMode == PlacementMode::Brush)
+	{
+		Brush activeBrush = brushes[selectedBrushIndex];
+		switch (activeBrush.blockPattern)
+		{
+		case BlockPattern::Single:
+			return activeBrush.blockPresets[0];
+			break;
+		case BlockPattern::Checker:
+			if ((position.x + position.y + position.z) % 2 == 0)
+			{
+				return activeBrush.blockPresets[0];
+			}
+			return activeBrush.blockPresets[1];
+			break;
+		}
+	}
+}
+
 void BlockManager::CreatePreset()
 {
 	BlockPreset preset;
@@ -223,4 +311,50 @@ void BlockManager::SelectPreviousPreset()
 	selectedColliderIndex = std::distance(blockNames.begin(), std::find(blockNames.begin(), blockNames.end(), blockPresets[selectedPreset].colliderName));
 	selectedColorIndex = blockPresets[selectedPreset].colorIndex;
 	selectedBlockPreviewDirty = true;
+}
+
+void BlockManager::SelectNextBrush()
+{
+	int brushCount = brushes.size();
+	selectedBrushIndex = (((selectedBrushIndex + 1) % brushCount) + brushCount) % brushCount;
+	selectedBlockPreviewDirty = true;
+	selectedPreset = -1;
+}
+
+void BlockManager::SelectPreviousBrush()
+{
+	int brushCount = brushes.size();
+	selectedBrushIndex = (((selectedBrushIndex - 1) % brushCount) + brushCount) % brushCount;
+	selectedBlockPreviewDirty = true;
+	selectedPreset = -1;
+}
+
+void BlockManager::SelectNextPlacementMode()
+{
+	int modeCount = (int)PlacementMode::Size;
+	placementMode = (PlacementMode)(((((int)placementMode + 1) % modeCount) + modeCount) % modeCount);
+	selectedBlockPreviewDirty = true;
+	selectedPreset = -1;
+}
+
+void BlockManager::SelectPreviousPlacementMode()
+{
+	int modeCount = (int)PlacementMode::Size;
+	placementMode = (PlacementMode)(((((int)placementMode - 1) % modeCount) + modeCount) % modeCount);
+	selectedBlockPreviewDirty = true;
+	selectedPreset = -1;
+}
+
+std::string BlockManager::PlacementModeText() const
+{
+	if (placementMode == PlacementMode::Detail)
+	{
+		return "Detail";
+	}
+	else if (placementMode == PlacementMode::Brush)
+	{
+		return "Brush";
+	}
+
+	return "Other";
 }

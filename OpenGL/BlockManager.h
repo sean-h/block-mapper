@@ -22,12 +22,25 @@ struct ivec3_hash
 
 typedef std::unordered_map<glm::ivec3, std::shared_ptr<EntityHandle>, ivec3_hash, ivec3_hash> BlockMap;
 
+enum class BlockPattern
+{
+	Single,
+	Checker,
+};
+
 struct BlockPreset
 {
 	std::string name;
 	std::string meshName;
 	int colorIndex;
 	std::string colliderName;
+};
+
+struct Brush
+{
+	std::string name;
+	BlockPattern blockPattern;
+	std::vector<BlockPreset> blockPresets;
 };
 
 class BlockManager
@@ -40,6 +53,7 @@ public:
 	int SelectedColorIndex() const { return selectedColorIndex; }
 	std::string SelectedColliderName() const { return blockNames[selectedColliderIndex]; }
 	BlockMap BlockPositionMap(Scene* scene);
+	BlockPreset GetBlockPresetAtPosition(glm::ivec3 position);
 
 private:
 	void SelectNextBlock();
@@ -51,12 +65,17 @@ private:
 	void CreatePreset();
 	void SelectNextPreset();
 	void SelectPreviousPreset();
+	void SelectNextBrush();
+	void SelectPreviousBrush();
+	void SelectNextPlacementMode();
+	void SelectPreviousPlacementMode();
+	std::string PlacementModeText() const;
 
-	enum class ColorPlacementMode
+	enum class PlacementMode
 	{
-		Single,
-		Random,
-		Checker,
+		Detail = 0,
+		Brush = 1,
+		Size = 2,
 	};
 
 	std::vector<std::string> blockNames;
@@ -68,5 +87,7 @@ private:
 	std::vector<BlockPreset> blockPresets;
 	int selectedPreset;
 	char newPresetName[32] = { 0 };
-	ColorPlacementMode currentColorPlacementMode;
+	PlacementMode placementMode;
+	std::vector<Brush> brushes;
+	int selectedBrushIndex;
 };

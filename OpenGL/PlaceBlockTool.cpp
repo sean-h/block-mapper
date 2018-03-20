@@ -8,8 +8,12 @@ void PlaceBlockTool::Apply(ApplicationContext * context)
 	for (auto& block : ghostBlocks)
 	{
 		Entity* entity = block->TargetEntity();
+
+		glm::vec3 blockPosition = entity->ObjectTransform()->GridPosition();
+		BlockPreset blockPreset = context->ApplicationBlockManager()->GetBlockPresetAtPosition(blockPosition);
+
 		entity->MaterialName("Solid");
-		entity->ColliderMeshName(context->ApplicationBlockManager()->SelectedColliderName());
+		entity->ColliderMeshName(blockPreset.colliderName);
 		entity->AddProperty("Block", "");
 		entity->RemoveProperty("Temporary");
 		scene->RefreshEntityRenderData(block);
@@ -52,11 +56,14 @@ void PlaceBlockTool::PlaceGhostBlock(ApplicationContext * context, glm::vec3 pos
 		ghostBlockHandle = scene->CreateEntity();
 	}
 
+	glm::ivec3 blockPosition(glm::round(position.x), glm::round(position.y), glm::round(position.z));
+	BlockPreset blockPreset = context->ApplicationBlockManager()->GetBlockPresetAtPosition(blockPosition);
+
 	Entity* ghostBlock = ghostBlockHandle->TargetEntity();
 	ghostBlock->ObjectTransform()->Position(position);
 	ghostBlock->ObjectTransform()->Rotation(rotation);
-	ghostBlock->MeshName(context->ApplicationBlockManager()->SelectedBlockName());
-	ghostBlock->MeshColorIndex(context->ApplicationBlockManager()->SelectedColorIndex());
+	ghostBlock->MeshName(blockPreset.meshName);
+	ghostBlock->MeshColorIndex(blockPreset.colorIndex);
 	ghostBlock->MaterialName("Hover");
 	ghostBlock->AddProperty("Temporary", "");
 	ghostBlock->RemoveProperty("Hidden");
