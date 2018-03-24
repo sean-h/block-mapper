@@ -16,6 +16,7 @@ public:
 	std::vector<std::shared_ptr<EntityHandle>>& SelectedEntities();
 	void DrawGUI(ApplicationContext* context);
 	std::shared_ptr<EntityHandle> LastSelectedEntity() const;
+	void OnSceneLoaded(Scene* scene);
 
 private:
 	void SelectedEntityListChanged();

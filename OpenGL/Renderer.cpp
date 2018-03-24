@@ -27,7 +27,7 @@ void Renderer::RenderScene(ApplicationContext* context)
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, this->textureIDs["Palette"]);
+	glBindTexture(GL_TEXTURE_2D, this->textureIDs["EnvironmentTextures"]);
 
 	glm::mat4 view = camera->ViewMatrix();
 	glm::mat4 projection = camera->ProjectionMatrix((float)window->Width(), (float)window->Height());

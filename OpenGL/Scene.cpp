@@ -98,7 +98,14 @@ void Scene::Update(ApplicationContext* context)
 			Entity* entity = newRenderObjectsQueue.front()->TargetEntity();
 			if (entity->RenderID() == 0)
 			{
-				int renderID = renderer->AddRenderObject(entity->MeshName(), entity->MeshColorIndex(), entity->MaterialName(), entity->ObjectTransform()->Model());
+				std::string materialName = entity->MaterialName();
+
+				if (entity->HasProperty("Selected"))
+				{
+					materialName = "Selected";
+				}
+
+				int renderID = renderer->AddRenderObject(entity->MeshName(), entity->MeshColorIndex(), materialName, entity->ObjectTransform()->Model());
 				entity->RenderID(renderID);
 			}
 		}
@@ -482,6 +489,7 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 			}
 		}
 
+		context->ApplicationEntitySelectionManager()->OnSceneLoaded(this);
 		this->RefreshEntityRenderData(entity);
 		this->RefreshEntityCollisionData(entity);
 	}
