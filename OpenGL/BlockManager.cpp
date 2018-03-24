@@ -1,5 +1,6 @@
 #include "BlockManager.h"
 #include "Entity.h"
+#include "GUI.h"
 #include "imgui.h"
 #include "ApplicationContext.h"
 
@@ -69,6 +70,7 @@ BlockManager::BlockManager(FileManager * fileManager)
 
 	selectedBrushIndex = 0;
 	placementMode = PlacementMode::Detail;
+	brushAxisPlane = AxisPlane::XY;
 }
 
 void BlockManager::Update(ApplicationContext * context)
@@ -209,8 +211,24 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 		ImGui::SameLine();
 		std::string brushText = "Brush: " + brushes[selectedBrushIndex].name;
 		ImGui::Text(brushText.c_str());
-	}
 
+		int selectedAxisPlane = (int)brushAxisPlane;
+		if (GUI::SmallToggleButton("XY", (int)AxisPlane::XY, selectedAxisPlane))
+		{
+			brushAxisPlane = AxisPlane::XY;
+		}
+		ImGui::SameLine();
+		if (GUI::SmallToggleButton("XZ", (int)AxisPlane::XZ, selectedAxisPlane))
+		{
+			brushAxisPlane = AxisPlane::XZ;
+		}
+		ImGui::SameLine();
+		if (GUI::SmallToggleButton("YZ", (int)AxisPlane::YZ, selectedAxisPlane))
+		{
+			brushAxisPlane = AxisPlane::YZ;
+		}
+		brushAxisPlane = (AxisPlane)selectedAxisPlane;
+	}
 
 	// Preview Image
 	ImTextureID texID = (ImTextureID)context->ApplicationRenderer()->ModelPreviewTextureID();
@@ -306,13 +324,38 @@ BlockPreset BlockManager::GetBlockPresetAtPosition(glm::ivec3 position)
 			}
 			return activeBrush.blockPresets[1];
 		case BlockPattern::TwoByTwo:
-			if (position.y % 2 == 0)
+			if (brushAxisPlane == AxisPlane::XY)
 			{
-				return activeBrush.blockPresets[abs(position.x) % 2];
+				if (position.y % 2 == 0)
+				{
+					return activeBrush.blockPresets[abs(position.x) % 2];
+				}
+				else
+				{
+					return activeBrush.blockPresets[abs(position.x) % 2 + 2];
+				}
 			}
-			else
+			else if (brushAxisPlane == AxisPlane::XZ)
 			{
-				return activeBrush.blockPresets[abs(position.x) % 2 + 2];
+				if (position.z % 2 == 0)
+				{
+					return activeBrush.blockPresets[abs(position.x) % 2];
+				}
+				else
+				{
+					return activeBrush.blockPresets[abs(position.x) % 2 + 2];
+				}
+			}
+			else if (brushAxisPlane == AxisPlane::YZ)
+			{
+				if (position.y % 2 == 0)
+				{
+					return activeBrush.blockPresets[abs(position.z) % 2];
+				}
+				else
+				{
+					return activeBrush.blockPresets[abs(position.z) % 2 + 2];
+				}
 			}
 		}
 	}

@@ -5,4 +5,5 @@
 namespace GUI
 {
 	bool ToggleButton(std::string text, int id, int & selectedButton, bool fillWidth = true);
+	bool SmallToggleButton(std::string text, int id, int & selectedButton);
 }

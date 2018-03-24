@@ -79,6 +79,13 @@ private:
 		Size = 2,
 	};
 
+	enum class AxisPlane
+	{
+		XY,
+		XZ,
+		YZ,
+	};
+
 	std::vector<std::string> blockNames;
 	int selectedBlockIndex;
 	int selectedColorIndex;
@@ -91,4 +98,5 @@ private:
 	PlacementMode placementMode;
 	std::vector<Brush> brushes;
 	int selectedBrushIndex;
+	AxisPlane brushAxisPlane;
 };
