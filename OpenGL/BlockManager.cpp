@@ -35,8 +35,37 @@ BlockManager::BlockManager(FileManager * fileManager)
 	checkerBrush.blockPresets.push_back(greyCube);
 	checkerBrush.blockPresets.push_back(blackCube);
 
+	BlockPreset wall0;
+	wall0.meshName = "WallBrickGrey";
+	wall0.colliderName = "Cube";
+	wall0.colorIndex = 0;
+
+	BlockPreset wall1;
+	wall1.meshName = "WallBrickGrey";
+	wall1.colliderName = "Cube";
+	wall1.colorIndex = 1;
+
+	BlockPreset wall2;
+	wall2.meshName = "WallBrickGrey";
+	wall2.colliderName = "Cube";
+	wall2.colorIndex = 2;
+
+	BlockPreset wall3;
+	wall3.meshName = "WallBrickGrey";
+	wall3.colliderName = "Cube";
+	wall3.colorIndex = 3;
+
+	Brush twoByTwoBrush;
+	twoByTwoBrush.name = "Two By Two";
+	twoByTwoBrush.blockPattern = BlockPattern::TwoByTwo;
+	twoByTwoBrush.blockPresets.push_back(wall0);
+	twoByTwoBrush.blockPresets.push_back(wall1);
+	twoByTwoBrush.blockPresets.push_back(wall2);
+	twoByTwoBrush.blockPresets.push_back(wall3);
+
 	brushes.push_back(defaultBrush);
 	brushes.push_back(checkerBrush);
+	brushes.push_back(twoByTwoBrush);
 
 	selectedBrushIndex = 0;
 	placementMode = PlacementMode::Detail;
@@ -270,14 +299,21 @@ BlockPreset BlockManager::GetBlockPresetAtPosition(glm::ivec3 position)
 		{
 		case BlockPattern::Single:
 			return activeBrush.blockPresets[0];
-			break;
 		case BlockPattern::Checker:
 			if ((position.x + position.y + position.z) % 2 == 0)
 			{
 				return activeBrush.blockPresets[0];
 			}
 			return activeBrush.blockPresets[1];
-			break;
+		case BlockPattern::TwoByTwo:
+			if (position.y % 2 == 0)
+			{
+				return activeBrush.blockPresets[abs(position.x) % 2];
+			}
+			else
+			{
+				return activeBrush.blockPresets[abs(position.x) % 2 + 2];
+			}
 		}
 	}
 }

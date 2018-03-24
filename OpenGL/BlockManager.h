@@ -26,6 +26,7 @@ enum class BlockPattern
 {
 	Single,
 	Checker,
+	TwoByTwo,
 };
 
 struct BlockPreset
