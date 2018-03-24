@@ -38,6 +38,7 @@ private:
 	void SelectRegion(EntitySelectionManager* selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap);
 	void SelectBorder(EntitySelectionManager* selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap);
 	void SelectPlane(EntitySelectionManager* selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap);
+	void SelectArea(EntitySelectionManager* selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap);
 
 	SelectionModes selectionMode;
 	int selectionModeIndex;

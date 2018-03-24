@@ -15,6 +15,7 @@ public:
 	void DeselectAll(Scene* scene);
 	std::vector<std::shared_ptr<EntityHandle>>& SelectedEntities();
 	void DrawGUI(ApplicationContext* context);
+	std::shared_ptr<EntityHandle> LastSelectedEntity() const;
 
 private:
 	void SelectedEntityListChanged();

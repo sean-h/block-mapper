@@ -101,6 +101,16 @@ void EntitySelectionManager::DrawGUI(ApplicationContext * context)
 	}
 }
 
+std::shared_ptr<EntityHandle> EntitySelectionManager::LastSelectedEntity() const
+{
+	if (selectedEntities.size() == 0)
+	{
+		return nullptr;
+	}
+
+	return selectedEntities[selectedEntities.size() - 1];
+}
+
 void EntitySelectionManager::SelectedEntityListChanged()
 {
 	if (selectedEntities.size() > 0)

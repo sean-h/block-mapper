@@ -121,7 +121,14 @@ void SelectBlockTool::Update(ApplicationContext * context)
 		{
 			if (selectionMode == SelectionModes::Single)
 			{
-				this->SelectSingle(selectionManager, scene, hit.entity);
+				if (input->GetKey(Input::Keys::KEY_LEFT_CONTROL))
+				{
+					this->SelectArea(selectionManager, scene, hit.entity, context->ApplicationBlockManager()->BlockPositionMap(scene));
+				}
+				else
+				{
+					this->SelectSingle(selectionManager, scene, hit.entity);
+				}
 			}
 			else if (selectionMode == SelectionModes::Region)
 			{
@@ -329,6 +336,50 @@ void SelectBlockTool::SelectPlane(EntitySelectionManager * selectionManager, Sce
 			}
 		}
 	}
+}
+
+void SelectBlockTool::SelectArea(EntitySelectionManager * selectionManager, Scene * scene, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap)
+{
+	auto lastSelectedEntity = selectionManager->LastSelectedEntity();
+	if (lastSelectedEntity == nullptr)
+	{
+		this->SelectSingle(selectionManager, scene, hitEntity);
+		return;
+	}
+
+	glm::ivec3 lastSelectedPosition = lastSelectedEntity->TargetEntity()->ObjectTransform()->GridPosition();
+	glm::ivec3 selectedPosition = hitEntity->TargetEntity()->ObjectTransform()->GridPosition();
+
+	glm::vec3 selectVector = lastSelectedPosition - selectedPosition;
+
+	int endX = glm::abs((int)selectVector.x);
+	int endY = glm::abs((int)selectVector.y);
+	int endZ = glm::abs((int)selectVector.z);
+
+	for (int x = 0; x <= endX; x++)
+	{
+		for (int y = 0; y <= endY; y++)
+		{
+			for (int z = 0; z <= endZ; z++)
+			{
+				glm::ivec3 position(
+					selectedPosition.x + x * glm::sign(lastSelectedPosition.x - selectedPosition.x),
+					selectedPosition.y + y * glm::sign(lastSelectedPosition.y - selectedPosition.y),
+					selectedPosition.z + z * glm::sign(lastSelectedPosition.z - selectedPosition.z)
+				);
+
+				auto entityAtPosition = blockMap.find(position);
+				// Don't select the hit entity yet
+				if (entityAtPosition != blockMap.end() && entityAtPosition->second != hitEntity)
+				{
+					selectionManager->SelectEntity(scene, entityAtPosition->second);
+				}
+			}
+		}
+	}
+
+	// Select the hit entity last to allow for area selections being chained together
+	selectionManager->SelectEntity(scene, hitEntity);
 }
 
 std::vector<glm::ivec3> AdjacentPositions(glm::ivec3 position)
