@@ -90,9 +90,10 @@ void EntitySelectionManager::DrawGUI(ApplicationContext * context)
 				if (e->EntityExists())
 				{
 					Entity* entity = e->TargetEntity();
-					entity->MeshName(blockManager->SelectedBlockName());
-					entity->ColliderMeshName(blockManager->SelectedColliderName());
-					entity->MeshColorIndex(blockManager->SelectedColorIndex());
+					BlockPreset blockPreset = context->ApplicationBlockManager()->GetBlockPresetAtPosition(entity->ObjectTransform()->GridPosition());
+					entity->MeshName(blockPreset.meshName);
+					entity->ColliderMeshName(blockPreset.colliderName);
+					entity->MeshColorIndex(blockPreset.colorIndex);
 					scene->RefreshEntityRenderData(e);
 					scene->RefreshEntityCollisionData(e);
 				}
