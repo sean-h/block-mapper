@@ -115,14 +115,6 @@ std::shared_ptr<EntityHandle> EntitySelectionManager::LastSelectedEntity() const
 void EntitySelectionManager::OnSceneLoaded(Scene * scene)
 {
 	selectedEntities.clear();
-
-	for (auto& entity : scene->Entities())
-	{
-		if (entity->HasProperty(EntityProperty::Selected))
-		{
-			this->SelectEntity(scene, entity->Handle());
-		}
-	}
 }
 
 void EntitySelectionManager::SelectedEntityListChanged()

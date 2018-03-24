@@ -356,9 +356,13 @@ void Scene::SaveScene(ApplicationContext * context) const
 		auto entityPropertiesNode = xmlDoc.NewElement("Properties");
 		for (auto& prop : entity->Properties())
 		{
-			auto propertyNode = xmlDoc.NewElement(EntityPropertyNames[(int)prop.first]);
-			propertyNode->SetText(prop.second.c_str());
-			entityPropertiesNode->InsertEndChild(propertyNode);
+			// Don't save selected property
+			if (prop.first != EntityProperty::Selected)
+			{
+				auto propertyNode = xmlDoc.NewElement(EntityPropertyNames[(int)prop.first]);
+				propertyNode->SetText(prop.second.c_str());
+				entityPropertiesNode->InsertEndChild(propertyNode);
+			}
 		}
 		entityNode->InsertEndChild(entityPropertiesNode);
 
