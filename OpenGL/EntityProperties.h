@@ -1,0 +1,4 @@
+REGISTER_ENUM(Hidden)
+REGISTER_ENUM(Selected)
+REGISTER_ENUM(Temporary)
+REGISTER_ENUM(Block)

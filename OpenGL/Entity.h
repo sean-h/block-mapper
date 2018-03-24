@@ -21,6 +21,21 @@ private:
 	void DeleteEntity() { entity = nullptr; }
 };
 
+#define REGISTER_ENUM(x) x,
+enum class EntityProperty
+{
+	#include "EntityProperties.h",
+	PropertyCount
+};
+#undef REGISTER_ENUM
+
+#define REGISTER_ENUM(x) #x,
+static const char* EntityPropertyNames[] =
+{
+	#include "EntityProperties.h"
+};
+#undef REGISTER_ENUM
+
 class Entity
 {
 public:
@@ -49,11 +64,11 @@ public:
 	unsigned int PhysicsID() const { return physicsID; }
 	void PhysicsID(unsigned int id) { this->physicsID = id; }
 
-	void AddProperty(std::string propertyName, std::string propertyValue) { this->properties[propertyName] = propertyValue; }
-	void RemoveProperty(std::string propertyName);
-	bool HasProperty(std::string propertyName) const { return properties.find(propertyName) != properties.end(); }
-	std::string PropertyValue(std::string propertyName) { return properties[propertyName]; }
-	std::unordered_map<std::string, std::string> Properties() const { return properties; }
+	void AddProperty(EntityProperty property, std::string propertyValue) { this->properties[property] = propertyValue; }
+	void RemoveProperty(EntityProperty property);
+	bool HasProperty(EntityProperty property) const { return properties.find(property) != properties.end(); }
+	std::string PropertyValue(EntityProperty property) { return properties[property]; }
+	std::unordered_map<EntityProperty, std::string> Properties() const { return properties; }
 
 	std::shared_ptr<EntityHandle> Handle() const { return entityHandle; }
 
@@ -67,6 +82,6 @@ private:
 	std::string materialName;
 	std::string colliderMeshName;
 	std::shared_ptr<EntityHandle> entityHandle;
-	std::unordered_map<std::string, std::string> properties;
+	std::unordered_map<EntityProperty, std::string> properties;
 };
 

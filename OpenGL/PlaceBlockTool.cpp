@@ -14,8 +14,8 @@ void PlaceBlockTool::Apply(ApplicationContext * context)
 
 		entity->MaterialName("Solid");
 		entity->ColliderMeshName(blockPreset.colliderName);
-		entity->AddProperty("Block", "");
-		entity->RemoveProperty("Temporary");
+		entity->AddProperty(EntityProperty::Block, "");
+		entity->RemoveProperty(EntityProperty::Temporary);
 		scene->RefreshEntityRenderData(block);
 		scene->RefreshEntityCollisionData(block);
 	}
@@ -65,8 +65,8 @@ void PlaceBlockTool::PlaceGhostBlock(ApplicationContext * context, glm::vec3 pos
 	ghostBlock->MeshName(blockPreset.meshName);
 	ghostBlock->MeshColorIndex(blockPreset.colorIndex);
 	ghostBlock->MaterialName("Hover");
-	ghostBlock->AddProperty("Temporary", "");
-	ghostBlock->RemoveProperty("Hidden");
+	ghostBlock->AddProperty(EntityProperty::Temporary, "");
+	ghostBlock->RemoveProperty(EntityProperty::Hidden);
 	
 	scene->RefreshEntityRenderData(ghostBlockHandle);
 
@@ -77,7 +77,7 @@ void PlaceBlockTool::ClearGhostBlocks(Scene* scene)
 {
 	for (auto& block : ghostBlocks)
 	{
-		block->TargetEntity()->AddProperty("Hidden", "");
+		block->TargetEntity()->AddProperty(EntityProperty::Hidden, "");
 		scene->RefreshEntityRenderData(block);
 		ghostBlockPool.push(block);
 	}

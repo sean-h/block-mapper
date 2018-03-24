@@ -55,9 +55,9 @@ void Scene::Update(ApplicationContext* context)
 		{
 			for (auto& entity : entities)
 			{
-				if (entity->HasProperty("Hidden"))
+				if (entity->HasProperty(EntityProperty::Hidden))
 				{
-					entity->RemoveProperty("Hidden");
+					entity->RemoveProperty(EntityProperty::Hidden);
 					newRenderObjectsQueue.push(entity->Handle());
 					RefreshEntityCollisionData(entity->Handle());
 				}
@@ -69,7 +69,7 @@ void Scene::Update(ApplicationContext* context)
 			{
 				if (entity->EntityExists())
 				{
-					entity->TargetEntity()->AddProperty("Hidden", "");
+					entity->TargetEntity()->AddProperty(EntityProperty::Hidden, "");
 					destroyedRenderObjectsQueue.push(entity->TargetEntity()->RenderID());
 					destroyedPhysicsObjectsQueue.push(entity->TargetEntity()->PhysicsID());
 				}
@@ -100,7 +100,7 @@ void Scene::Update(ApplicationContext* context)
 			{
 				std::string materialName = entity->MaterialName();
 
-				if (entity->HasProperty("Selected"))
+				if (entity->HasProperty(EntityProperty::Selected))
 				{
 					materialName = "Selected";
 				}
@@ -137,7 +137,7 @@ void Scene::Update(ApplicationContext* context)
 			Entity* entity = newPhysicsObjectsQueue.front()->TargetEntity();
 
 			std::string colliderMeshName = "Cube";
-			if (!entity->HasProperty("Block"))
+			if (!entity->HasProperty(EntityProperty::Block))
 			{
 				colliderMeshName = entity->ColliderMeshName();
 			}
@@ -303,7 +303,7 @@ void Scene::SaveScene(ApplicationContext * context) const
 	auto entitiesNode = xmlDoc.NewElement("Entities");
 	for (auto& entity : this->entities)
 	{
-		if (entity->HasProperty("Temporary"))
+		if (entity->HasProperty(EntityProperty::Temporary))
 		{
 			continue;
 		}
@@ -356,7 +356,7 @@ void Scene::SaveScene(ApplicationContext * context) const
 		auto entityPropertiesNode = xmlDoc.NewElement("Properties");
 		for (auto& prop : entity->Properties())
 		{
-			auto propertyNode = xmlDoc.NewElement(prop.first.c_str());
+			auto propertyNode = xmlDoc.NewElement(EntityPropertyNames[(int)prop.first]);
 			propertyNode->SetText(prop.second.c_str());
 			entityPropertiesNode->InsertEndChild(propertyNode);
 		}
@@ -485,7 +485,15 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 					propertyValue = propertyNode->ToElement()->GetText();
 				}
 
-				entity->TargetEntity()->AddProperty(propertyNode->Value(), propertyValue);
+				std::string loadedPropertyName = propertyNode->Value();
+
+				for (int i = 0; i < (int)EntityProperty::PropertyCount; i++)
+				{
+					if (loadedPropertyName == EntityPropertyNames[i])
+					{
+						entity->TargetEntity()->AddProperty((EntityProperty)i, propertyValue);
+					}
+				}
 			}
 		}
 
@@ -553,7 +561,7 @@ void Scene::RefreshEntityRenderData(std::shared_ptr<EntityHandle> entityHandle)
 			entity->RenderID(0);
 		}
 
-		if (!entity->HasProperty("Hidden") && entity->MeshName() != "")
+		if (!entity->HasProperty(EntityProperty::Hidden) && entity->MeshName() != "")
 		{
 			newRenderObjectsQueue.push(entityHandle);
 		}
@@ -579,7 +587,7 @@ void Scene::RefreshEntityCollisionData(std::shared_ptr<EntityHandle> entityHandl
 			destroyedPhysicsObjectsQueue.push(entity->PhysicsID());
 		}
 
-		if (!entity->HasProperty("Hidden") && entity->ColliderMeshName() != "")
+		if (!entity->HasProperty(EntityProperty::Hidden) && entity->ColliderMeshName() != "")
 		{
 			newPhysicsObjectsQueue.push(entityHandle);
 		}
@@ -645,7 +653,7 @@ void Scene::CreateGridPlanes()
 	gridPlaneEntity->MeshName("Plane");
 	gridPlaneEntity->ColliderMeshName("Plane");
 	gridPlaneEntity->MaterialName("Grid");
-	gridPlaneEntity->AddProperty("Temporary", "");
+	gridPlaneEntity->AddProperty(EntityProperty::Temporary, "");
 	newRenderObjectsQueue.push(gridPlane);
 	RefreshEntityCollisionData(gridPlane);
 
@@ -656,7 +664,7 @@ void Scene::CreateGridPlanes()
 	gridPlaneBottomEntity->MeshName("PlaneBottom");
 	gridPlaneBottomEntity->ColliderMeshName("PlaneBottom");
 	gridPlaneBottomEntity->MaterialName("Grid");
-	gridPlaneBottomEntity->AddProperty("Temporary", "");
+	gridPlaneBottomEntity->AddProperty(EntityProperty::Temporary, "");
 	newRenderObjectsQueue.push(gridPlaneBottom);
 	RefreshEntityCollisionData(gridPlaneBottom);
 }

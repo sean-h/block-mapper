@@ -7,10 +7,10 @@
 void EntitySelectionManager::SelectEntity(Scene* scene, std::shared_ptr<EntityHandle> entityHandle)
 {
 	if (entityHandle->EntityExists()
-		&& entityHandle->TargetEntity()->HasProperty("Block")
+		&& entityHandle->TargetEntity()->HasProperty(EntityProperty::Block)
 		&& std::find(selectedEntities.begin(), selectedEntities.end(), entityHandle) == selectedEntities.end())
 	{
-		entityHandle->TargetEntity()->AddProperty("Selected", "");
+		entityHandle->TargetEntity()->AddProperty(EntityProperty::Selected, "");
 		scene->RefreshEntityRenderData(entityHandle);
 		selectedEntities.push_back(entityHandle);
 		SelectedEntityListChanged();
@@ -19,17 +19,17 @@ void EntitySelectionManager::SelectEntity(Scene* scene, std::shared_ptr<EntityHa
 
 void EntitySelectionManager::ToggleSelectEntity(Scene * scene, std::shared_ptr<EntityHandle> entityHandle)
 {
-	if (entityHandle->EntityExists() && entityHandle->TargetEntity()->HasProperty("Block"))
+	if (entityHandle->EntityExists() && entityHandle->TargetEntity()->HasProperty(EntityProperty::Block))
 	{
 		auto findEntity = std::find(selectedEntities.begin(), selectedEntities.end(), entityHandle);
 		if (findEntity == selectedEntities.end())
 		{
-			entityHandle->TargetEntity()->AddProperty("Selected", "");
+			entityHandle->TargetEntity()->AddProperty(EntityProperty::Selected, "");
 			selectedEntities.push_back(entityHandle);
 		}
 		else
 		{
-			entityHandle->TargetEntity()->RemoveProperty("Selected");
+			entityHandle->TargetEntity()->RemoveProperty(EntityProperty::Selected);
 			selectedEntities.erase(findEntity);
 		}
 		
@@ -42,7 +42,7 @@ void EntitySelectionManager::DeselectEntity(Scene* scene, std::shared_ptr<Entity
 {
 	if (entityHandle->EntityExists())
 	{
-		entityHandle->TargetEntity()->RemoveProperty("Selected");
+		entityHandle->TargetEntity()->RemoveProperty(EntityProperty::Selected);
 		scene->RefreshEntityRenderData(entityHandle);
 		selectedEntities.erase(std::remove(selectedEntities.begin(), selectedEntities.end(), entityHandle), selectedEntities.end());
 		SelectedEntityListChanged();
@@ -55,7 +55,7 @@ void EntitySelectionManager::DeselectAll(Scene* scene)
 	{
 		if (e->EntityExists())
 		{
-			e->TargetEntity()->RemoveProperty("Selected");
+			e->TargetEntity()->RemoveProperty(EntityProperty::Selected);
 			scene->RefreshEntityRenderData(e);
 		}
 	}
@@ -118,7 +118,7 @@ void EntitySelectionManager::OnSceneLoaded(Scene * scene)
 
 	for (auto& entity : scene->Entities())
 	{
-		if (entity->HasProperty("Selected"))
+		if (entity->HasProperty(EntityProperty::Selected))
 		{
 			this->SelectEntity(scene, entity->Handle());
 		}

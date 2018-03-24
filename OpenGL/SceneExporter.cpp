@@ -28,7 +28,7 @@ void SceneExporter::Export(ApplicationContext * context)
 	// Create Export Objects
 	for (auto &e : context->ApplicationScene()->Entities())
 	{
-		if (e->HasProperty("Block"))
+		if (e->HasProperty(EntityProperty::Block))
 		{
 			this->exportObjects.push_back(CreateMeshExportObject(e.get()));
 			this->exportObjects.push_back(CreateCollisionExportObject(e.get()));

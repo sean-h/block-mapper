@@ -6,7 +6,7 @@ Entity::Entity(int id) : id(id)
 	renderID = 0;
 }
 
-void Entity::RemoveProperty(std::string propertyName)
+void Entity::RemoveProperty(EntityProperty property)
 {
-	properties.erase(propertyName);
+	properties.erase(property);
 }

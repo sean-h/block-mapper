@@ -291,7 +291,7 @@ BlockMap BlockManager::BlockPositionMap(Scene * scene)
 
 	for (auto& e : scene->Entities())
 	{
-		if (e->HasProperty("Block"))
+		if (e->HasProperty(EntityProperty::Block))
 		{
 			blockMap[e->ObjectTransform()->GridPosition()] = e->Handle();
 		}

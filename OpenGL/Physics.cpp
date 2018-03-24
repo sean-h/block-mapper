@@ -91,7 +91,7 @@ std::vector<std::shared_ptr<EntityHandle>> Physics::FrustumIntersect(Debug* debu
 
 	for (auto& entity : scene->Entities())
 	{
-		if (entity->ColliderMeshName().length() == 0 || entity->HasProperty("Hidden"))
+		if (entity->ColliderMeshName().length() == 0 || entity->HasProperty(EntityProperty::Hidden))
 		{
 			continue;
 		}

@@ -217,7 +217,7 @@ void SelectBlockTool::SelectRegion(EntitySelectionManager * selectionManager, Sc
 
 void SelectBlockTool::SelectBorder(EntitySelectionManager * selectionManager, Scene* scene, std::shared_ptr<EntityHandle> hitEntity, BlockMap blockMap)
 {
-	if (!hitEntity->TargetEntity()->HasProperty("Block"))
+	if (!hitEntity->TargetEntity()->HasProperty(EntityProperty::Block))
 	{
 		return;
 	}
