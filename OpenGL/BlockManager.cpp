@@ -7,7 +7,9 @@
 BlockManager::BlockManager(FileManager * fileManager)
 {
 	this->blockNames = fileManager->BlockNames();
+	this->materialNames = fileManager->MaterialNames();
 	selectedBlockIndex = 0;
+	selectedMaterialIndex = 0;
 	selectedColorIndex = 0;
 	selectedBlockColorCount = 0;
 	selectedColliderIndex = 0;
@@ -19,11 +21,13 @@ BlockManager::BlockManager(FileManager * fileManager)
 	greyCube.meshName = "CubeBeveled";
 	greyCube.colliderName = "Cube";
 	greyCube.colorIndex = 1;
+	greyCube.materialName = "Palette";
 
 	BlockPreset blackCube;
 	blackCube.meshName = "CubeBeveled";
 	blackCube.colliderName = "Cube";
 	blackCube.colorIndex = 2;
+	blackCube.materialName = "Palette";
 
 	Brush defaultBrush;
 	defaultBrush.name = "Default";
@@ -40,21 +44,25 @@ BlockManager::BlockManager(FileManager * fileManager)
 	wall0.meshName = "WallBrickGrey";
 	wall0.colliderName = "Cube";
 	wall0.colorIndex = 0;
+	wall0.materialName = "Environment";
 
 	BlockPreset wall1;
 	wall1.meshName = "WallBrickGrey";
 	wall1.colliderName = "Cube";
 	wall1.colorIndex = 1;
+	wall1.materialName = "Environment";
 
 	BlockPreset wall2;
 	wall2.meshName = "WallBrickGrey";
 	wall2.colliderName = "Cube";
 	wall2.colorIndex = 2;
+	wall2.materialName = "Environment";
 
 	BlockPreset wall3;
 	wall3.meshName = "WallBrickGrey";
 	wall3.colliderName = "Cube";
 	wall3.colorIndex = 3;
+	wall3.materialName = "Environment";
 
 	Brush twoByTwoBrush;
 	twoByTwoBrush.name = "Two By Two";
@@ -99,7 +107,7 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 {
 	if (selectedBlockPreviewDirty)
 	{
-		context->ApplicationRenderer()->RenderModelPreview(this->SelectedBlockName(), this->selectedColorIndex, this->SelectedColliderName());
+		context->ApplicationRenderer()->RenderModelPreview(this->SelectedBlockName(), this->selectedColorIndex, this->SelectedColliderName(), this->SelectedMaterialName());
 		selectedBlockPreviewDirty = false;
 		selectedBlockColorCount = context->ApplicationRenderer()->ModelUVIndexCount(SelectedBlockName());
 	}
@@ -153,6 +161,20 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 				CreatePreset();
 			}
 		}
+
+		// Materials
+		if (ImGui::SmallButton("-##material"))
+		{
+			this->SelectPreviousMaterial();
+		}
+		ImGui::SameLine();
+		if (ImGui::SmallButton("+##material"))
+		{
+			this->SelectNextMaterial();
+		}
+		ImGui::SameLine();
+		std::string selectedMaterialText = "Material: " + this->SelectedMaterialName();
+		ImGui::Text(selectedMaterialText.c_str());
 
 		// Meshes
 		if (ImGui::SmallButton("-##mesh"))
@@ -308,6 +330,7 @@ BlockPreset BlockManager::GetBlockPresetAtPosition(glm::ivec3 position)
 		preset.meshName = SelectedBlockName();
 		preset.colliderName = SelectedColliderName();
 		preset.colorIndex = SelectedColorIndex();
+		preset.materialName = SelectedMaterialName();
 		return preset;
 	}
 	else if (placementMode == PlacementMode::Brush)
@@ -368,6 +391,7 @@ void BlockManager::CreatePreset()
 	preset.meshName = blockNames[selectedBlockIndex];
 	preset.colliderName = blockNames[selectedColliderIndex];
 	preset.colorIndex = selectedColorIndex;
+	preset.materialName = SelectedMaterialName();
 	blockPresets.push_back(preset);
 	selectedPreset = blockPresets.size() - 1;
 }
@@ -379,6 +403,7 @@ void BlockManager::SelectNextPreset()
 	selectedBlockIndex = std::distance(blockNames.begin(), std::find(blockNames.begin(), blockNames.end(), blockPresets[selectedPreset].meshName));
 	selectedColliderIndex = std::distance(blockNames.begin(), std::find(blockNames.begin(), blockNames.end(), blockPresets[selectedPreset].colliderName));
 	selectedColorIndex = blockPresets[selectedPreset].colorIndex;
+	selectedMaterialIndex = std::distance(materialNames.begin(), std::find(materialNames.begin(), materialNames.end(), blockPresets[selectedPreset].materialName));
 	selectedBlockPreviewDirty = true;
 }
 
@@ -389,6 +414,7 @@ void BlockManager::SelectPreviousPreset()
 	selectedBlockIndex = std::distance(blockNames.begin(), std::find(blockNames.begin(), blockNames.end(), blockPresets[selectedPreset].meshName));
 	selectedColliderIndex = std::distance(blockNames.begin(), std::find(blockNames.begin(), blockNames.end(), blockPresets[selectedPreset].colliderName));
 	selectedColorIndex = blockPresets[selectedPreset].colorIndex;
+	selectedMaterialIndex = std::distance(materialNames.begin(), std::find(materialNames.begin(), materialNames.end(), blockPresets[selectedPreset].materialName));
 	selectedBlockPreviewDirty = true;
 }
 
@@ -420,6 +446,22 @@ void BlockManager::SelectPreviousPlacementMode()
 {
 	int modeCount = (int)PlacementMode::Size;
 	placementMode = (PlacementMode)(((((int)placementMode - 1) % modeCount) + modeCount) % modeCount);
+	selectedBlockPreviewDirty = true;
+	selectedPreset = -1;
+}
+
+void BlockManager::SelectNextMaterial()
+{
+	int materialCount = materialNames.size();
+	selectedMaterialIndex = (((selectedMaterialIndex + 1) % materialCount) + materialCount) % materialCount;
+	selectedBlockPreviewDirty = true;
+	selectedPreset = -1;
+}
+
+void BlockManager::SelectPreviousMaterial()
+{
+	int materialCount = materialNames.size();
+	selectedMaterialIndex = (((selectedMaterialIndex - 1) % materialCount) + materialCount) % materialCount;
 	selectedBlockPreviewDirty = true;
 	selectedPreset = -1;
 }

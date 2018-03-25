@@ -35,6 +35,7 @@ struct BlockPreset
 	std::string meshName;
 	int colorIndex;
 	std::string colliderName;
+	std::string materialName;
 };
 
 struct Brush
@@ -53,6 +54,7 @@ public:
 	std::string SelectedBlockName() const { return blockNames[selectedBlockIndex]; }
 	int SelectedColorIndex() const { return selectedColorIndex; }
 	std::string SelectedColliderName() const { return blockNames[selectedColliderIndex]; }
+	std::string SelectedMaterialName() const { return materialNames[selectedMaterialIndex]; }
 	BlockMap BlockPositionMap(Scene* scene);
 	BlockPreset GetBlockPresetAtPosition(glm::ivec3 position);
 
@@ -70,6 +72,8 @@ private:
 	void SelectPreviousBrush();
 	void SelectNextPlacementMode();
 	void SelectPreviousPlacementMode();
+	void SelectNextMaterial();
+	void SelectPreviousMaterial();
 	std::string PlacementModeText() const;
 
 	enum class PlacementMode
@@ -87,8 +91,10 @@ private:
 	};
 
 	std::vector<std::string> blockNames;
+	std::vector<std::string> materialNames;
 	int selectedBlockIndex;
 	int selectedColorIndex;
+	int selectedMaterialIndex;
 	int selectedBlockColorCount;
 	int selectedColliderIndex;
 	bool selectedBlockPreviewDirty;

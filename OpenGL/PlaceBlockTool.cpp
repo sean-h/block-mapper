@@ -12,7 +12,7 @@ void PlaceBlockTool::Apply(ApplicationContext * context)
 		glm::vec3 blockPosition = entity->ObjectTransform()->GridPosition();
 		BlockPreset blockPreset = context->ApplicationBlockManager()->GetBlockPresetAtPosition(blockPosition);
 
-		entity->MaterialName("Solid");
+		entity->MaterialName(blockPreset.materialName);
 		entity->ColliderMeshName(blockPreset.colliderName);
 		entity->AddProperty(EntityProperty::Block, "");
 		entity->RemoveProperty(EntityProperty::Temporary);

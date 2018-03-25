@@ -4,14 +4,15 @@
 #include "glm\gtc\type_ptr.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include "tinyxml2.h"
 #include <iostream>
 
 Renderer::Renderer(FileManager* fileManager)
 {
 	this->LoadShaders();
 	this->LoadModels(fileManager);
-	this->LoadMaterials();
 	this->LoadTextures(fileManager);
+	this->LoadMaterials(fileManager);
 
 	this->SetUpModelPreview();
 	renderObjectCounter = 0;
@@ -25,29 +26,29 @@ void Renderer::RenderScene(ApplicationContext* context)
 
 	glViewport(0, 0, window->Width(), window->Height());
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, this->textureIDs["EnvironmentTextures"]);
-
+	
 	glm::mat4 view = camera->ViewMatrix();
 	glm::mat4 projection = camera->ProjectionMatrix((float)window->Width(), (float)window->Height());
 
-	std::map<Shader*, std::vector<RenderObject>> shaderSortedRenderObjects;
+	std::map<Material*, std::vector<RenderObject>> materialSortedRenderObjects;
 	for (auto& renderObjectPair : renderObjects)
 	{
-		shaderSortedRenderObjects[renderObjectPair.second.shader].push_back(renderObjectPair.second);
+		materialSortedRenderObjects[renderObjectPair.second.material].push_back(renderObjectPair.second);
 	}
 
-	for (auto& shaderSortedRenderObject : shaderSortedRenderObjects)
+	for (auto& materialSortedRenderObject : materialSortedRenderObjects)
 	{
-		Shader* shader = shaderSortedRenderObject.first;
+		Shader* shader = materialSortedRenderObject.first->MaterialShader();
 		shader->use();
+
+		glBindTexture(GL_TEXTURE_2D, materialSortedRenderObject.first->TextureID());
 
 		shader->setVec3(shader->cameraPositionID, camera->Owner()->ObjectTransform()->Position());
 		shader->setMat4(shader->viewID, glm::value_ptr(view));
 		shader->setMat4(shader->projectionID, glm::value_ptr(projection));
 
-		for (auto& renderObject : shaderSortedRenderObject.second)
+		for (auto& renderObject : materialSortedRenderObject.second)
 		{
 			shader->setMat4(shader->modelID, glm::value_ptr(renderObject.modelMatrix));
 			shader->setVec3(shader->objectColorID, renderObject.material->Color());
@@ -153,31 +154,50 @@ void Renderer::LoadModels(FileManager* fileManager)
 	}
 }
 
-void Renderer::LoadMaterials()
+void Renderer::LoadMaterials(FileManager * fileManager)
 {
 	std::unique_ptr<Material> solidMaterial(new Material("CameraLit"));
 	solidMaterial->Color(glm::vec3(1.0f, 1.0f, 1.0f));
 	solidMaterial->Opacity(1.0f);
 	solidMaterial->Wireframe(false);
+	solidMaterial->MaterialShader(this->shaders["CameraLit"]);
 
 	std::unique_ptr<Material> selectedMaterial(new Material("CameraLit"));
 	selectedMaterial->Color(glm::vec3(0.2f, 0.8f, 0.2f));
 	selectedMaterial->Opacity(1.0f);
 	selectedMaterial->Wireframe(true);
+	selectedMaterial->MaterialShader(this->shaders["CameraLit"]);
 
 	std::unique_ptr<Material> hoverMaterial(new Material("CameraLit"));
 	hoverMaterial->Color(glm::vec3(1.0f, 1.0f, 1.0f));
 	hoverMaterial->Opacity(1.0f);
 	hoverMaterial->Wireframe(true);
+	hoverMaterial->MaterialShader(this->shaders["CameraLit"]);
 
 	std::unique_ptr<Material> gridMaterial(new Material("Grid"));
 	gridMaterial->Color(glm::vec3(0.0f, 0.0f, 0.0f));
-	gridMaterial->Opacity(1.0f);
+	gridMaterial->MaterialShader(this->shaders["Grid"]);
 
 	this->materials["Solid"] = std::move(solidMaterial);
 	this->materials["Selected"] = std::move(selectedMaterial);
 	this->materials["Hover"] = std::move(hoverMaterial);
 	this->materials["Grid"] = std::move(gridMaterial);
+
+	// Load materials from file
+	for (auto& materialPath : fileManager->MaterialPaths())
+	{
+		tinyxml2::XMLDocument xmlDoc;
+		xmlDoc.LoadFile(materialPath.second.c_str());
+
+		auto materialNode = xmlDoc.FirstChildElement("Material");
+		if (materialNode != nullptr)
+		{
+			std::unique_ptr<Material> material(new Material(materialNode));
+			material->MaterialShader(this->shaders[material->ShaderName()]);
+			material->TextureID(this->textureIDs[material->TextureName()]);
+			this->materials[materialPath.first] = std::move(material);
+		}
+	}
 }
 
 void Renderer::LoadTextures(FileManager * fileManager)
@@ -242,7 +262,7 @@ void Renderer::SetUpModelPreview()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Renderer::RenderModelPreview(std::string modelName, int meshColorIndex, std::string colliderModelName)
+void Renderer::RenderModelPreview(std::string modelName, int meshColorIndex, std::string colliderModelName, std::string materialName)
 {
 	glViewport(0, 0, modelPreviewTextureSize, modelPreviewTextureSize);
 	glBindFramebuffer(GL_FRAMEBUFFER, this->modelPreviewFBO);
@@ -252,8 +272,15 @@ void Renderer::RenderModelPreview(std::string modelName, int meshColorIndex, std
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		Shader* defaultShader = this->shaders["CameraLit"];
+		Material* material = this->materials[materialName].get();
+		Shader* defaultShader = material->MaterialShader();
 		defaultShader->use();
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, material->TextureID());
+
+		// Update hover material texture to match model preview
+		this->materials["Hover"]->TextureID(material->TextureID());
 
 		glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);

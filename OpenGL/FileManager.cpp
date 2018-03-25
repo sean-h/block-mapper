@@ -9,8 +9,14 @@ FileManager::FileManager()
 	if (result == S_OK)
 	{
 		this->applicationFolderPath = std::string(my_documents) + "/" + applicationFolderName;
-		this->blockFolderPath = this->applicationFolderPath + "/blocks";
-		this->textureFolderPath = this->applicationFolderPath + "/textures";
+		this->blockFolderPath = this->applicationFolderPath + "/Blocks";
+		CreateDirectoryAtPath(blockFolderPath);
+
+		this->textureFolderPath = this->applicationFolderPath + "/Textures";
+		CreateDirectoryAtPath(textureFolderPath);
+
+		this->materialFolderPath = this->applicationFolderPath + "/Materials";
+		CreateDirectoryAtPath(materialFolderPath);
 
 		for (auto &file : std::experimental::filesystem::directory_iterator(this->blockFolderPath))
 		{
@@ -22,17 +28,16 @@ FileManager::FileManager()
 			this->texturePaths.push_back(file.path());
 		}
 
-		this->exportFolderPath = this->applicationFolderPath + "/" + "Export";
-		if (!std::experimental::filesystem::exists(this->exportFolderPath))
+		for (auto &file : std::experimental::filesystem::directory_iterator(this->materialFolderPath))
 		{
-			std::experimental::filesystem::create_directory(this->exportFolderPath);
+			this->materialPaths.push_back(file.path());
 		}
 
+		this->exportFolderPath = this->applicationFolderPath + "/" + "Export";
+		CreateDirectoryAtPath(exportFolderPath);
+
 		this->saveFolderPath = this->applicationFolderPath + "/" + "Scenes";
-		if (!std::experimental::filesystem::exists(this->saveFolderPath))
-		{
-			std::experimental::filesystem::create_directory(this->saveFolderPath);
-		}
+		CreateDirectoryAtPath(saveFolderPath);
 	}
 }
 
@@ -49,6 +54,18 @@ std::vector<std::string> FileManager::BlockNames() const
 	}
 
 	return blockNames;
+}
+
+std::vector<std::string> FileManager::MaterialNames() const
+{
+	std::vector<std::string> materialNames;
+
+	for (auto& materialPath : materialPaths)
+	{
+		materialNames.push_back(materialPath.filename().stem().string());
+	}
+
+	return materialNames;
 }
 
 std::unordered_map<std::string, std::string> FileManager::BlockPaths() const
@@ -75,6 +92,18 @@ std::unordered_map<std::string, std::string> FileManager::TexturePaths() const
 	return textures;
 }
 
+std::unordered_map<std::string, std::string> FileManager::MaterialPaths() const
+{
+	std::unordered_map<std::string, std::string> materials;
+
+	for (auto& materialPath : materialPaths)
+	{
+		materials[materialPath.filename().stem().string()] = materialPath.string();
+	}
+
+	return materials;
+}
+
 std::vector<std::string> FileManager::SavedSceneFilenames() const
 {
 	std::vector<std::string> sceneFilenames;
@@ -90,4 +119,12 @@ std::vector<std::string> FileManager::SavedSceneFilenames() const
 bool FileManager::FileExists(std::string filePath) const
 {
 	return std::experimental::filesystem::exists(filePath);
+}
+
+void FileManager::CreateDirectoryAtPath(std::string directory)
+{
+	if (!std::experimental::filesystem::exists(directory))
+	{
+		std::experimental::filesystem::create_directory(directory);
+	}
 }

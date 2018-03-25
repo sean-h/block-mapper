@@ -30,7 +30,7 @@ public:
 	std::unordered_map<std::string, Model*> Models() const { return models; }
 	unsigned int ModelPreviewTextureID() const { return this->modelPreviewTextureID; }
 	unsigned int IconTextureID() const { return this->iconTextureID; }
-	void RenderModelPreview(std::string modelName, int meshColorIndex, std::string colliderModelName);
+	void RenderModelPreview(std::string modelName, int meshColorIndex, std::string colliderModelName, std::string materialName);
 	int ModelUVIndexCount(std::string modelName) const;
 	int AddRenderObject(std::string meshName, int meshColorIndex, std::string materialName, glm::mat4 modelMatrix);
 	void RemoveRenderObject(int id);
@@ -40,7 +40,7 @@ public:
 private:
 	void LoadShaders();
 	void LoadModels(FileManager* fileManager);
-	void LoadMaterials();
+	void LoadMaterials(FileManager * fileManager);
 	void LoadTextures(FileManager* fileManager);
 	unsigned int loadTexture(char const * path);
 
