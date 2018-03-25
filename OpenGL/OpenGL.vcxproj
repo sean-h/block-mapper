@@ -209,13 +209,12 @@
   <ItemGroup>
     <None Include="Cube.fbx" />
     <None Include="FragmentShader.glsl" />
-    <None Include="Monkey.fbx" />
+    <None Include="Line.fbx" />
+    <None Include="Plane.fbx" />
+    <None Include="PlaneBottom.fbx" />
     <None Include="VertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="container.jpg" />
-    <Image Include="container2.png" />
-    <Image Include="container2_specular.png" />
     <Image Include="Icons.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

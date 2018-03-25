@@ -268,23 +268,20 @@
     <None Include="FragmentShader.glsl">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Monkey.fbx">
+    <None Include="Cube.fbx">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Cube.fbx">
+    <None Include="Line.fbx">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Plane.fbx">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="PlaneBottom.fbx">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="container.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="container2.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="container2_specular.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="Icons.png">
       <Filter>Resource Files</Filter>
     </Image>
