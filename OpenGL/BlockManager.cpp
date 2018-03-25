@@ -3,6 +3,7 @@
 #include "GUI.h"
 #include "imgui.h"
 #include "ApplicationContext.h"
+#include "tinyxml2.h"
 
 BlockManager::BlockManager(FileManager * fileManager)
 {
@@ -17,65 +18,7 @@ BlockManager::BlockManager(FileManager * fileManager)
 
 	strcpy_s(this->newPresetName, 32, "New Preset");
 
-	BlockPreset greyCube;
-	greyCube.meshName = "CubeBeveled";
-	greyCube.colliderName = "Cube";
-	greyCube.colorIndex = 1;
-	greyCube.materialName = "Palette";
-
-	BlockPreset blackCube;
-	blackCube.meshName = "CubeBeveled";
-	blackCube.colliderName = "Cube";
-	blackCube.colorIndex = 2;
-	blackCube.materialName = "Palette";
-
-	Brush defaultBrush;
-	defaultBrush.name = "Default";
-	defaultBrush.blockPattern = BlockPattern::Single;
-	defaultBrush.blockPresets.push_back(greyCube);
-
-	Brush checkerBrush;
-	checkerBrush.name = "Checker";
-	checkerBrush.blockPattern = BlockPattern::Checker;
-	checkerBrush.blockPresets.push_back(greyCube);
-	checkerBrush.blockPresets.push_back(blackCube);
-
-	BlockPreset wall0;
-	wall0.meshName = "WallBrickGrey";
-	wall0.colliderName = "Cube";
-	wall0.colorIndex = 0;
-	wall0.materialName = "Environment";
-
-	BlockPreset wall1;
-	wall1.meshName = "WallBrickGrey";
-	wall1.colliderName = "Cube";
-	wall1.colorIndex = 1;
-	wall1.materialName = "Environment";
-
-	BlockPreset wall2;
-	wall2.meshName = "WallBrickGrey";
-	wall2.colliderName = "Cube";
-	wall2.colorIndex = 2;
-	wall2.materialName = "Environment";
-
-	BlockPreset wall3;
-	wall3.meshName = "WallBrickGrey";
-	wall3.colliderName = "Cube";
-	wall3.colorIndex = 3;
-	wall3.materialName = "Environment";
-
-	Brush twoByTwoBrush;
-	twoByTwoBrush.name = "Two By Two";
-	twoByTwoBrush.blockPattern = BlockPattern::TwoByTwo;
-	twoByTwoBrush.blockPresets.push_back(wall0);
-	twoByTwoBrush.blockPresets.push_back(wall1);
-	twoByTwoBrush.blockPresets.push_back(wall2);
-	twoByTwoBrush.blockPresets.push_back(wall3);
-
-	brushes.push_back(defaultBrush);
-	brushes.push_back(checkerBrush);
-	brushes.push_back(twoByTwoBrush);
-
+	LoadBrushes(fileManager);
 	selectedBrushIndex = 0;
 	placementMode = PlacementMode::Detail;
 	brushAxisPlane = AxisPlane::XY;
@@ -257,6 +200,81 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 	ImGui::Image(texID, ImVec2(256, 256), ImVec2(1, 1), ImVec2(0, 0));
 
 	ImGui::End();
+}
+
+void BlockManager::LoadBrushes(FileManager * fileManager)
+{
+	for (auto& brushPath : fileManager->BrushPaths())
+	{
+		tinyxml2::XMLDocument xmlDoc;
+		xmlDoc.LoadFile(brushPath.second.c_str());
+
+		Brush brush;
+		auto brushNode = xmlDoc.FirstChildElement("Brush");
+		auto brushNameNode = brushNode->FirstChildElement("Name");
+		if (brushNameNode != nullptr)
+		{
+			brush.name = brushNameNode->GetText();
+		}
+
+		auto patternNode = brushNode->FirstChildElement("Pattern");
+		if (patternNode != nullptr)
+		{
+			std::string patternText = patternNode->GetText();
+			if (patternText == "Single")
+			{
+				brush.blockPattern = BlockPattern::Single;
+			}
+			else if (patternText == "Checker")
+			{
+				brush.blockPattern = BlockPattern::Checker;
+			}
+			else if (patternText == "TwoByTwo")
+			{
+				brush.blockPattern = BlockPattern::TwoByTwo;
+			}
+		}
+
+		auto blockPresetsNode = brushNode->FirstChildElement("BlockPresets");
+		for (auto* blockPresetNode = blockPresetsNode->FirstChildElement("BlockPreset"); blockPresetNode != nullptr; blockPresetNode = blockPresetNode->NextSiblingElement("BlockPreset"))
+		{
+			BlockPreset blockPreset;
+
+			auto nameNode = blockPresetNode->FirstChildElement("Name");
+			if (nameNode != nullptr)
+			{
+				blockPreset.name = nameNode->GetText();
+			}
+
+			auto meshNode = blockPresetNode->FirstChildElement("Mesh");
+			if (meshNode != nullptr)
+			{
+				blockPreset.meshName = meshNode->GetText();
+			}
+
+			auto uvNode = blockPresetNode->FirstChildElement("UV");
+			if (uvNode != nullptr)
+			{
+				blockPreset.colorIndex = uvNode->IntText(0);
+			}
+
+			auto colliderNode = blockPresetNode->FirstChildElement("Collider");
+			if (colliderNode != nullptr)
+			{
+				blockPreset.colliderName = colliderNode->GetText();
+			}
+
+			auto materialNode = blockPresetNode->FirstChildElement("Material");
+			if (materialNode != nullptr)
+			{
+				blockPreset.materialName = materialNode->GetText();
+			}
+
+			brush.blockPresets.push_back(blockPreset);
+		}
+
+		brushes.push_back(brush);
+	}
 }
 
 void BlockManager::SelectNextBlock()

@@ -18,6 +18,9 @@ FileManager::FileManager()
 		this->materialFolderPath = this->applicationFolderPath + "/Materials";
 		CreateDirectoryAtPath(materialFolderPath);
 
+		this->brushFolderPath = this->applicationFolderPath + "/Brushes";
+		CreateDirectoryAtPath(brushFolderPath);
+
 		for (auto &file : std::experimental::filesystem::directory_iterator(this->blockFolderPath))
 		{
 			this->blockPaths.push_back(file.path());
@@ -31,6 +34,11 @@ FileManager::FileManager()
 		for (auto &file : std::experimental::filesystem::directory_iterator(this->materialFolderPath))
 		{
 			this->materialPaths.push_back(file.path());
+		}
+
+		for (auto &file : std::experimental::filesystem::directory_iterator(this->brushFolderPath))
+		{
+			this->brushPaths.push_back(file.path());
 		}
 
 		this->exportFolderPath = this->applicationFolderPath + "/" + "Export";
@@ -102,6 +110,18 @@ std::unordered_map<std::string, std::string> FileManager::MaterialPaths() const
 	}
 
 	return materials;
+}
+
+std::unordered_map<std::string, std::string> FileManager::BrushPaths() const
+{
+	std::unordered_map<std::string, std::string> brushes;
+
+	for (auto& brushPath : brushPaths)
+	{
+		brushes[brushPath.filename().stem().string()] = brushPath.string();
+	}
+
+	return brushes;
 }
 
 std::vector<std::string> FileManager::SavedSceneFilenames() const

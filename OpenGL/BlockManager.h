@@ -59,6 +59,7 @@ public:
 	BlockPreset GetBlockPresetAtPosition(glm::ivec3 position);
 
 private:
+	void LoadBrushes(FileManager* fileManager);
 	void SelectNextBlock();
 	void SelectPreviousBlock();
 	void SelectNextColorIndex();

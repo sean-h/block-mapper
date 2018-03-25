@@ -13,6 +13,7 @@ public:
 	std::unordered_map<std::string, std::string> BlockPaths() const;
 	std::unordered_map<std::string, std::string> TexturePaths() const;
 	std::unordered_map<std::string, std::string> MaterialPaths() const;
+	std::unordered_map<std::string, std::string> BrushPaths() const;
 	std::string ExportFilePath() const { return exportFolderPath + "/"; }
 	std::string SaveFilePath() const { return saveFolderPath + "/"; }
 	std::vector<std::string> SavedSceneFilenames() const;
@@ -26,9 +27,11 @@ private:
 	std::string blockFolderPath;
 	std::string textureFolderPath;
 	std::string materialFolderPath;
+	std::string brushFolderPath;
 	std::vector<std::experimental::filesystem::path> blockPaths;
 	std::vector<std::experimental::filesystem::path> texturePaths;
 	std::vector<std::experimental::filesystem::path> materialPaths;
+	std::vector<std::experimental::filesystem::path> brushPaths;
 	std::string exportFolderPath;
 	std::string saveFolderPath;
 };
