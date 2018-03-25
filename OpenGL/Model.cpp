@@ -15,6 +15,8 @@ void Model::Draw(Shader shader, int meshColorIndex)
 void Model::loadModel(std::string path)
 {
 	Assimp::Importer importer;
+	// Don't load the materials in the FBX file
+	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_MATERIALS, false);
 	const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -83,40 +85,8 @@ Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene, int uvChannelIndex
 			indices.push_back(face.mIndices[j]);
 	}
 
-	// process material
-	if (mesh->mMaterialIndex >= 0)
-	{
-		if (mesh->mMaterialIndex >= 0)
-		{
-			aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
-			std::vector<Texture> diffuseMaps = loadMaterialTextures(material,
-				aiTextureType_DIFFUSE, "texture_diffuse");
-			textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-			std::vector<Texture> specularMaps = loadMaterialTextures(material,
-				aiTextureType_SPECULAR, "texture_specular");
-			textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-		}
-	}
-
 	return Mesh(vertices, indices, textures);
 }
-
-std::vector<Texture> Model::loadMaterialTextures(aiMaterial * mat, aiTextureType type, std::string typeName)
-{
-	std::vector<Texture> textures;
-	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
-	{
-		aiString str;
-		mat->GetTexture(type, i, &str);
-		Texture texture;
-		texture.id = TextureFromFile(str.C_Str(), directory, false);
-		texture.type = typeName;
-		texture.path = str.C_Str();
-		textures.push_back(texture);
-	}
-	return textures;
-}
-
 
 unsigned int Model::TextureFromFile(const char *path, const std::string &directory, bool gamma)
 {

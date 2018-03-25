@@ -26,8 +26,6 @@ private:
 	void loadModel(std::string path);
 	void processNode(aiNode *node, const aiScene *scene);
 	Mesh processMesh(aiMesh *mesh, const aiScene *scene, int uvChannelIndex);
-	std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type,
-		std::string typeName);
 	unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma);
 
 	std::unordered_map<int, std::unique_ptr<Mesh>> meshes;
