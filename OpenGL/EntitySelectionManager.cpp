@@ -94,6 +94,7 @@ void EntitySelectionManager::DrawGUI(ApplicationContext * context)
 					entity->MeshName(blockPreset.meshName);
 					entity->ColliderMeshName(blockPreset.colliderName);
 					entity->MeshColorIndex(blockPreset.colorIndex);
+					entity->MaterialName(blockPreset.materialName);
 					scene->RefreshEntityRenderData(e);
 					scene->RefreshEntityCollisionData(e);
 				}
