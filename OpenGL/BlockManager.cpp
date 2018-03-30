@@ -50,7 +50,8 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 {
 	if (selectedBlockPreviewDirty)
 	{
-		context->ApplicationRenderer()->RenderModelPreview(this->SelectedBlockName(), this->selectedColorIndex, this->SelectedColliderName(), this->SelectedMaterialName());
+		BlockPreset blockPreset = GetBlockPresetAtPosition(glm::ivec3(0, 0, 0));
+		context->ApplicationRenderer()->RenderModelPreview(blockPreset.meshName, blockPreset.colorIndex, blockPreset.colliderName, blockPreset.materialName);
 		selectedBlockPreviewDirty = false;
 		selectedBlockColorCount = context->ApplicationRenderer()->ModelUVIndexCount(SelectedBlockName());
 	}
