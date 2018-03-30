@@ -33,6 +33,7 @@ struct ExportObject
 	glm::ivec3 gridPosition;
 	aiMatrix4x4 transformMatrix;
 	ObjectType objectType;
+	std::string mergeGroup;
 };
 
 typedef std::unordered_map<glm::ivec3, ExportObject*, ivec3_hash, ivec3_hash> ExportMap;

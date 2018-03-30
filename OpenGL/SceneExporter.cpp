@@ -196,6 +196,11 @@ ExportObject SceneExporter::CreateMeshExportObject(Entity * entity)
 		entity->ObjectTransform()->Scale());
 	exportObject.transformMatrix = transformation;
 
+	if (entity->HasProperty(EntityProperty::MergeGroup))
+	{
+		exportObject.mergeGroup = entity->PropertyValue(EntityProperty::MergeGroup);
+	}
+
 	return exportObject;
 }
 
@@ -214,6 +219,12 @@ ExportObject SceneExporter::CreateCollisionExportObject(Entity * entity)
 		entity->ObjectTransform()->RotationQuaternion(),
 		entity->ObjectTransform()->Scale());
 	colliderObject.transformMatrix = transformation;
+
+	if (entity->HasProperty(EntityProperty::MergeGroup))
+	{
+		colliderObject.mergeGroup = entity->PropertyValue(EntityProperty::MergeGroup);
+	}
+
 	return colliderObject;
 }
 
@@ -394,6 +405,39 @@ std::vector<ExportObject> SceneExporter::MergeExportObjects(ExportMap exportMap,
 {
 	ExportMap remainingMap = exportMap;
 	std::vector<ExportObject> mergedMeshObjects;
+
+	// Merge user defined meshes first
+	std::unordered_map<std::string, std::vector<ExportObject>> mergeGroups;
+	for (auto& exportObject : exportMap)
+	{
+		if (exportObject.second->mergeGroup != "")
+		{
+			mergeGroups[exportObject.second->mergeGroup].push_back(*exportObject.second);
+			remainingMap.erase(exportObject.first);
+		}
+	}
+
+	for (auto& mergeGroup : mergeGroups)
+	{
+		std::vector<ExportMeshData> transformedMeshData;
+		for (auto& obj : mergeGroup.second)
+		{
+			ExportMeshData meshData(*obj.exportMeshData.get());
+			meshData.TransformVertexPositions(obj.transformMatrix);
+			transformedMeshData.push_back(meshData);
+		}
+
+		ExportMeshData mergedMeshData(transformedMeshData);
+		mergedMeshData.name = meshnamePrefix + std::to_string(mergedMeshObjects.size());
+		exportMeshes[mergedMeshData.name] = std::make_shared<ExportMeshData>(mergedMeshData);
+		exportMeshUseCount[mergedMeshData.name] = 0;
+
+		ExportObject mergedMeshObject;
+		mergedMeshObject.name = meshnamePrefix + "Object_" + mergeGroup.first;
+		mergedMeshObject.exportMeshData = exportMeshes[mergedMeshData.name];
+		mergedMeshObjects.push_back(mergedMeshObject);
+	}
+
 	while (remainingMap.size() > 0)
 	{
 		ExportObject* obj = remainingMap.begin()->second;
