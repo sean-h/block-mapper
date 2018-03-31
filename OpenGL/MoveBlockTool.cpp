@@ -10,6 +10,11 @@ void MoveBlockTool::Update(ApplicationContext * context)
 {
 	Input* input = context->ApplicationInput();
 
+	if (input->MouseOverGUIElement())
+	{
+		return;
+	}
+
 	if (input->GetKeyDown(Input::Keys::KEY_W))
 	{
 		this->MoveBlocks(context, context->ApplicationScene()->ActiveCamera()->WorldAxisForward());

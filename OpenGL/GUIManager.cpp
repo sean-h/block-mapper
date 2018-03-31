@@ -37,7 +37,7 @@ void GUIManager::Draw(ApplicationContext* context)
 		windowLocations["BlockManager"].width, windowLocations["BlockManager"].height);
 	windowLocations["MainMenuBar"] = GUILocation(0.0f, 0.0f, windowWidth, 20.0f);
 	windowLocations["Scene"] = GUILocation(windowWidth - 160.0f, 40.0f, 150.0f, 200.0f);
-	windowLocations["SelectionManager"] = GUILocation(windowWidth - 210.0f, windowLocations["SelectionManager"].yPosition,
+	windowLocations["SelectionManager"] = GUILocation(windowWidth - 160.0f, windowLocations["SelectionManager"].yPosition,
 		windowLocations["SelectionManager"].width, windowLocations["SelectionManager"].height);
 
 	mainMenuOpen = false;

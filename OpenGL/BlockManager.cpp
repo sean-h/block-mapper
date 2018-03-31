@@ -28,6 +28,11 @@ void BlockManager::Update(ApplicationContext * context)
 {
 	Input* input = context->ApplicationInput();
 
+	if (input->MouseOverGUIElement())
+	{
+		return;
+	}
+
 	if (input->GetKeyDown(Input::Keys::KEY_PERIOD))
 	{
 		context->ApplicationBlockManager()->SelectNextBlock();

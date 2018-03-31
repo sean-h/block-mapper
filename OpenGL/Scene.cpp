@@ -24,64 +24,68 @@ Scene::Scene()
 void Scene::Update(ApplicationContext* context)
 {
 	Input* input = context->ApplicationInput();
-	if (input->GetKeyDown(Input::Keys::KEY_EQUAL))
-	{
-		if (gridPlane && gridPlaneBottom && gridPlane->EntityExists() && gridPlaneBottom->EntityExists())
-		{
-			gridPlane->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, 1.0f, 0.0f));
-			gridPlaneBottom->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, 1.0f, 0.0f));
-			this->RefreshEntityCollisionData(gridPlane);
-			this->RefreshEntityCollisionData(gridPlaneBottom);
-			this->RefreshEntityRenderData(gridPlane);
-			this->RefreshEntityRenderData(gridPlaneBottom);
-		}
-	}
-	else if (input->GetKeyDown(Input::Keys::KEY_MINUS))
-	{
-		if (gridPlane && gridPlaneBottom && gridPlane->EntityExists() && gridPlaneBottom->EntityExists())
-		{
-			gridPlane->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, -1.0f, 0.0f));
-			gridPlaneBottom->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, -1.0f, 0.0f));
-			this->RefreshEntityCollisionData(gridPlane);
-			this->RefreshEntityCollisionData(gridPlaneBottom);
-			this->RefreshEntityRenderData(gridPlane);
-			this->RefreshEntityRenderData(gridPlaneBottom);
-		}
-	}
 
-	if (input->GetKeyDown(Input::Keys::KEY_H))
+	if (!input->MouseOverGUIElement())
 	{
-		if (input->GetKey(Input::Keys::KEY_LEFT_ALT))
+		if (input->GetKeyDown(Input::Keys::KEY_EQUAL))
 		{
-			for (auto& entity : entities)
+			if (gridPlane && gridPlaneBottom && gridPlane->EntityExists() && gridPlaneBottom->EntityExists())
 			{
-				if (entity->HasProperty(EntityProperty::Hidden))
-				{
-					entity->RemoveProperty(EntityProperty::Hidden);
-					newRenderObjectsQueue.push(entity->Handle());
-					RefreshEntityCollisionData(entity->Handle());
-				}
+				gridPlane->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, 1.0f, 0.0f));
+				gridPlaneBottom->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, 1.0f, 0.0f));
+				this->RefreshEntityCollisionData(gridPlane);
+				this->RefreshEntityCollisionData(gridPlaneBottom);
+				this->RefreshEntityRenderData(gridPlane);
+				this->RefreshEntityRenderData(gridPlaneBottom);
 			}
 		}
-		else
+		else if (input->GetKeyDown(Input::Keys::KEY_MINUS))
 		{
-			for (auto& entity : context->ApplicationEntitySelectionManager()->SelectedEntities())
+			if (gridPlane && gridPlaneBottom && gridPlane->EntityExists() && gridPlaneBottom->EntityExists())
 			{
-				if (entity->EntityExists())
+				gridPlane->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, -1.0f, 0.0f));
+				gridPlaneBottom->TargetEntity()->ObjectTransform()->Translate(glm::vec3(0.0f, -1.0f, 0.0f));
+				this->RefreshEntityCollisionData(gridPlane);
+				this->RefreshEntityCollisionData(gridPlaneBottom);
+				this->RefreshEntityRenderData(gridPlane);
+				this->RefreshEntityRenderData(gridPlaneBottom);
+			}
+		}
+
+		if (input->GetKeyDown(Input::Keys::KEY_H))
+		{
+			if (input->GetKey(Input::Keys::KEY_LEFT_ALT))
+			{
+				for (auto& entity : entities)
 				{
-					entity->TargetEntity()->AddProperty(EntityProperty::Hidden, "");
-					destroyedRenderObjectsQueue.push(entity->TargetEntity()->RenderID());
-					destroyedPhysicsObjectsQueue.push(entity->TargetEntity()->PhysicsID());
+					if (entity->HasProperty(EntityProperty::Hidden))
+					{
+						entity->RemoveProperty(EntityProperty::Hidden);
+						newRenderObjectsQueue.push(entity->Handle());
+						RefreshEntityCollisionData(entity->Handle());
+					}
 				}
 			}
+			else
+			{
+				for (auto& entity : context->ApplicationEntitySelectionManager()->SelectedEntities())
+				{
+					if (entity->EntityExists())
+					{
+						entity->TargetEntity()->AddProperty(EntityProperty::Hidden, "");
+						destroyedRenderObjectsQueue.push(entity->TargetEntity()->RenderID());
+						destroyedPhysicsObjectsQueue.push(entity->TargetEntity()->PhysicsID());
+					}
+				}
 
-			context->ApplicationEntitySelectionManager()->DeselectAll(this);
+				context->ApplicationEntitySelectionManager()->DeselectAll(this);
+			}
 		}
-	}
 
-	if (input->GetKeyDown(Input::Keys::KEY_F) && input->GetKey(Input::Keys::KEY_LEFT_SHIFT))
-	{
-		ActiveCamera()->SetFPSMode(context);
+		if (input->GetKeyDown(Input::Keys::KEY_F) && input->GetKey(Input::Keys::KEY_LEFT_SHIFT))
+		{
+			ActiveCamera()->SetFPSMode(context);
+		}
 	}
 
 	for (auto &c : components)
