@@ -2,6 +2,7 @@
 #include "Entity.h"
 #include <vector>
 #include <memory>
+#include <set>
 
 class Scene;
 class ApplicationContext;
@@ -26,4 +27,8 @@ private:
 	std::string meshText;
 	std::string colliderText;
 	std::string uvText;
+	const int propertyBufferSize = 128;
+	std::unordered_map<EntityProperty, std::string> entityProperties;
+	std::unordered_map<EntityProperty, std::unique_ptr<char[]>> entityPropertyBuffers;
+	std::unordered_map<EntityProperty, bool> entityPropertyValuesEqual;
 };

@@ -100,6 +100,37 @@ void EntitySelectionManager::DrawGUI(ApplicationContext * context)
 				}
 			}
 		}
+
+		for (int i = 0; i < (int)EntityProperty::PropertyCount; i++)
+		{
+			if (entityProperties.find((EntityProperty)i) != entityProperties.end())
+			{
+				ImGui::Text(EntityPropertyNames[i]);
+				ImGui::SameLine();
+				std::string propertyID = "##" + std::string(EntityPropertyNames[i]);
+				if (ImGui::InputText(propertyID.c_str(), entityPropertyBuffers[(EntityProperty)i].get(), propertyBufferSize, ImGuiInputTextFlags_EnterReturnsTrue))
+				{
+					entityProperties[(EntityProperty)i] = entityPropertyBuffers[(EntityProperty)i].get();
+
+					for (auto& entity : selectedEntities)
+					{
+						entity->TargetEntity()->RemoveProperty((EntityProperty)i);
+						entity->TargetEntity()->AddProperty((EntityProperty)i, entityProperties[(EntityProperty)i]);
+					}
+				}
+			}
+			else
+			{
+				if (ImGui::SmallButton(EntityPropertyNames[i]))
+				{
+					for (auto& entity : selectedEntities)
+					{
+						entity->TargetEntity()->AddProperty((EntityProperty)i, "");
+						SelectedEntityListChanged();
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -126,6 +157,9 @@ void EntitySelectionManager::SelectedEntityListChanged()
 		std::set<std::string> selectedColliderNames;
 		std::set<int> selectedUVs;
 
+		entityProperties.clear();
+		entityPropertyValuesEqual.clear();
+
 		for (auto& entityHandle : selectedEntities)
 		{
 			if (entityHandle->EntityExists())
@@ -134,6 +168,27 @@ void EntitySelectionManager::SelectedEntityListChanged()
 				selectedMeshNames.insert(entity->MeshName());
 				selectedColliderNames.insert(entity->ColliderMeshName());
 				selectedUVs.insert(entity->MeshColorIndex());
+				
+				for (auto& prop : entity->Properties())
+				{
+					if (entityProperties.find(prop.first) == entityProperties.end())
+					{
+						entityProperties[prop.first] = prop.second;
+						entityPropertyValuesEqual[prop.first] = true;
+						entityPropertyBuffers[prop.first] = std::unique_ptr<char[]>(new char[propertyBufferSize]);
+						strcpy_s(entityPropertyBuffers[prop.first].get(), propertyBufferSize, prop.second.c_str());
+					}
+					else
+					{
+						if (entityProperties[prop.first] != prop.second)
+						{
+							entityProperties[prop.first] = "-";
+							entityPropertyBuffers[prop.first] = std::unique_ptr<char[]>(new char[propertyBufferSize]);
+							strcpy_s(entityPropertyBuffers[prop.first].get(), propertyBufferSize, entityProperties[prop.first].c_str());
+							entityPropertyValuesEqual[prop.first] = false;
+						}
+					}
+				}
 			}
 		}
 
@@ -166,5 +221,6 @@ void EntitySelectionManager::SelectedEntityListChanged()
 		{
 			uvText += "---";
 		}
+
 	}
 }
