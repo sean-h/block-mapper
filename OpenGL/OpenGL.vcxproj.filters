@@ -132,6 +132,9 @@
     <ClCompile Include="Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BlenderPostProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -263,6 +266,9 @@
     <ClInclude Include="EntityProperties.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BlenderPostProcessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="VertexShader.glsl">
@@ -281,6 +287,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="PlaneBottom.fbx">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="PostProcess.py">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

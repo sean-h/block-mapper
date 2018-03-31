@@ -1,4 +1,5 @@
 #include "SceneExporter.h"
+#include "BlenderPostProcessor.h"
 #include "glm\gtc\matrix_transform.hpp"
 #include <vector>
 #include <set>
@@ -95,6 +96,8 @@ void SceneExporter::Export(ApplicationContext * context)
 
 	Assimp::Exporter exporter;
 	exporter.Export(&exportScene, "collada", exportFilePath);
+
+	BlenderPostProcessor postProcessor(exportFilePath);
 }
 
 ExportMeshData SceneExporter::CreateExportMeshData(Mesh * mesh)
