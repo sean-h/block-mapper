@@ -11,18 +11,18 @@ std::unordered_map<std::string, std::string> Camera::Serialize() const
 	return std::unordered_map<std::string, std::string>();
 }
 
-glm::mat4 Camera::ViewMatrix()
+glm::mat4 Camera::ViewMatrix() const
 {
 	Transform* transform = this->Owner()->ObjectTransform();
 	return glm::lookAt(transform->Position(), transform->Position() + transform->Forward(), transform->Up());
 }
 
-glm::mat4 Camera::ProjectionMatrix(float windowWidth, float windowHeight)
+glm::mat4 Camera::ProjectionMatrix(float windowWidth, float windowHeight) const
 {
 	return glm::perspective(verticalFOV, windowWidth / windowHeight, nearClipDistance, farClipDistance);
 }
 
-glm::vec3 Camera::ScreenToWorldDirection(float screenX, float screenY, float windowWidth, float windowHeight)
+glm::vec3 Camera::ScreenToWorldDirection(float screenX, float screenY, float windowWidth, float windowHeight) const
 {
 	glm::mat4 view = ViewMatrix();
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), windowWidth / windowHeight, 0.1f, 100.0f);
@@ -37,7 +37,7 @@ glm::vec3 Camera::ScreenToWorldDirection(float screenX, float screenY, float win
 	return mouseVector;
 }
 
-glm::vec3 Camera::WorldAxisForward()
+glm::vec3 Camera::WorldAxisForward() const
 {
 	glm::vec3 cameraForward = this->Owner()->ObjectTransform()->Forward();
 
@@ -64,7 +64,7 @@ glm::vec3 Camera::WorldAxisForward()
 	}
 }
 
-glm::vec3 Camera::WorldAxisRight()
+glm::vec3 Camera::WorldAxisRight() const
 {
 	return glm::cross(this->WorldAxisForward(), glm::vec3(0.0f, 1.0f, 0.0f));
 }
@@ -83,4 +83,20 @@ void Camera::SetOrbitMode(ApplicationContext * context)
 	scene->DestroyComponent(Owner(), "FPSController");
 	scene->AddComponentToEntity(Owner(), std::unique_ptr<Component>(new OrbitController()));
 	context->ApplicationWindow()->UnlockMouse();
+}
+
+Frustum Camera::ViewFrustum(float screenWidth, float screenHeight) const
+{
+	Frustum frustum;
+	frustum.cameraPosition = Owner()->ObjectTransform()->Position();
+	frustum.nearPlaneDistance = NearClipDistance();
+	frustum.nearPlanePosition = Owner()->ObjectTransform()->Position() + (NearClipDistance() * Owner()->ObjectTransform()->Forward());
+	frustum.nearPlaneNormal = -Owner()->ObjectTransform()->Forward();
+	frustum.farPlaneDistance = FarClipDistance();
+	frustum.topLeft = ScreenToWorldDirection(0.0f, 0.0f, screenWidth, screenHeight);
+	frustum.topRight = ScreenToWorldDirection(screenWidth, 0.0f, screenWidth, screenHeight);
+	frustum.bottomLeft = ScreenToWorldDirection(0.0f, screenHeight, screenWidth, screenHeight);
+	frustum.bottomRight = ScreenToWorldDirection(screenWidth, screenHeight, screenWidth, screenHeight);
+
+	return Frustum();
 }
