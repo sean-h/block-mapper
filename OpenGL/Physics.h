@@ -33,6 +33,12 @@ struct Frustum
 	glm::vec3 bottomRight;
 };
 
+struct AABB
+{
+	glm::vec3 min;
+	glm::vec3 max;
+};
+
 struct Plane
 {
 	Plane() { }
@@ -71,3 +77,6 @@ private:
 	unsigned int physicsObjectCounter;
 	std::map<unsigned int, PhysicsObject> physicsObjects;
 };
+
+bool FrustumAABBIntersect(Frustum frustum, AABB boundingBox);
+bool PlaneAABIntersectOrInside(Plane plane, AABB boundingBox);

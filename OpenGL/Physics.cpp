@@ -251,3 +251,46 @@ bool Physics::PlaneAABIntersectOrInside(glm::vec3 AABBMin, glm::vec3 AABBMax, Pl
 
 	return true;
 }
+
+bool FrustumAABBIntersect(Frustum frustum, AABB boundingBox)
+{
+	glm::vec3 topLeftPos = frustum.cameraPosition + (frustum.topLeft * frustum.nearPlaneDistance);
+	glm::vec3 topRightPos = frustum.cameraPosition + (frustum.topRight * frustum.nearPlaneDistance);
+	glm::vec3 bottomLeftPos = frustum.cameraPosition + (frustum.bottomLeft * frustum.nearPlaneDistance);
+	glm::vec3 bottomRightPos = frustum.cameraPosition + (frustum.bottomRight * frustum.nearPlaneDistance);
+
+	Plane frontPlane(frustum.nearPlanePosition, frustum.nearPlaneNormal);
+	Plane backPlane(frustum.nearPlanePosition + (-frustum.nearPlaneNormal * frustum.farPlaneDistance), -frustum.nearPlaneNormal);
+	Plane topPlane(topLeftPos, glm::normalize(glm::cross(topRightPos - topLeftPos, frustum.topLeft)));
+	Plane bottomPlane(bottomLeftPos, glm::normalize(glm::cross(frustum.bottomLeft, bottomRightPos - bottomLeftPos)));
+	Plane leftPlane(topLeftPos, glm::normalize(glm::cross(frustum.topLeft, bottomLeftPos - topLeftPos)));
+	Plane rightPlane(topRightPos, glm::normalize(glm::cross(bottomRightPos - topRightPos, frustum.topRight)));
+
+	Plane frustumPlanes[6] = { frontPlane, backPlane, topPlane, bottomPlane, leftPlane, rightPlane };
+
+	for (int i = 0; i < 6; i++)
+	{
+		if (!PlaneAABIntersectOrInside(frustumPlanes[i], boundingBox))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool PlaneAABIntersectOrInside(Plane plane, AABB boundingBox)
+{
+	glm::vec3 c = (boundingBox.max + boundingBox.min) / 2.0f;
+	glm::vec3 h = (boundingBox.max - boundingBox.min) / 2.0f;
+	float e = h.x * glm::abs(plane.normal.x) + h.y * glm::abs(plane.normal.y) + h.z * glm::abs(plane.normal.z);
+	float d = -glm::dot(plane.position, plane.normal);
+	float s = glm::dot(c, plane.normal) + d;
+
+	if (s - e > 0)
+	{
+		return false;
+	}
+
+	return true;
+}
