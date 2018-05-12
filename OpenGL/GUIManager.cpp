@@ -17,6 +17,8 @@ GUIManager::GUIManager(Window* window)
 
 	mainMenuOpen = false;
 	confirmSceneOverwrite = false;
+	mergeGroupWindow = std::unique_ptr<MergeGroupWindow>(new MergeGroupWindow());
+	mergeGroupWindow->Close();
 }
 
 GUIManager::~GUIManager()
@@ -70,7 +72,28 @@ void GUIManager::Draw(ApplicationContext* context)
 			}
 			ImGui::EndMenu();
 		}
+
+		if (ImGui::BeginMenu("Window"))
+		{
+			mainMenuOpen = true;
+			if (ImGui::MenuItem("Merge Groups"))
+			{
+				mergeGroupWindow->ToggleOpen();
+			}
+
+			ImGui::EndMenu();
+		}
+
 		ImGui::EndMainMenuBar();
+	}
+
+	if (*mergeGroupWindow->OpenPtr())
+	{
+		ImGui::Begin(mergeGroupWindow->Title().c_str(), mergeGroupWindow->OpenPtr(), ImGuiWindowFlags_NoMove);
+		ImGui::SetWindowPos(mergeGroupWindow->Position());
+		ImGui::SetWindowSize(mergeGroupWindow->Size());
+		mergeGroupWindow->Draw(context);
+		ImGui::End();
 	}
 
 	bool toolsWindowOpen = true;
@@ -176,6 +199,12 @@ bool GUIManager::MouseOverGUIElement(float mouseX, float mouseY)
 		{
 			return true;
 		}
+	}
+
+	if (mouseX >= mergeGroupWindow->Position().x && mouseX <= mergeGroupWindow->Position().x + mergeGroupWindow->Size().x &&
+		mouseY >= mergeGroupWindow->Position().y && mouseY <= mergeGroupWindow->Position().y + mergeGroupWindow->Size().y)
+	{
+		return true;
 	}
 
 	return mainMenuOpen;

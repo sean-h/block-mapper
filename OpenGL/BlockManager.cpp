@@ -15,6 +15,7 @@ BlockManager::BlockManager(FileManager * fileManager)
 	selectedBlockColorCount = 0;
 	selectedColliderIndex = 0;
 	selectedBlockPreviewDirty = true;
+	selectedPreset = 0;
 
 	strcpy_s(this->newPresetName, 32, "New Preset");
 
@@ -95,7 +96,7 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 		}
 		ImGui::SameLine();
 		std::string selectedPresetText = "";
-		if (selectedPreset >= 0)
+		if (selectedPreset >= 0 && blockPresets.size() > 0)
 		{
 			selectedPresetText = "Preset: " + this->blockPresets[selectedPreset].name;
 			ImGui::Text(selectedPresetText.c_str());

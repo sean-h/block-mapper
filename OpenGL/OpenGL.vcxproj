@@ -146,6 +146,8 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
+    <ClCompile Include="MergeGroup.cpp" />
+    <ClCompile Include="MergeGroupWindow.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="MoveBlockTool.cpp" />
@@ -155,6 +157,7 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneExporter.cpp" />
+    <ClCompile Include="SceneMetaDataExporter.cpp" />
     <ClCompile Include="SelectBlockTool.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Time.cpp" />
@@ -181,12 +184,15 @@
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="GUIManager.h" />
+    <ClInclude Include="GUIWindow.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
     <ClInclude Include="imgui_impl_glfw_gl3.h" />
     <ClInclude Include="imgui_internal.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="MergeGroup.h" />
+    <ClInclude Include="MergeGroupWindow.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="MoveBlockTool.h" />
@@ -196,6 +202,7 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneExporter.h" />
+    <ClInclude Include="SceneMetaDataExporter.h" />
     <ClInclude Include="SelectBlockTool.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />

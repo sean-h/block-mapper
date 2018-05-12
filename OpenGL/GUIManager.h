@@ -1,5 +1,6 @@
 #pragma once
 #include "Window.h"
+#include "MergeGroupWindow.h"
 #include <unordered_map>
 #include <string>
 
@@ -40,6 +41,7 @@ private:
 	bool mainMenuOpen;
 	bool modalWindowOpen;
 	std::shared_ptr<FileSelector> fileSelector;
+	std::unique_ptr<MergeGroupWindow> mergeGroupWindow;
 
 	bool confirmSceneOverwrite;
 	std::string lastSceneSaveName;

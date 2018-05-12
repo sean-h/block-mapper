@@ -4,6 +4,7 @@
 #include "Component.h"
 #include "Camera.h"
 #include "Physics.h"
+#include "MergeGroup.h"
 #include "tinyxml2.h"
 #include <memory>
 #include <vector>
@@ -40,6 +41,9 @@ public:
 
 	RaycastHit Raycast(Physics* physics, glm::vec3 origin, glm::vec3 direction, float distance);
 
+	std::vector<std::unique_ptr<MergeGroup>>& MergeGroups() { return mergeGroups; }
+	int NextMergeGroupID() { return mergeGroupCounter++; }
+
 private:
 	void ClearScene(ApplicationContext* context);
 	std::shared_ptr<EntityHandle> CreateEntity(int entityID);
@@ -62,4 +66,7 @@ private:
 	std::queue<std::shared_ptr<EntityHandle>> newPhysicsObjectsQueue;
 	std::queue<std::shared_ptr<EntityHandle>> updatedPhysicsObjectsQueue;
 	std::queue<unsigned int> destroyedPhysicsObjectsQueue;
+
+	std::vector<std::unique_ptr<MergeGroup>> mergeGroups;
+	int mergeGroupCounter;
 };

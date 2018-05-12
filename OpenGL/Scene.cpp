@@ -19,6 +19,7 @@ Scene::Scene()
 	strcpy_s(this->sceneName, 64, "Scene");
 
 	this->CreateGridPlanes();
+	mergeGroupCounter = 0;
 }
 
 void Scene::Update(ApplicationContext* context)
@@ -441,6 +442,11 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 			mesh = meshNode->GetText();
 		}
 
+		if (mesh == "WallBrickGrey")
+		{
+			mesh = "Wall_Brick_A";
+		}
+
 		auto colorIndexNode = entityNode->FirstChildElement("MeshColorIndex");
 		std::string colorIndex = "0";
 		if (colorIndexNode && colorIndexNode->GetText())
@@ -453,6 +459,18 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 		if (materialNode && materialNode->GetText())
 		{
 			material = materialNode->GetText();
+		}
+
+		if (material == "Solid")
+		{
+			if (mesh == "Wall_Brick_A")
+			{
+				material = "Environment";
+			}
+			else
+			{
+				material = "Palette";
+			}
 		}
 
 		auto colliderNode = entityNode->FirstChildElement("Collider");
