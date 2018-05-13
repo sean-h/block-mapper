@@ -398,6 +398,33 @@ void Scene::SaveScene(ApplicationContext * context) const
 	}
 	sceneNode->InsertEndChild(componentsNode);
 
+	auto mergeGroupsNode = xmlDoc.NewElement("MergeGroups");
+	for (auto& mergeGroup : mergeGroups)
+	{
+		auto mergeGroupNode = xmlDoc.NewElement("MergeGroup");
+
+		auto nameNode = xmlDoc.NewElement("Name");
+		nameNode->SetText(mergeGroup->Name().c_str());
+		mergeGroupNode->InsertEndChild(nameNode);
+
+		auto pushObjectTypeNode = xmlDoc.NewElement("PushObjectType");
+		pushObjectTypeNode->SetText(mergeGroup->PushObjectType());
+		mergeGroupNode->InsertEndChild(pushObjectTypeNode);
+
+		auto directionNode = xmlDoc.NewElement("Direction");
+		directionNode->SetAttribute("X", mergeGroup->DirectionX());
+		directionNode->SetAttribute("Y", mergeGroup->DirectionY());
+		directionNode->SetAttribute("Z", mergeGroup->DirectionZ());
+		mergeGroupNode->InsertEndChild(directionNode);
+
+		auto distanceNode = xmlDoc.NewElement("Distance");
+		distanceNode->SetText(mergeGroup->Distance());
+		mergeGroupNode->InsertEndChild(distanceNode);
+
+		mergeGroupsNode->InsertEndChild(mergeGroupNode);
+	}
+	sceneNode->InsertEndChild(mergeGroupsNode);
+
 	std::string filePath = context->ApplicationFileManager()->SaveFilePath() + this->sceneName + ".xml";
 	xmlDoc.SaveFile(filePath.c_str());
 }
@@ -567,6 +594,27 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 		}
 
 		component->Deserialize(componentAttributes);
+	}
+
+	auto mergeGroupsNode = sceneNode->FirstChildElement("MergeGroups");
+	if (mergeGroupsNode != nullptr)
+	{
+		for (auto mergeGroupNode = mergeGroupsNode->FirstChild(); mergeGroupNode != nullptr; mergeGroupNode = mergeGroupNode->NextSibling())
+		{
+			auto nameNode = mergeGroupNode->FirstChildElement("Name");
+			auto pushObjectTypeNode = mergeGroupNode->FirstChildElement("PushObjectType");
+			auto directionNode = mergeGroupNode->FirstChildElement("Direction");
+			auto distanceNode = mergeGroupNode->FirstChildElement("Distance");
+
+			std::unique_ptr<MergeGroup> mergeGroup(new MergeGroup(NextMergeGroupID(), nameNode->GetText()));
+			strcpy_s(mergeGroup->PushObjectType(), MergeGroup::TextLength, pushObjectTypeNode->GetText());
+			strcpy_s(mergeGroup->DirectionX(), MergeGroup::TextLength, directionNode->Attribute("X"));
+			strcpy_s(mergeGroup->DirectionY(), MergeGroup::TextLength, directionNode->Attribute("Y"));
+			strcpy_s(mergeGroup->DirectionZ(), MergeGroup::TextLength, directionNode->Attribute("Z"));
+			strcpy_s(mergeGroup->Distance(), MergeGroup::TextLength, distanceNode->GetText());
+
+			mergeGroups.push_back(std::move(mergeGroup));
+		}
 	}
 
 	this->CreateGridPlanes();

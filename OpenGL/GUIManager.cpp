@@ -201,7 +201,8 @@ bool GUIManager::MouseOverGUIElement(float mouseX, float mouseY)
 		}
 	}
 
-	if (mouseX >= mergeGroupWindow->Position().x && mouseX <= mergeGroupWindow->Position().x + mergeGroupWindow->Size().x &&
+	if (*mergeGroupWindow->OpenPtr() &&
+		mouseX >= mergeGroupWindow->Position().x && mouseX <= mergeGroupWindow->Position().x + mergeGroupWindow->Size().x &&
 		mouseY >= mergeGroupWindow->Position().y && mouseY <= mergeGroupWindow->Position().y + mergeGroupWindow->Size().y)
 	{
 		return true;
