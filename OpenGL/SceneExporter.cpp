@@ -1,5 +1,6 @@
 #include "SceneExporter.h"
 #include "BlenderPostProcessor.h"
+#include "SceneMetaDataExporter.h"
 #include "glm\gtc\matrix_transform.hpp"
 #include <vector>
 #include <set>
@@ -98,6 +99,10 @@ void SceneExporter::Export(ApplicationContext * context)
 	exporter.Export(&exportScene, "collada", exportFilePath);
 
 	BlenderPostProcessor postProcessor(exportFilePath);
+
+	std::string metaDataExportFilePath = context->ApplicationFileManager()->ExportFilePath() + context->ApplicationScene()->SceneName() + ".xml";
+	SceneMetaDataExporter metaDataExporter(metaDataExportFilePath);
+	metaDataExporter.Export(context->ApplicationScene());
 }
 
 ExportMeshData SceneExporter::CreateExportMeshData(Mesh * mesh)
@@ -212,7 +217,7 @@ ExportObject SceneExporter::CreateCollisionExportObject(Entity * entity)
 	ExportObject colliderObject;
 	std::string colliderMeshName = entity->ColliderMeshName() + "0";
 	colliderObject.exportMeshData = this->exportMeshes[colliderMeshName];
-	colliderObject.name = "Collider_" + entity->MeshName() + "_" + std::to_string(entity->ID());
+	colliderObject.name = entity->MeshName() + "_" + std::to_string(entity->ID()) + "_Collider";
 	colliderObject.gridPosition = entity->ObjectTransform()->GridPosition();
 
 	colliderObject.objectType = ExportObject::ObjectType::Collider;
@@ -278,8 +283,8 @@ void SceneExporter::MergeMeshes()
 		}
 	}
 
-	auto mergedMeshObjects = MergeExportObjects(meshObjectsMap, "MergedMesh");
-	auto mergedCollisionObjects = MergeExportObjects(collisionObjectsMap, "ColliderMergedMesh");
+	auto mergedMeshObjects = MergeExportObjects(meshObjectsMap, "_Mesh");
+	auto mergedCollisionObjects = MergeExportObjects(collisionObjectsMap, "_Collider");
 
 	this->exportObjects.clear();
 	this->exportObjects.insert(this->exportObjects.end(), mergedMeshObjects.begin(), mergedMeshObjects.end());
@@ -404,7 +409,7 @@ ExportMap SceneExporter::PlaneAdjacentExportObjects(ExportMap exportMap, glm::iv
 	return adjacentExportObjects;
 }
 
-std::vector<ExportObject> SceneExporter::MergeExportObjects(ExportMap exportMap, std::string meshnamePrefix)
+std::vector<ExportObject> SceneExporter::MergeExportObjects(ExportMap exportMap, std::string meshnameSuffix)
 {
 	ExportMap remainingMap = exportMap;
 	std::vector<ExportObject> mergedMeshObjects;
@@ -431,12 +436,12 @@ std::vector<ExportObject> SceneExporter::MergeExportObjects(ExportMap exportMap,
 		}
 
 		ExportMeshData mergedMeshData(transformedMeshData);
-		mergedMeshData.name = meshnamePrefix + std::to_string(mergedMeshObjects.size());
+		mergedMeshData.name = std::to_string(mergedMeshObjects.size()) + meshnameSuffix;
 		exportMeshes[mergedMeshData.name] = std::make_shared<ExportMeshData>(mergedMeshData);
 		exportMeshUseCount[mergedMeshData.name] = 0;
 
 		ExportObject mergedMeshObject;
-		mergedMeshObject.name = meshnamePrefix + "Object_" + mergeGroup.first;
+		mergedMeshObject.name = mergeGroup.first + meshnameSuffix;
 		mergedMeshObject.exportMeshData = exportMeshes[mergedMeshData.name];
 		mergedMeshObjects.push_back(mergedMeshObject);
 	}
@@ -481,12 +486,12 @@ std::vector<ExportObject> SceneExporter::MergeExportObjects(ExportMap exportMap,
 			}
 
 			ExportMeshData mergedMeshData(transformedMeshData);
-			mergedMeshData.name = meshnamePrefix + std::to_string(mergedMeshObjects.size());
+			mergedMeshData.name = std::to_string(mergedMeshObjects.size()) + meshnameSuffix;
 			exportMeshes[mergedMeshData.name] = std::make_shared<ExportMeshData>(mergedMeshData);
 			exportMeshUseCount[mergedMeshData.name] = 0;
 
 			ExportObject mergedMeshObject;
-			mergedMeshObject.name = meshnamePrefix + "Object" + std::to_string(mergedMeshObjects.size());
+			mergedMeshObject.name = "Object" + std::to_string(mergedMeshObjects.size()) + meshnameSuffix;
 			mergedMeshObject.exportMeshData = exportMeshes[mergedMeshData.name];
 			mergedMeshObjects.push_back(mergedMeshObject);
 		}
