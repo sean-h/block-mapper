@@ -20,5 +20,8 @@ for obj in bpy.context.scene.objects:
     bpy.ops.mesh.remove_doubles()
     bpy.ops.object.mode_set(mode='OBJECT')
 
+# Set unit system
+bpy.context.scene.unit_settings.system='METRIC'
+
 # Export as fbx
-bpy.ops.export_scene.fbx(filepath=map_export_path, check_existing=False)
+bpy.ops.export_scene.fbx(filepath=map_export_path, check_existing=False, apply_unit_scale=True, global_scale=1, apply_scale_options='FBX_SCALE_UNITS')
