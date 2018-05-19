@@ -26,6 +26,7 @@ public:
 	GUIManager(Window* window);
 	~GUIManager();
 	void StartFrame();
+	void OnSceneLoaded(ApplicationContext* context);
 	void Draw(ApplicationContext* context);
 	bool MouseOverGUIElement(float mouseX, float mouseY);
 	GUILocation WindowLocation(std::string windowName);

@@ -42,7 +42,6 @@ public:
 	RaycastHit Raycast(Physics* physics, glm::vec3 origin, glm::vec3 direction, float distance);
 
 	std::vector<std::unique_ptr<MergeGroup>>& MergeGroups() { return mergeGroups; }
-	int NextMergeGroupID() { return mergeGroupCounter++; }
 
 private:
 	void ClearScene(ApplicationContext* context);
@@ -68,5 +67,4 @@ private:
 	std::queue<unsigned int> destroyedPhysicsObjectsQueue;
 
 	std::vector<std::unique_ptr<MergeGroup>> mergeGroups;
-	int mergeGroupCounter;
 };

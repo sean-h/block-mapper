@@ -23,17 +23,17 @@ void SceneMetaDataExporter::Export(Scene * scene)
 		mergeGroupNode->InsertEndChild(nameNode);
 
 		auto pushObjectTypeNode = xmlDoc.NewElement("PushObjectType");
-		pushObjectTypeNode->SetText(mergeGroup->PushObjectType());
+		pushObjectTypeNode->SetText(mergeGroup->PropertyValue(EntityProperty::PushObjectType).c_str());
 		mergeGroupNode->InsertEndChild(pushObjectTypeNode);
 
 		auto directionNode = xmlDoc.NewElement("Direction");
-		directionNode->SetAttribute("X", mergeGroup->DirectionX());
-		directionNode->SetAttribute("Y", mergeGroup->DirectionY());
-		directionNode->SetAttribute("Z", mergeGroup->DirectionZ());
+		directionNode->SetAttribute("X", mergeGroup->PropertyValue(EntityProperty::DirectionX).c_str());
+		directionNode->SetAttribute("Y", mergeGroup->PropertyValue(EntityProperty::DirectionY).c_str());
+		directionNode->SetAttribute("Z", mergeGroup->PropertyValue(EntityProperty::DirectionZ).c_str());
 		mergeGroupNode->InsertEndChild(directionNode);
 
 		auto distanceNode = xmlDoc.NewElement("Distance");
-		distanceNode->SetText(mergeGroup->Distance());
+		distanceNode->SetText(mergeGroup->PropertyValue(EntityProperty::Distance).c_str());
 		mergeGroupNode->InsertEndChild(distanceNode);
 
 		mergeGroupsNode->InsertEndChild(mergeGroupNode);

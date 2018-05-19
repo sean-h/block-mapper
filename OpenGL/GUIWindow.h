@@ -13,6 +13,7 @@ public:
 	virtual void ToggleOpen() { open = !open; }
 	bool* OpenPtr() { return &open; }
 	virtual void Draw(ApplicationContext* context) { }
+	virtual void OnSceneLoaded(ApplicationContext* context) { }
 	std::string Title() const { return title; }
 	ImVec2 Position() const { return position; }
 	ImVec2 Size() const { return size; }

@@ -1,55 +1,37 @@
 #include "MergeGroup.h"
 #include <string>
 
-MergeGroup::MergeGroup(int id, std::string name)
-	: id(id), name(name)
+MergeGroup::MergeGroup(std::string name)
+	: name(name)
 {
-	pushObjectType = std::unique_ptr<char>(new char[TextLength]);
-	directionX = std::unique_ptr<char>(new char[TextLength]);
-	directionY = std::unique_ptr<char>(new char[TextLength]);
-	directionZ = std::unique_ptr<char>(new char[TextLength]);
-	distance = std::unique_ptr<char>(new char[TextLength]);
-
-	collapseButtonName = std::unique_ptr<char>(new char[TextLength]);
-	pushObjectTypeInputName = std::unique_ptr<char>(new char[TextLength]);
-	directionXInputName = std::unique_ptr<char>(new char[TextLength]);
-	directionYInputName = std::unique_ptr<char>(new char[TextLength]);
-	directionZInputName = std::unique_ptr<char>(new char[TextLength]);
-	distanceInputName = std::unique_ptr<char>(new char[TextLength]);
-
-	strcpy_s(this->pushObjectType.get(), TextLength, "Default");
-	strcpy_s(this->directionX.get(), TextLength, "0");
-	strcpy_s(this->directionY.get(), TextLength, "1");
-	strcpy_s(this->directionZ.get(), TextLength, "0");
-	strcpy_s(this->distance.get(), TextLength, "1");
-
-	strcpy_s(this->collapseButtonName.get(), TextLength, std::string("^##mergeGroupCollapse" + std::to_string(id)).c_str());
-	strcpy_s(this->pushObjectTypeInputName.get(), TextLength, std::string("##pushObjectType" + std::to_string(id)).c_str());
-	strcpy_s(this->directionXInputName.get(), TextLength, std::string("X##directionX" + std::to_string(id)).c_str());
-	strcpy_s(this->directionYInputName.get(), TextLength, std::string("Y##directionY" + std::to_string(id)).c_str());
-	strcpy_s(this->directionZInputName.get(), TextLength, std::string("Z##directionZ" + std::to_string(id)).c_str());
-	strcpy_s(this->distanceInputName.get(), TextLength, std::string("##distance" + std::to_string(id)).c_str());
+	AddProperty(EntityProperty::PushObjectType, "Default");
+	AddProperty(EntityProperty::DirectionX, "0");
+	AddProperty(EntityProperty::DirectionY, "1");
+	AddProperty(EntityProperty::DirectionZ, "0");
+	AddProperty(EntityProperty::Distance, "1");
 }
 
-void MergeGroup::AddProperty(std::string propertyName, std::string propertyValue)
+void MergeGroup::AddProperty(EntityProperty property, std::string propertyValue)
 {
+	properties[property] = propertyValue;
 }
 
-void MergeGroup::RemoveProperty(std::string propertyName)
+void MergeGroup::RemoveProperty(EntityProperty property)
 {
+	properties.erase(property);
 }
 
-bool MergeGroup::HasProperty(std::string propertyName) const
+bool MergeGroup::HasProperty(EntityProperty property) const
 {
-	return false;
+	return properties.find(property) != properties.end();
 }
 
-std::string MergeGroup::PropertyValue(std::string propertyName) const
+std::string MergeGroup::PropertyValue(EntityProperty prop) const
 {
-	return std::string();
+	return properties.find(prop)->second;
 }
 
-std::unordered_map<std::string, std::string> MergeGroup::Properties() const
+std::unordered_map<EntityProperty, std::string> MergeGroup::Properties() const
 {
-	return std::unordered_map<std::string, std::string>();
+	return std::unordered_map<EntityProperty, std::string>();
 }

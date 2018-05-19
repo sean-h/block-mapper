@@ -31,6 +31,11 @@ void GUIManager::StartFrame()
 	ImGui_ImplGlfwGL3_NewFrame();
 }
 
+void GUIManager::OnSceneLoaded(ApplicationContext * context)
+{
+	mergeGroupWindow->OnSceneLoaded(context);
+}
+
 void GUIManager::Draw(ApplicationContext* context)
 {
 	float windowWidth = (float)context->ApplicationWindow()->Width();

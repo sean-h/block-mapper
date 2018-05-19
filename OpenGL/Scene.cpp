@@ -19,7 +19,6 @@ Scene::Scene()
 	strcpy_s(this->sceneName, 64, "Scene");
 
 	this->CreateGridPlanes();
-	mergeGroupCounter = 0;
 }
 
 void Scene::Update(ApplicationContext* context)
@@ -408,17 +407,17 @@ void Scene::SaveScene(ApplicationContext * context) const
 		mergeGroupNode->InsertEndChild(nameNode);
 
 		auto pushObjectTypeNode = xmlDoc.NewElement("PushObjectType");
-		pushObjectTypeNode->SetText(mergeGroup->PushObjectType());
+		pushObjectTypeNode->SetText(mergeGroup->PropertyValue(EntityProperty::PushObjectType).c_str());
 		mergeGroupNode->InsertEndChild(pushObjectTypeNode);
 
 		auto directionNode = xmlDoc.NewElement("Direction");
-		directionNode->SetAttribute("X", mergeGroup->DirectionX());
-		directionNode->SetAttribute("Y", mergeGroup->DirectionY());
-		directionNode->SetAttribute("Z", mergeGroup->DirectionZ());
+		directionNode->SetAttribute("X", mergeGroup->PropertyValue(EntityProperty::DirectionX).c_str());
+		directionNode->SetAttribute("Y", mergeGroup->PropertyValue(EntityProperty::DirectionY).c_str());
+		directionNode->SetAttribute("Z", mergeGroup->PropertyValue(EntityProperty::DirectionZ).c_str());
 		mergeGroupNode->InsertEndChild(directionNode);
 
 		auto distanceNode = xmlDoc.NewElement("Distance");
-		distanceNode->SetText(mergeGroup->Distance());
+		distanceNode->SetText(mergeGroup->PropertyValue(EntityProperty::Distance).c_str());
 		mergeGroupNode->InsertEndChild(distanceNode);
 
 		mergeGroupsNode->InsertEndChild(mergeGroupNode);
@@ -606,12 +605,12 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 			auto directionNode = mergeGroupNode->FirstChildElement("Direction");
 			auto distanceNode = mergeGroupNode->FirstChildElement("Distance");
 
-			std::unique_ptr<MergeGroup> mergeGroup(new MergeGroup(NextMergeGroupID(), nameNode->GetText()));
-			strcpy_s(mergeGroup->PushObjectType(), MergeGroup::TextLength, pushObjectTypeNode->GetText());
-			strcpy_s(mergeGroup->DirectionX(), MergeGroup::TextLength, directionNode->Attribute("X"));
-			strcpy_s(mergeGroup->DirectionY(), MergeGroup::TextLength, directionNode->Attribute("Y"));
-			strcpy_s(mergeGroup->DirectionZ(), MergeGroup::TextLength, directionNode->Attribute("Z"));
-			strcpy_s(mergeGroup->Distance(), MergeGroup::TextLength, distanceNode->GetText());
+			std::unique_ptr<MergeGroup> mergeGroup(new MergeGroup(nameNode->GetText()));
+			mergeGroup->AddProperty(EntityProperty::PushObjectType, pushObjectTypeNode->GetText());
+			mergeGroup->AddProperty(EntityProperty::DirectionX, directionNode->Attribute("X"));
+			mergeGroup->AddProperty(EntityProperty::DirectionY, directionNode->Attribute("Y"));
+			mergeGroup->AddProperty(EntityProperty::DirectionZ, directionNode->Attribute("Z"));
+			mergeGroup->AddProperty(EntityProperty::Distance, distanceNode->GetText());
 
 			mergeGroups.push_back(std::move(mergeGroup));
 		}
@@ -620,6 +619,7 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 	this->CreateGridPlanes();
 
 	context->ApplicationToolManager()->Deserialize(context);
+	context->ApplicationGUIManager()->OnSceneLoaded(context);
 }
 
 void Scene::RefreshEntityRenderData(std::shared_ptr<EntityHandle> entityHandle)
@@ -701,6 +701,7 @@ void Scene::ClearScene(ApplicationContext* context)
 	this->components.clear();
 	this->camera = nullptr;
 	this->entityCounter = 0;
+	this->mergeGroups.clear();
 
 	context->ApplicationRenderer()->ClearScene();
 	context->ApplicationPhysics()->ClearScene();
