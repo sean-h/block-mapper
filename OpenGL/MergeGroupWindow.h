@@ -41,6 +41,8 @@ private:
 	int id;
 	bool itemCollapsed;
 	std::unique_ptr<char> collapseButtonName;
+	std::unique_ptr<char> selectButtonName;
+	std::unique_ptr<char> deleteButtonName;
 	std::unique_ptr<char> mergeTypeListBoxName;
 	std::unordered_map<EntityProperty, std::unique_ptr<char>> inputBuffers;
 	std::unordered_map<EntityProperty, std::unique_ptr<char>> inputNames;

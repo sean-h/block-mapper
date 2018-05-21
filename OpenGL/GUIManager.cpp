@@ -13,7 +13,7 @@ GUIManager::GUIManager(Window* window)
 	windowLocations["Tools"] = GUILocation(10.0f, 40.0f, 115.0f, 210.0f);
 	windowLocations["BlockManager"] = GUILocation(10.0f, 550.0f, 275.0f, 400.0f);
 	windowLocations["Scene"] = GUILocation(0.0f, 40.0f, 150.0f, 200.0f);
-	windowLocations["SelectionManager"] = GUILocation(0.0f, 260.0f, 150.0f, 400.0f);
+	windowLocations["SelectionManager"] = GUILocation(0.0f, 260.0f, 150, 400.0f);
 
 	mainMenuOpen = false;
 	confirmSceneOverwrite = false;
@@ -44,7 +44,7 @@ void GUIManager::Draw(ApplicationContext* context)
 		windowLocations["BlockManager"].width, windowLocations["BlockManager"].height);
 	windowLocations["MainMenuBar"] = GUILocation(0.0f, 0.0f, windowWidth, 20.0f);
 	windowLocations["Scene"] = GUILocation(windowWidth - 160.0f, 40.0f, 150.0f, 200.0f);
-	windowLocations["SelectionManager"] = GUILocation(windowWidth - 160.0f, windowLocations["SelectionManager"].yPosition,
+	windowLocations["SelectionManager"] = GUILocation(windowWidth - windowLocations["SelectionManager"].width - 10.0f, windowLocations["SelectionManager"].yPosition,
 		windowLocations["SelectionManager"].width, windowLocations["SelectionManager"].height);
 
 	mainMenuOpen = false;
@@ -94,10 +94,12 @@ void GUIManager::Draw(ApplicationContext* context)
 
 	if (*mergeGroupWindow->OpenPtr())
 	{
-		ImGui::Begin(mergeGroupWindow->Title().c_str(), mergeGroupWindow->OpenPtr(), ImGuiWindowFlags_NoMove);
-		ImGui::SetWindowPos(mergeGroupWindow->Position());
-		ImGui::SetWindowSize(mergeGroupWindow->Size());
+		ImGui::SetNextWindowPos(mergeGroupWindow->DefaultPosition(), ImGuiCond_Appearing);
+		ImGui::SetNextWindowSize(mergeGroupWindow->DefaultSize(), ImGuiCond_Appearing);
+		ImGui::Begin(mergeGroupWindow->Title().c_str(), mergeGroupWindow->OpenPtr());
 		mergeGroupWindow->Draw(context);
+		mergeGroupWindow->SetPosition(ImGui::GetWindowPos());
+		mergeGroupWindow->SetSize(ImGui::GetWindowSize());
 		ImGui::End();
 	}
 

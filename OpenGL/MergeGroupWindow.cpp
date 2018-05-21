@@ -4,8 +4,10 @@
 
 MergeGroupWindow::MergeGroupWindow()
 {
-	this->position = ImVec2(300, 300);
-	this->size = ImVec2(400, 300);
+	this->defaultPosition = ImVec2(300, 300);
+	this->position = defaultPosition;
+	this->defaultSize = ImVec2(400, 600);
+	this->size = defaultSize;
 	this->title = "Merge Groups";
 
 	Open();
@@ -95,6 +97,8 @@ MergeGroupUIItem::MergeGroupUIItem(MergeGroup * mergeGroup, int id)
 	inputBuffers[EntityProperty::Target] = std::unique_ptr<char>(new char[TextLength]);
 
 	collapseButtonName = std::unique_ptr<char>(new char[TextLength]);
+	selectButtonName = std::unique_ptr<char>(new char[TextLength]);
+	deleteButtonName = std::unique_ptr<char>(new char[TextLength]);
 	mergeTypeListBoxName = std::unique_ptr<char>(new char[TextLength]);
 	inputNames[EntityProperty::PushObjectType] = std::unique_ptr<char>(new char[TextLength]);
 	inputNames[EntityProperty::DirectionX] = std::unique_ptr<char>(new char[TextLength]);
@@ -111,6 +115,8 @@ MergeGroupUIItem::MergeGroupUIItem(MergeGroup * mergeGroup, int id)
 	strcpy_s(inputBuffers[EntityProperty::Target].get(), TextLength, "");
 
 	strcpy_s(collapseButtonName.get(), TextLength, std::string("^##mergeGroupCollapse" + std::to_string(id)).c_str());
+	strcpy_s(selectButtonName.get(), TextLength, std::string("SELECT##mergeGroupSelect" + std::to_string(id)).c_str());
+	strcpy_s(deleteButtonName.get(), TextLength, std::string("DELETE##mergeGroupDelete" + std::to_string(id)).c_str());
 	strcpy_s(mergeTypeListBoxName.get(), TextLength, std::string("Type##mergeTypeListBox" + std::to_string(id)).c_str());
 	strcpy_s(inputNames[EntityProperty::PushObjectType].get(), TextLength, std::string("##pushObjectType" + std::to_string(id)).c_str());
 	strcpy_s(inputNames[EntityProperty::DirectionX].get(), TextLength, std::string("X##directionX" + std::to_string(id)).c_str());
@@ -124,12 +130,30 @@ MergeGroupUIItem::MergeGroupUIItem(MergeGroup * mergeGroup, int id)
 
 void MergeGroupUIItem::Draw()
 {
+	// Collapse
 	if (ImGui::SmallButton(collapseButtonName.get()))
 	{
 		itemCollapsed = !itemCollapsed;
 	}
 	ImGui::SameLine();
 	ImGui::Text(mergeGroup->Name().c_str());
+
+	// Select
+	ImGui::SameLine(ImGui::GetWindowWidth() - 120.0f);
+	if (ImGui::SmallButton(selectButtonName.get()))
+	{
+
+	}
+
+	// Delete
+	ImGui::SameLine();
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.6f, 0.0f, 0.0f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.3f, 0.3f, 1.0f));
+	if (ImGui::SmallButton(deleteButtonName.get()))
+	{
+
+	}
+	ImGui::PopStyleColor(2);
 
 	if (!itemCollapsed)
 	{
