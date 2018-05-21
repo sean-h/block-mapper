@@ -14,16 +14,16 @@ void SceneMetaDataExporter::Export(Scene * scene)
 
 	auto sceneNode = xmlDoc.NewElement("SceneMetaData");
 
-	auto mergeGroupsNode = xmlDoc.NewElement("MergeGroups");
+	auto objectsNode = xmlDoc.NewElement("Objects");
 	auto mergeGroupTypes = MergeGroup::MergeGroupTypesVector();
 	for (auto& mergeGroup : scene->MergeGroups())
 	{
-		auto mergeGroupNode = xmlDoc.NewElement("MergeGroup");
-		mergeGroupNode->SetAttribute("Type", mergeGroupTypes[mergeGroup->MergeGroupTypeID()].c_str());
+		auto objectNode = xmlDoc.NewElement("Object");
+		objectNode->SetAttribute("Type", mergeGroupTypes[mergeGroup->MergeGroupTypeID()].c_str());
 
 		auto nameNode = xmlDoc.NewElement("Name");
 		nameNode->SetText(mergeGroup->Name().c_str());
-		mergeGroupNode->InsertEndChild(nameNode);
+		objectNode->InsertEndChild(nameNode);
 
 		switch ((MergeGroup::MergeGroupType)mergeGroup->MergeGroupTypeID())
 		{
@@ -31,17 +31,17 @@ void SceneMetaDataExporter::Export(Scene * scene)
 			{
 				auto pushObjectTypeNode = xmlDoc.NewElement("PushObjectType");
 				pushObjectTypeNode->SetText(mergeGroup->PropertyValue(EntityProperty::PushObjectType).c_str());
-				mergeGroupNode->InsertEndChild(pushObjectTypeNode);
+				objectNode->InsertEndChild(pushObjectTypeNode);
 
 				auto directionNode = xmlDoc.NewElement("Direction");
 				directionNode->SetAttribute("X", mergeGroup->PropertyValue(EntityProperty::DirectionX).c_str());
 				directionNode->SetAttribute("Y", mergeGroup->PropertyValue(EntityProperty::DirectionY).c_str());
 				directionNode->SetAttribute("Z", mergeGroup->PropertyValue(EntityProperty::DirectionZ).c_str());
-				mergeGroupNode->InsertEndChild(directionNode);
+				objectNode->InsertEndChild(directionNode);
 
 				auto distanceNode = xmlDoc.NewElement("Distance");
 				distanceNode->SetText(mergeGroup->PropertyValue(EntityProperty::Distance).c_str());
-				mergeGroupNode->InsertEndChild(distanceNode);
+				objectNode->InsertEndChild(distanceNode);
 				break;
 			}
 		case MergeGroup::MergeGroupType::Trigger:
@@ -51,13 +51,13 @@ void SceneMetaDataExporter::Export(Scene * scene)
 			targetNode->SetText(mergeGroup->PropertyValue(EntityProperty::Target).c_str());
 			targetsNode->InsertEndChild(targetNode);
 
-			mergeGroupNode->InsertEndChild(targetsNode);
+			objectNode->InsertEndChild(targetsNode);
 			break;
 		}
 
-		mergeGroupsNode->InsertEndChild(mergeGroupNode);
+		objectsNode->InsertEndChild(objectNode);
 	}
-	sceneNode->InsertEndChild(mergeGroupsNode);
+	sceneNode->InsertEndChild(objectsNode);
 
 	xmlDoc.InsertEndChild(sceneNode);
 
