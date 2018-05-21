@@ -59,11 +59,10 @@ void MergeGroupWindow::OnSceneLoaded(ApplicationContext * context)
 	{
 		std::unique_ptr<MergeGroupUIItem> mergeGroupUItem(new MergeGroupUIItem(mergeGroup.get(), mergeGroupUIItems.size()));
 
-		mergeGroupUItem->SetPropertyValue(EntityProperty::PushObjectType, mergeGroup->PropertyValue(EntityProperty::PushObjectType));
-		mergeGroupUItem->SetPropertyValue(EntityProperty::DirectionX, mergeGroup->PropertyValue(EntityProperty::DirectionX));
-		mergeGroupUItem->SetPropertyValue(EntityProperty::DirectionY, mergeGroup->PropertyValue(EntityProperty::DirectionY));
-		mergeGroupUItem->SetPropertyValue(EntityProperty::DirectionZ, mergeGroup->PropertyValue(EntityProperty::DirectionZ));
-		mergeGroupUItem->SetPropertyValue(EntityProperty::Distance, mergeGroup->PropertyValue(EntityProperty::Distance));
+		for (auto& propPair : mergeGroup->Properties())
+		{
+			mergeGroupUItem->SetPropertyValue(propPair.first, propPair.second);
+		}
 
 		mergeGroupUIItems.push_back(std::move(mergeGroupUItem));
 	}
@@ -93,26 +92,34 @@ MergeGroupUIItem::MergeGroupUIItem(MergeGroup * mergeGroup, int id)
 	inputBuffers[EntityProperty::DirectionY] = std::unique_ptr<char>(new char[TextLength]);
 	inputBuffers[EntityProperty::DirectionZ] = std::unique_ptr<char>(new char[TextLength]);
 	inputBuffers[EntityProperty::Distance] = std::unique_ptr<char>(new char[TextLength]);
+	inputBuffers[EntityProperty::Target] = std::unique_ptr<char>(new char[TextLength]);
 
 	collapseButtonName = std::unique_ptr<char>(new char[TextLength]);
+	mergeTypeListBoxName = std::unique_ptr<char>(new char[TextLength]);
 	inputNames[EntityProperty::PushObjectType] = std::unique_ptr<char>(new char[TextLength]);
 	inputNames[EntityProperty::DirectionX] = std::unique_ptr<char>(new char[TextLength]);
 	inputNames[EntityProperty::DirectionY] = std::unique_ptr<char>(new char[TextLength]);
 	inputNames[EntityProperty::DirectionZ] = std::unique_ptr<char>(new char[TextLength]);
 	inputNames[EntityProperty::Distance] = std::unique_ptr<char>(new char[TextLength]);
+	inputNames[EntityProperty::Target] = std::unique_ptr<char>(new char[TextLength]);
 
 	strcpy_s(inputBuffers[EntityProperty::PushObjectType].get(), TextLength, "Default");
 	strcpy_s(inputBuffers[EntityProperty::DirectionX].get(), TextLength, "0");
 	strcpy_s(inputBuffers[EntityProperty::DirectionY].get(), TextLength, "1");
 	strcpy_s(inputBuffers[EntityProperty::DirectionZ].get(), TextLength, "0");
 	strcpy_s(inputBuffers[EntityProperty::Distance].get(), TextLength, "1");
+	strcpy_s(inputBuffers[EntityProperty::Target].get(), TextLength, "");
 
 	strcpy_s(collapseButtonName.get(), TextLength, std::string("^##mergeGroupCollapse" + std::to_string(id)).c_str());
+	strcpy_s(mergeTypeListBoxName.get(), TextLength, std::string("Type##mergeTypeListBox" + std::to_string(id)).c_str());
 	strcpy_s(inputNames[EntityProperty::PushObjectType].get(), TextLength, std::string("##pushObjectType" + std::to_string(id)).c_str());
 	strcpy_s(inputNames[EntityProperty::DirectionX].get(), TextLength, std::string("X##directionX" + std::to_string(id)).c_str());
 	strcpy_s(inputNames[EntityProperty::DirectionY].get(), TextLength, std::string("Y##directionY" + std::to_string(id)).c_str());
 	strcpy_s(inputNames[EntityProperty::DirectionZ].get(), TextLength, std::string("Z##directionZ" + std::to_string(id)).c_str());
 	strcpy_s(inputNames[EntityProperty::Distance].get(), TextLength, std::string("##distance" + std::to_string(id)).c_str());
+	strcpy_s(inputNames[EntityProperty::Target].get(), TextLength, std::string("##target" + std::to_string(id)).c_str());
+
+	itemCollapsed = true;
 }
 
 void MergeGroupUIItem::Draw()
@@ -128,25 +135,41 @@ void MergeGroupUIItem::Draw()
 	{
 		ImGui::Spacing();
 		ImGui::SameLine();
-		ImGui::Text("Push Object Type");
-		ImGui::SetCursorPosX(50.0f);
-		DrawPropertyInput(EntityProperty::PushObjectType);
+		ImGui::Combo(mergeTypeListBoxName.get(), mergeGroup->MergeGroupTypeIDPtr(), mergeGroup->MergeGroupTypesString);
 
-		ImGui::Spacing();
-		ImGui::SameLine();
-		ImGui::Text("Direction");
-		ImGui::SetCursorPosX(50.0f);
-		DrawPropertyInput(EntityProperty::DirectionX);
-		ImGui::SetCursorPosX(50.0f);
-		DrawPropertyInput(EntityProperty::DirectionY);
-		ImGui::SetCursorPosX(50.0f);
-		DrawPropertyInput(EntityProperty::DirectionZ);
+		switch ((MergeGroup::MergeGroupType)mergeGroup->MergeGroupTypeID())
+		{
+		case MergeGroup::MergeGroupType::PushObject:
+			ImGui::Spacing();
+			ImGui::SameLine();
+			ImGui::Text("Push Object Type");
+			ImGui::SetCursorPosX(50.0f);
+			DrawPropertyInput(EntityProperty::PushObjectType);
 
-		ImGui::Spacing();
-		ImGui::SameLine();
-		ImGui::Text("Distance");
-		ImGui::SetCursorPosX(50.0f);
-		DrawPropertyInput(EntityProperty::Distance);
+			ImGui::Spacing();
+			ImGui::SameLine();
+			ImGui::Text("Direction");
+			ImGui::SetCursorPosX(50.0f);
+			DrawPropertyInput(EntityProperty::DirectionX);
+			ImGui::SetCursorPosX(50.0f);
+			DrawPropertyInput(EntityProperty::DirectionY);
+			ImGui::SetCursorPosX(50.0f);
+			DrawPropertyInput(EntityProperty::DirectionZ);
+
+			ImGui::Spacing();
+			ImGui::SameLine();
+			ImGui::Text("Distance");
+			ImGui::SetCursorPosX(50.0f);
+			DrawPropertyInput(EntityProperty::Distance);
+			break;
+		case MergeGroup::MergeGroupType::Trigger:
+			ImGui::Spacing();
+			ImGui::SameLine();
+			ImGui::Text("Target");
+			ImGui::SetCursorPosX(50.0f);
+			DrawPropertyInput(EntityProperty::Target);
+			break;
+		}
 	}
 }
 

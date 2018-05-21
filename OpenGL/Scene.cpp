@@ -3,6 +3,7 @@
 #include "OrbitController.h"
 #include "FPSController.h"
 #include "SceneExporter.h"
+#include "MergeGroup.h"
 #include "GUI.h"
 #include "imgui.h"
 #include <string>
@@ -398,6 +399,7 @@ void Scene::SaveScene(ApplicationContext * context) const
 	sceneNode->InsertEndChild(componentsNode);
 
 	auto mergeGroupsNode = xmlDoc.NewElement("MergeGroups");
+	std::vector<std::string> mergeGroupTypes = MergeGroup::MergeGroupTypesVector();
 	for (auto& mergeGroup : mergeGroups)
 	{
 		auto mergeGroupNode = xmlDoc.NewElement("MergeGroup");
@@ -406,19 +408,16 @@ void Scene::SaveScene(ApplicationContext * context) const
 		nameNode->SetText(mergeGroup->Name().c_str());
 		mergeGroupNode->InsertEndChild(nameNode);
 
-		auto pushObjectTypeNode = xmlDoc.NewElement("PushObjectType");
-		pushObjectTypeNode->SetText(mergeGroup->PropertyValue(EntityProperty::PushObjectType).c_str());
-		mergeGroupNode->InsertEndChild(pushObjectTypeNode);
+		auto mergeTypeNode = xmlDoc.NewElement("Type");
+		mergeTypeNode->SetText(mergeGroupTypes[mergeGroup->MergeGroupTypeID()].c_str());
+		mergeGroupNode->InsertEndChild(mergeTypeNode);
 
-		auto directionNode = xmlDoc.NewElement("Direction");
-		directionNode->SetAttribute("X", mergeGroup->PropertyValue(EntityProperty::DirectionX).c_str());
-		directionNode->SetAttribute("Y", mergeGroup->PropertyValue(EntityProperty::DirectionY).c_str());
-		directionNode->SetAttribute("Z", mergeGroup->PropertyValue(EntityProperty::DirectionZ).c_str());
-		mergeGroupNode->InsertEndChild(directionNode);
-
-		auto distanceNode = xmlDoc.NewElement("Distance");
-		distanceNode->SetText(mergeGroup->PropertyValue(EntityProperty::Distance).c_str());
-		mergeGroupNode->InsertEndChild(distanceNode);
+		for (auto& propPair : mergeGroup->Properties())
+		{
+			auto node = xmlDoc.NewElement(EntityPropertyNames[(int)propPair.first]);
+			node->SetText(propPair.second.c_str());
+			mergeGroupNode->InsertEndChild(node);
+		}
 
 		mergeGroupsNode->InsertEndChild(mergeGroupNode);
 	}
@@ -596,21 +595,51 @@ void Scene::LoadScene(ApplicationContext * context, std::string loadFilePath)
 	}
 
 	auto mergeGroupsNode = sceneNode->FirstChildElement("MergeGroups");
+	auto mergeGroupTypes = MergeGroup::MergeGroupTypesVector();
 	if (mergeGroupsNode != nullptr)
 	{
 		for (auto mergeGroupNode = mergeGroupsNode->FirstChild(); mergeGroupNode != nullptr; mergeGroupNode = mergeGroupNode->NextSibling())
 		{
-			auto nameNode = mergeGroupNode->FirstChildElement("Name");
-			auto pushObjectTypeNode = mergeGroupNode->FirstChildElement("PushObjectType");
-			auto directionNode = mergeGroupNode->FirstChildElement("Direction");
-			auto distanceNode = mergeGroupNode->FirstChildElement("Distance");
+			std::string mergeGroupName;
+			int mergeGroupTypeId = 0;
+			std::unordered_map<EntityProperty, std::string> properties;
 
-			std::unique_ptr<MergeGroup> mergeGroup(new MergeGroup(nameNode->GetText()));
-			mergeGroup->AddProperty(EntityProperty::PushObjectType, pushObjectTypeNode->GetText());
-			mergeGroup->AddProperty(EntityProperty::DirectionX, directionNode->Attribute("X"));
-			mergeGroup->AddProperty(EntityProperty::DirectionY, directionNode->Attribute("Y"));
-			mergeGroup->AddProperty(EntityProperty::DirectionZ, directionNode->Attribute("Z"));
-			mergeGroup->AddProperty(EntityProperty::Distance, distanceNode->GetText());
+			for (auto element = mergeGroupNode->FirstChildElement(); element != nullptr; element = element->NextSiblingElement())
+			{
+				if (strcmp(element->Value(), "Name") == 0)
+				{
+					mergeGroupName = element->GetText();
+				}
+				else if (strcmp(element->Value(), "Type") == 0)
+				{
+					for (int i = 0; i < mergeGroupTypes.size(); i++)
+					{
+						if (strcmp(element->GetText(), mergeGroupTypes[i].c_str()) == 0)
+						{
+							mergeGroupTypeId = i;
+							break;
+						}
+					}
+				}
+				else
+				{
+					for (int i = 0; i < (int)EntityProperty::PropertyCount; i++)
+					{
+						if (strcmp(element->Value(), EntityPropertyNames[i]) == 0)
+						{
+							properties[(EntityProperty)i] = element->GetText();
+							break;
+						}
+					}
+				}
+			}
+
+			std::unique_ptr<MergeGroup> mergeGroup(new MergeGroup(mergeGroupName));
+			mergeGroup->MergeGroupTypeID(mergeGroupTypeId);
+			for (auto& propPair : properties)
+			{
+				mergeGroup->AddProperty(propPair.first, propPair.second);
+			}
 
 			mergeGroups.push_back(std::move(mergeGroup));
 		}

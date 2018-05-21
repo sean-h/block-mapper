@@ -1,6 +1,8 @@
 #include "MergeGroup.h"
 #include <string>
 
+const char* MergeGroup::MergeGroupTypesString = "PushObject\0Trigger\0";
+
 MergeGroup::MergeGroup(std::string name)
 	: name(name)
 {
@@ -33,5 +35,20 @@ std::string MergeGroup::PropertyValue(EntityProperty prop) const
 
 std::unordered_map<EntityProperty, std::string> MergeGroup::Properties() const
 {
-	return std::unordered_map<EntityProperty, std::string>();
+	return properties;
+}
+
+std::vector<std::string> MergeGroup::MergeGroupTypesVector()
+{
+	std::vector<std::string> types;
+
+	const char* p = MergeGroupTypesString;
+
+	while (*p)
+	{
+		types.push_back(p);
+		p += strlen(p) + 1;
+	}
+
+	return types;
 }
