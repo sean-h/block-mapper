@@ -49,7 +49,7 @@ void MergeGroupWindow::Draw(ApplicationContext * context)
 
 	for (auto& mergeGroup : mergeGroupUIItems)
 	{
-		mergeGroup->Draw();
+		mergeGroup->Draw(context);
 	}
 }
 
@@ -97,6 +97,7 @@ MergeGroupUIItem::MergeGroupUIItem(MergeGroup * mergeGroup, int id)
 	inputBuffers[EntityProperty::Target] = std::unique_ptr<char>(new char[TextLength]);
 
 	collapseButtonName = std::unique_ptr<char>(new char[TextLength]);
+	assignButtonName = std::unique_ptr<char>(new char[TextLength]);
 	selectButtonName = std::unique_ptr<char>(new char[TextLength]);
 	deleteButtonName = std::unique_ptr<char>(new char[TextLength]);
 	mergeTypeListBoxName = std::unique_ptr<char>(new char[TextLength]);
@@ -115,6 +116,7 @@ MergeGroupUIItem::MergeGroupUIItem(MergeGroup * mergeGroup, int id)
 	strcpy_s(inputBuffers[EntityProperty::Target].get(), TextLength, "");
 
 	strcpy_s(collapseButtonName.get(), TextLength, std::string("^##mergeGroupCollapse" + std::to_string(id)).c_str());
+	strcpy_s(assignButtonName.get(), TextLength, std::string("ASSIGN##mergeGroupAssign" + std::to_string(id)).c_str());
 	strcpy_s(selectButtonName.get(), TextLength, std::string("SELECT##mergeGroupSelect" + std::to_string(id)).c_str());
 	strcpy_s(deleteButtonName.get(), TextLength, std::string("DELETE##mergeGroupDelete" + std::to_string(id)).c_str());
 	strcpy_s(mergeTypeListBoxName.get(), TextLength, std::string("Type##mergeTypeListBox" + std::to_string(id)).c_str());
@@ -128,7 +130,7 @@ MergeGroupUIItem::MergeGroupUIItem(MergeGroup * mergeGroup, int id)
 	itemCollapsed = true;
 }
 
-void MergeGroupUIItem::Draw()
+void MergeGroupUIItem::Draw(ApplicationContext* context)
 {
 	// Collapse
 	if (ImGui::SmallButton(collapseButtonName.get()))
@@ -138,11 +140,41 @@ void MergeGroupUIItem::Draw()
 	ImGui::SameLine();
 	ImGui::Text(mergeGroup->Name().c_str());
 
+	// Assign
+	ImGui::SameLine(ImGui::GetWindowWidth() - 180.0f);
+	if (ImGui::SmallButton(assignButtonName.get()))
+	{
+		EntitySelectionManager* selectionManager = context->ApplicationEntitySelectionManager();
+
+		for (auto entityHandle : selectionManager->SelectedEntities())
+		{
+			if (entityHandle->TargetEntity())
+			{
+				entityHandle->TargetEntity()->AddProperty(EntityProperty::MergeGroup, mergeGroup->Name());
+			}
+		}
+	}
+
 	// Select
-	ImGui::SameLine(ImGui::GetWindowWidth() - 120.0f);
+	ImGui::SameLine();
 	if (ImGui::SmallButton(selectButtonName.get()))
 	{
+		EntitySelectionManager* selectionManager = context->ApplicationEntitySelectionManager();
+		Scene* scene = context->ApplicationScene();
 
+		selectionManager->DeselectAll(context->ApplicationScene());
+		
+		for (auto& entity : scene->Entities())
+		{
+			if (entity->HasProperty(EntityProperty::MergeGroup))
+			{
+				std::string mergeGroupName = entity->PropertyValue(EntityProperty::MergeGroup);
+				if (mergeGroupName == mergeGroup->Name())
+				{
+					selectionManager->SelectEntity(scene, entity->Handle());
+				}
+			}
+		}
 	}
 
 	// Delete

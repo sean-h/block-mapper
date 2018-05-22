@@ -29,7 +29,7 @@ class MergeGroupUIItem
 {
 public:
 	MergeGroupUIItem(MergeGroup* mergeGroup, int id);
-	void Draw();
+	void Draw(ApplicationContext* context);
 	void SetPropertyValue(EntityProperty property, std::string value);
 
 	const int TextLength = 64;
@@ -41,6 +41,7 @@ private:
 	int id;
 	bool itemCollapsed;
 	std::unique_ptr<char> collapseButtonName;
+	std::unique_ptr<char> assignButtonName;
 	std::unique_ptr<char> selectButtonName;
 	std::unique_ptr<char> deleteButtonName;
 	std::unique_ptr<char> mergeTypeListBoxName;
