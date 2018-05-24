@@ -19,6 +19,9 @@ MergeGroupWindow::MergeGroupWindow()
 
 void MergeGroupWindow::Draw(ApplicationContext * context)
 {
+	// Destroy merge groups
+	destroyedMergeGroupUIItems.clear();
+
 	// Save value in order to correctly pop the style after the InputText
 	bool validName = validNewMergeGroupName;
 	if (!validName)
@@ -47,9 +50,24 @@ void MergeGroupWindow::Draw(ApplicationContext * context)
 
 	ImGui::Separator();
 
-	for (auto& mergeGroup : mergeGroupUIItems)
+	// List of merge groups to destroy next update. Destruction is delayed in order to keep UI text references.
+	std::vector<std::vector<std::unique_ptr<MergeGroupUIItem>>::iterator> destroyMergeGroups;
+
+	for (auto mergeGroup = mergeGroupUIItems.begin(); mergeGroup != mergeGroupUIItems.end(); mergeGroup++)
 	{
-		mergeGroup->Draw(context);
+		auto mergeGroupReturn = (*mergeGroup)->Draw(context);
+		
+		if (mergeGroupReturn == MergeGroupUIItem::MergeGroupReturn::Destroy)
+		{
+			destroyedMergeGroupUIItems.push_back(std::move(*mergeGroup));
+			destroyMergeGroups.push_back(mergeGroup);
+			CheckNewMergeGroupName(context->ApplicationScene());
+		}
+	}
+
+	for (auto& d : destroyMergeGroups)
+	{
+		mergeGroupUIItems.erase(d);
 	}
 }
 
@@ -130,7 +148,7 @@ MergeGroupUIItem::MergeGroupUIItem(MergeGroup * mergeGroup, int id)
 	itemCollapsed = true;
 }
 
-void MergeGroupUIItem::Draw(ApplicationContext* context)
+MergeGroupUIItem::MergeGroupReturn MergeGroupUIItem::Draw(ApplicationContext* context)
 {
 	// Collapse
 	if (ImGui::SmallButton(collapseButtonName.get()))
@@ -183,7 +201,9 @@ void MergeGroupUIItem::Draw(ApplicationContext* context)
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.8f, 0.3f, 0.3f, 1.0f));
 	if (ImGui::SmallButton(deleteButtonName.get()))
 	{
-
+		context->ApplicationScene()->DestroyMergeGroup(mergeGroup);
+		ImGui::PopStyleColor(2);
+		return MergeGroupReturn::Destroy;
 	}
 	ImGui::PopStyleColor(2);
 
@@ -227,6 +247,8 @@ void MergeGroupUIItem::Draw(ApplicationContext* context)
 			break;
 		}
 	}
+
+	return MergeGroupReturn::Nothing;
 }
 
 void MergeGroupUIItem::SetPropertyValue(EntityProperty property, std::string value)

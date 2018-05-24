@@ -23,14 +23,22 @@ private:
 	char* newMergeGroupName;
 	bool validNewMergeGroupName;
 	std::vector<std::unique_ptr<MergeGroupUIItem>> mergeGroupUIItems;
+	std::vector<std::unique_ptr<MergeGroupUIItem>> destroyedMergeGroupUIItems;
 };
 
 class MergeGroupUIItem
 {
 public:
+	enum MergeGroupReturn
+	{
+		Nothing,
+		Destroy,
+	};
+
 	MergeGroupUIItem(MergeGroup* mergeGroup, int id);
-	void Draw(ApplicationContext* context);
+	MergeGroupReturn Draw(ApplicationContext* context);
 	void SetPropertyValue(EntityProperty property, std::string value);
+	MergeGroup* GetMergeGroup() const { return mergeGroup; }
 
 	const int TextLength = 64;
 

@@ -42,6 +42,7 @@ public:
 	RaycastHit Raycast(Physics* physics, glm::vec3 origin, glm::vec3 direction, float distance);
 
 	std::vector<std::unique_ptr<MergeGroup>>& MergeGroups() { return mergeGroups; }
+	void DestroyMergeGroup(MergeGroup* mergeGroup);
 
 private:
 	void ClearScene(ApplicationContext* context);

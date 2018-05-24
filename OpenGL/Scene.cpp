@@ -724,6 +724,12 @@ RaycastHit Scene::Raycast(Physics * physics, glm::vec3 origin, glm::vec3 directi
 	return hit;
 }
 
+void Scene::DestroyMergeGroup(MergeGroup * mergeGroup)
+{
+	auto mergeGroupIter = std::find_if(mergeGroups.begin(), mergeGroups.end(), [&mergeGroup](const std::unique_ptr<MergeGroup>& mg) { return mg.get() == mergeGroup; });
+	mergeGroups.erase(mergeGroupIter);
+}
+
 void Scene::ClearScene(ApplicationContext* context)
 {
 	this->entities.clear();
