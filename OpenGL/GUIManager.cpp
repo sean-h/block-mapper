@@ -81,7 +81,7 @@ void GUIManager::Draw(ApplicationContext* context)
 		if (ImGui::BeginMenu("Window"))
 		{
 			mainMenuOpen = true;
-			if (ImGui::MenuItem("Merge Groups"))
+			if (ImGui::MenuItem("Merge Groups", "M", *mergeGroupWindow->OpenPtr()))
 			{
 				mergeGroupWindow->ToggleOpen();
 			}
@@ -185,6 +185,10 @@ void GUIManager::Draw(ApplicationContext* context)
 		{
 			this->OpenFileSelector(context);
 		}
+	}
+	if (input->GetKeyDown(Input::Keys::KEY_M))
+	{
+		mergeGroupWindow->ToggleOpen();
 	}
 
 	ImGui::Render();
