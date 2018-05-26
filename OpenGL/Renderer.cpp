@@ -31,12 +31,6 @@ void Renderer::RenderScene(ApplicationContext* context)
 	glm::mat4 view = camera->ViewMatrix();
 	glm::mat4 projection = camera->ProjectionMatrix((float)window->Width(), (float)window->Height());
 
-	std::map<Material*, std::vector<RenderObject>> materialSortedRenderObjects;
-	for (auto& renderObjectPair : renderObjects)
-	{
-		materialSortedRenderObjects[renderObjectPair.second.material].push_back(renderObjectPair.second);
-	}
-
 	for (auto& materialSortedRenderObject : materialSortedRenderObjects)
 	{
 		Shader* shader = materialSortedRenderObject.first->MaterialShader();
@@ -247,6 +241,16 @@ unsigned int Renderer::loadTexture(char const * path)
 	return textureID;
 }
 
+void Renderer::RebuildRenderObjectCache()
+{
+	materialSortedRenderObjects.clear();
+
+	for (auto& renderObjectPair : renderObjects)
+	{
+		materialSortedRenderObjects[renderObjectPair.second.material].push_back(renderObjectPair.second);
+	}
+}
+
 void Renderer::SetUpModelPreview()
 {
 	glGenFramebuffers(1, &this->modelPreviewFBO);
@@ -338,6 +342,7 @@ int Renderer::AddRenderObject(std::string meshName, int meshColorIndex, std::str
 	renderObject.id = ++renderObjectCounter;
 
 	this->renderObjects[renderObject.id] = renderObject;
+	this->materialSortedRenderObjects[renderObject.material].push_back(renderObject);
 
 	return renderObject.id;
 }
@@ -348,6 +353,13 @@ void Renderer::RemoveRenderObject(int id)
 	{
 		return;
 	}
+
+	auto sortedRenderObject = std::find_if(
+		materialSortedRenderObjects[renderObjects[id].material].begin(),
+		materialSortedRenderObjects[renderObjects[id].material].end(),
+		[id](RenderObject& ro) { return ro.id == id; });
+
+	materialSortedRenderObjects[renderObjects[id].material].erase(sortedRenderObject);
 
 	renderObjects.erase(id);
 }
@@ -360,9 +372,15 @@ void Renderer::UpdateRenderObjectModelMatrix(int id, glm::mat4 modelMatrix)
 	}
 
 	this->renderObjects[id].modelMatrix = modelMatrix;
+	auto sortedRenderObject = std::find_if(
+		materialSortedRenderObjects[renderObjects[id].material].begin(),
+		materialSortedRenderObjects[renderObjects[id].material].end(),
+		[id](RenderObject& ro) { return ro.id == id; });
+	sortedRenderObject->modelMatrix = modelMatrix;
 }
 
 void Renderer::ClearScene()
 {
 	renderObjects.clear();
+	materialSortedRenderObjects.clear();
 }

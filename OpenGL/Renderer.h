@@ -43,6 +43,7 @@ private:
 	void LoadMaterials(FileManager * fileManager);
 	void LoadTextures(FileManager* fileManager);
 	unsigned int loadTexture(char const * path);
+	void RebuildRenderObjectCache();
 
 	unsigned int modelPreviewFBO;
 	unsigned int modelPreviewTextureID;
@@ -57,4 +58,5 @@ private:
 
 	int renderObjectCounter;
 	std::map<int, RenderObject> renderObjects;
+	std::map<Material*, std::vector<RenderObject>> materialSortedRenderObjects;
 };
