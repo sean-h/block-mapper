@@ -93,29 +93,33 @@ void DrawBlockTool::Update(ApplicationContext* context)
 		}
 	}
 
-	if (input->GetKeyDown(Input::Keys::KEY_E))
+	// Ignore main menu shortcut keys
+	if (!input->GetKey(Input::Keys::KEY_LEFT_CONTROL))
 	{
-		this->RotateGhostBlocks(context, glm::vec3(0.0f, 1.0f, 0.0f), -90.0f);
-	}
-	else if (input->GetKeyDown(Input::Keys::KEY_Q))
-	{
-		this->RotateGhostBlocks(context, glm::vec3(0.0f, 1.0f, 0.0f), 90.0f);
-	}
-	else if (input->GetKeyDown(Input::Keys::KEY_W))
-	{
-		this->RotateGhostBlocks(context, glm::vec3(1.0f, 0.0f, 0.0f), 90.0f);
-	}
-	else if (input->GetKeyDown(Input::Keys::KEY_S))
-	{
-		this->RotateGhostBlocks(context, glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
-	}
-	else if (input->GetKeyDown(Input::Keys::KEY_A))
-	{
-		this->RotateGhostBlocks(context, glm::vec3(0.0f, 0.0f, 1.0f), 90.0f);
-	}
-	else if (input->GetKeyDown(Input::Keys::KEY_D))
-	{
-		this->RotateGhostBlocks(context, glm::vec3(0.0f, 0.0f, 1.0f), -90.0f);
+		if (input->GetKeyDown(Input::Keys::KEY_E))
+		{
+			this->RotateGhostBlocks(context, glm::vec3(0.0f, 1.0f, 0.0f), -90.0f);
+		}
+		else if (input->GetKeyDown(Input::Keys::KEY_Q))
+		{
+			this->RotateGhostBlocks(context, glm::vec3(0.0f, 1.0f, 0.0f), 90.0f);
+		}
+		else if (input->GetKeyDown(Input::Keys::KEY_W))
+		{
+			this->RotateGhostBlocks(context, glm::vec3(1.0f, 0.0f, 0.0f), 90.0f);
+		}
+		else if (input->GetKeyDown(Input::Keys::KEY_S))
+		{
+			this->RotateGhostBlocks(context, glm::vec3(1.0f, 0.0f, 0.0f), -90.0f);
+		}
+		else if (input->GetKeyDown(Input::Keys::KEY_A))
+		{
+			this->RotateGhostBlocks(context, glm::vec3(0.0f, 0.0f, 1.0f), 90.0f);
+		}
+		else if (input->GetKeyDown(Input::Keys::KEY_D))
+		{
+			this->RotateGhostBlocks(context, glm::vec3(0.0f, 0.0f, 1.0f), -90.0f);
+		}
 	}
 }
 
