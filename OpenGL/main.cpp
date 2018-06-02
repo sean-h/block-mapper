@@ -24,6 +24,7 @@ int main()
 			scene->Update(&applicationContext);
 			applicationContext.ApplicationBlockManager()->Update(&applicationContext);
 			applicationContext.ApplicationToolManager()->Update(&applicationContext);
+			applicationContext.ApplicationUndoManager()->Update(&applicationContext);
 
 			applicationContext.ApplicationGUIManager()->StartFrame();
 

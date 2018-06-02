@@ -16,4 +16,5 @@ ApplicationContext::ApplicationContext()
 	toolManager = std::unique_ptr<ToolManager>(new ToolManager(this));
 	entitySelectionManager = std::unique_ptr<EntitySelectionManager>(new EntitySelectionManager());
 	debug = std::unique_ptr<Debug>(new Debug());
+	undoManager = std::unique_ptr<UndoManager>(new UndoManager());
 }

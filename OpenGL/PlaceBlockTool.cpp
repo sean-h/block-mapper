@@ -1,10 +1,14 @@
 #include "PlaceBlockTool.h"
 #include "ApplicationContext.h"
+#include "UndoAction.h"
 #include "glm\gtc\quaternion.hpp"
 
 void PlaceBlockTool::Apply(ApplicationContext * context)
 {
 	Scene* scene = context->ApplicationScene();
+	std::unique_ptr<UndoAction> undoAction(new UndoAction());
+	undoAction->action = UndoAction::PlaceEntities();
+
 	for (auto& block : ghostBlocks)
 	{
 		Entity* entity = block->TargetEntity();
@@ -18,9 +22,12 @@ void PlaceBlockTool::Apply(ApplicationContext * context)
 		entity->RemoveProperty(EntityProperty::Temporary);
 		scene->RefreshEntityRenderData(block);
 		scene->RefreshEntityCollisionData(block);
+
+		std::get<UndoAction::PlaceEntities>(undoAction->action).entityIDs.push_back(entity->ID());
 	}
 
 	ghostBlocks.clear();
+	context->ApplicationUndoManager()->PushUndoAction(std::move(undoAction));
 }
 
 void PlaceBlockTool::DisableTool(ApplicationContext * context)
