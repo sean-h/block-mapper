@@ -23,6 +23,9 @@ BlockManager::BlockManager(FileManager * fileManager)
 	selectedBrushIndex = 0;
 	placementMode = PlacementMode::Detail;
 	brushAxisPlane = AxisPlane::XY;
+	brushOffsetX = 0;
+	brushOffsetY = 0;
+	brushOffsetZ = 0;
 }
 
 void BlockManager::Update(ApplicationContext * context)
@@ -189,31 +192,39 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 		{
 			brushAxisPlane = AxisPlane::XY;
 		}
-		ImGui::SameLine(50.0f);
+		ImGui::SameLine();
 		if (GUI::SmallToggleButton(" XZ", (int)AxisPlane::XZ, selectedAxisPlane))
 		{
 			brushAxisPlane = AxisPlane::XZ;
 		}
-		ImGui::SameLine(100.0f);
+		ImGui::SameLine();
 		if (GUI::SmallToggleButton(" YZ", (int)AxisPlane::YZ, selectedAxisPlane))
 		{
 			brushAxisPlane = AxisPlane::YZ;
 		}
+		ImGui::SameLine();
 		if (GUI::SmallToggleButton("-XY", (int)AxisPlane::XY_Neg, selectedAxisPlane))
 		{
 			brushAxisPlane = AxisPlane::XY_Neg;
 		}
-		ImGui::SameLine(50.0f);
+		ImGui::SameLine();
 		if (GUI::SmallToggleButton("-XZ", (int)AxisPlane::XZ_Neg, selectedAxisPlane))
 		{
 			brushAxisPlane = AxisPlane::XZ_Neg;
 		}
-		ImGui::SameLine(100.0f);
+		ImGui::SameLine();
 		if (GUI::SmallToggleButton("-YZ", (int)AxisPlane::YZ_Neg, selectedAxisPlane))
 		{
 			brushAxisPlane = AxisPlane::YZ_Neg;
 		}
 
+		ImGui::PushItemWidth(70.0f);
+		ImGui::InputInt("X##BrushOffset", &brushOffsetX);
+		ImGui::SameLine();
+		ImGui::InputInt("Y##BrushOffset", &brushOffsetY);
+		ImGui::SameLine();
+		ImGui::InputInt("Z##BrushOffset", &brushOffsetZ);
+		ImGui::PopItemWidth();
 
 		brushAxisPlane = (AxisPlane)selectedAxisPlane;
 	}
@@ -382,7 +393,7 @@ BlockPreset BlockManager::GetBlockPresetAtPosition(glm::ivec3 position)
 		case BlockPattern::Single:
 			return activeBrush.blockPresets[0];
 		case BlockPattern::Checker:
-			if ((position.x + position.y + position.z) % 2 == 0)
+			if ((position.x + position.y + position.z + brushOffsetX + brushOffsetY + brushOffsetZ) % 2 == 0)
 			{
 				return activeBrush.blockPresets[0];
 			}
@@ -392,35 +403,35 @@ BlockPreset BlockManager::GetBlockPresetAtPosition(glm::ivec3 position)
 			switch (brushAxisPlane)
 			{
 			case AxisPlane::XY:
-				if (position.y % 2 == 0)
-					return activeBrush.blockPresets[abs(position.x) % 2];
+				if ((position.y + brushOffsetY) % 2 == 0)
+					return activeBrush.blockPresets[abs(position.x + brushOffsetX) % 2];
 				else
-					return activeBrush.blockPresets[abs(position.x) % 2 + 2];
+					return activeBrush.blockPresets[abs(position.x + brushOffsetX) % 2 + 2];
 			case AxisPlane::XY_Neg:
-				if (position.x % 2 == 0)
-					return activeBrush.blockPresets[abs(position.y) % 2];
+				if ((position.x + brushOffsetX) % 2 == 0)
+					return activeBrush.blockPresets[abs(position.y + brushOffsetY) % 2];
 				else
-					return activeBrush.blockPresets[abs(position.y) % 2 + 2];
+					return activeBrush.blockPresets[abs(position.y + brushOffsetY) % 2 + 2];
 			case AxisPlane::XZ:
-				if (position.z % 2 == 0)
-					return activeBrush.blockPresets[abs(position.x) % 2];
+				if ((position.z + brushOffsetZ) % 2 == 0)
+					return activeBrush.blockPresets[abs(position.x + brushOffsetX) % 2];
 				else
-					return activeBrush.blockPresets[abs(position.x) % 2 + 2];
+					return activeBrush.blockPresets[abs(position.x + brushOffsetX) % 2 + 2];
 			case AxisPlane::XZ_Neg:
-				if (position.x % 2 == 0)
-					return activeBrush.blockPresets[abs(position.z) % 2];
+				if ((position.x + brushOffsetX) % 2 == 0)
+					return activeBrush.blockPresets[abs(position.z + brushOffsetZ) % 2];
 				else
-					return activeBrush.blockPresets[abs(position.z) % 2 + 2];
+					return activeBrush.blockPresets[abs(position.z + brushOffsetZ) % 2 + 2];
 			case AxisPlane::YZ:
-				if (position.y % 2 == 0)
-					return activeBrush.blockPresets[abs(position.z) % 2];
+				if ((position.y + brushOffsetY) % 2 == 0)
+					return activeBrush.blockPresets[abs(position.z + brushOffsetZ) % 2];
 				else
-					return activeBrush.blockPresets[abs(position.z) % 2 + 2];
+					return activeBrush.blockPresets[abs(position.z + brushOffsetZ) % 2 + 2];
 			case AxisPlane::YZ_Neg:
-				if (position.z % 2 == 0)
-					return activeBrush.blockPresets[abs(position.y) % 2];
+				if ((position.z + brushOffsetZ) % 2 == 0)
+					return activeBrush.blockPresets[abs(position.y + brushOffsetY) % 2];
 				else
-					return activeBrush.blockPresets[abs(position.y) % 2 + 2];
+					return activeBrush.blockPresets[abs(position.y + brushOffsetY) % 2 + 2];
 			}
 		}
 	}

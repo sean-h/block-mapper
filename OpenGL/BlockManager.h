@@ -109,4 +109,7 @@ private:
 	std::vector<Brush> brushes;
 	int selectedBrushIndex;
 	AxisPlane brushAxisPlane;
+	int brushOffsetX;
+	int brushOffsetY;
+	int brushOffsetZ;
 };
