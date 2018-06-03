@@ -87,8 +87,11 @@ private:
 	enum class AxisPlane
 	{
 		XY,
+		XY_Neg,
 		XZ,
+		XZ_Neg,
 		YZ,
+		YZ_Neg,
 	};
 
 	std::vector<std::string> blockNames;

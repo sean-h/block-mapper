@@ -185,20 +185,36 @@ void BlockManager::DrawGUI(ApplicationContext * context)
 		ImGui::Text(brushText.c_str());
 
 		int selectedAxisPlane = (int)brushAxisPlane;
-		if (GUI::SmallToggleButton("XY", (int)AxisPlane::XY, selectedAxisPlane))
+		if (GUI::SmallToggleButton(" XY", (int)AxisPlane::XY, selectedAxisPlane))
 		{
 			brushAxisPlane = AxisPlane::XY;
 		}
-		ImGui::SameLine();
-		if (GUI::SmallToggleButton("XZ", (int)AxisPlane::XZ, selectedAxisPlane))
+		ImGui::SameLine(50.0f);
+		if (GUI::SmallToggleButton(" XZ", (int)AxisPlane::XZ, selectedAxisPlane))
 		{
 			brushAxisPlane = AxisPlane::XZ;
 		}
-		ImGui::SameLine();
-		if (GUI::SmallToggleButton("YZ", (int)AxisPlane::YZ, selectedAxisPlane))
+		ImGui::SameLine(100.0f);
+		if (GUI::SmallToggleButton(" YZ", (int)AxisPlane::YZ, selectedAxisPlane))
 		{
 			brushAxisPlane = AxisPlane::YZ;
 		}
+		if (GUI::SmallToggleButton("-XY", (int)AxisPlane::XY_Neg, selectedAxisPlane))
+		{
+			brushAxisPlane = AxisPlane::XY_Neg;
+		}
+		ImGui::SameLine(50.0f);
+		if (GUI::SmallToggleButton("-XZ", (int)AxisPlane::XZ_Neg, selectedAxisPlane))
+		{
+			brushAxisPlane = AxisPlane::XZ_Neg;
+		}
+		ImGui::SameLine(100.0f);
+		if (GUI::SmallToggleButton("-YZ", (int)AxisPlane::YZ_Neg, selectedAxisPlane))
+		{
+			brushAxisPlane = AxisPlane::YZ_Neg;
+		}
+
+
 		brushAxisPlane = (AxisPlane)selectedAxisPlane;
 	}
 
@@ -372,38 +388,39 @@ BlockPreset BlockManager::GetBlockPresetAtPosition(glm::ivec3 position)
 			}
 			return activeBrush.blockPresets[1];
 		case BlockPattern::TwoByTwo:
-			if (brushAxisPlane == AxisPlane::XY)
+
+			switch (brushAxisPlane)
 			{
+			case AxisPlane::XY:
 				if (position.y % 2 == 0)
-				{
 					return activeBrush.blockPresets[abs(position.x) % 2];
-				}
 				else
-				{
 					return activeBrush.blockPresets[abs(position.x) % 2 + 2];
-				}
-			}
-			else if (brushAxisPlane == AxisPlane::XZ)
-			{
+			case AxisPlane::XY_Neg:
+				if (position.x % 2 == 0)
+					return activeBrush.blockPresets[abs(position.y) % 2];
+				else
+					return activeBrush.blockPresets[abs(position.y) % 2 + 2];
+			case AxisPlane::XZ:
 				if (position.z % 2 == 0)
-				{
 					return activeBrush.blockPresets[abs(position.x) % 2];
-				}
 				else
-				{
 					return activeBrush.blockPresets[abs(position.x) % 2 + 2];
-				}
-			}
-			else if (brushAxisPlane == AxisPlane::YZ)
-			{
-				if (position.y % 2 == 0)
-				{
+			case AxisPlane::XZ_Neg:
+				if (position.x % 2 == 0)
 					return activeBrush.blockPresets[abs(position.z) % 2];
-				}
 				else
-				{
 					return activeBrush.blockPresets[abs(position.z) % 2 + 2];
-				}
+			case AxisPlane::YZ:
+				if (position.y % 2 == 0)
+					return activeBrush.blockPresets[abs(position.z) % 2];
+				else
+					return activeBrush.blockPresets[abs(position.z) % 2 + 2];
+			case AxisPlane::YZ_Neg:
+				if (position.z % 2 == 0)
+					return activeBrush.blockPresets[abs(position.y) % 2];
+				else
+					return activeBrush.blockPresets[abs(position.y) % 2 + 2];
 			}
 		}
 	}
