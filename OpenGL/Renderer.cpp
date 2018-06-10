@@ -119,7 +119,6 @@ void Renderer::LoadShaders()
 	cameraLit->opacityID = cameraLit->UniformLocation("opacity");
 	cameraLit->inverseColorMultiplierID = cameraLit->UniformLocation("inverseColorMultiplier");
 
-
 	shaders["Grid"] = new Shader("VertexShader.glsl", "GridFragmentShader.glsl");
 	Shader* grid = shaders["Grid"];
 	grid->use();
@@ -127,6 +126,14 @@ void Renderer::LoadShaders()
 	grid->viewID = grid->UniformLocation("view");
 	grid->projectionID = grid->UniformLocation("projection");
 	grid->modelID = grid->UniformLocation("model");
+
+	shaders["Unlit"] = new Shader("VertexShader.glsl", "UnlitFragmentShader.glsl");
+	Shader* unlit = shaders["Unlit"];
+	unlit->use();
+	unlit->objectColorID = unlit->UniformLocation("objectColor");
+	unlit->viewID = unlit->UniformLocation("view");
+	unlit->projectionID = unlit->UniformLocation("projection");
+	unlit->modelID = unlit->UniformLocation("model");
 }
 
 void Renderer::LoadModels(FileManager* fileManager)
@@ -172,10 +179,31 @@ void Renderer::LoadMaterials(FileManager * fileManager)
 	gridMaterial->Color(glm::vec3(0.0f, 0.0f, 0.0f));
 	gridMaterial->MaterialShader(this->shaders["Grid"]);
 
+	std::unique_ptr<Material> redMaterial(new Material("Red"));
+	redMaterial->Color(glm::vec3(1.0f, 0.0f, 0.0f));
+	//redMaterial->Opacity(1.0f);
+	//redMaterial->Wireframe(false);
+	redMaterial->MaterialShader(this->shaders["Unlit"]);
+
+	std::unique_ptr<Material> greenMaterial(new Material("Green"));
+	greenMaterial->Color(glm::vec3(0.0f, 1.0f, 0.0f));
+	//greenMaterial->Opacity(1.0f);
+	//greenMaterial->Wireframe(false);
+	greenMaterial->MaterialShader(this->shaders["Unlit"]);
+
+	std::unique_ptr<Material> blueMaterial(new Material("Blue"));
+	blueMaterial->Color(glm::vec3(0.0f, 0.0f, 1.0f));
+	//blueMaterial->Opacity(1.0f);
+	//blueMaterial->Wireframe(false);
+	blueMaterial->MaterialShader(this->shaders["Unlit"]);
+
 	this->materials["Solid"] = std::move(solidMaterial);
 	this->materials["Selected"] = std::move(selectedMaterial);
 	this->materials["Hover"] = std::move(hoverMaterial);
 	this->materials["Grid"] = std::move(gridMaterial);
+	this->materials["Red"] = std::move(redMaterial);
+	this->materials["Green"] = std::move(greenMaterial);
+	this->materials["Blue"] = std::move(blueMaterial);
 
 	// Load materials from file
 	for (auto& materialPath : fileManager->MaterialPaths())

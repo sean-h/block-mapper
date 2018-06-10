@@ -6,13 +6,7 @@
 
 DrawBlockTool::DrawBlockTool(ApplicationContext* context)
 {
-	this->RefreshGhostBlocks(context);
-
-	selectedDrawModeIndex = 0;
-	drawMode = DrawModes::Point;
-	buildState = BuildStates::PlaceFirstBlock;
-	selectedBlockName = "";
-	selectedBlockColorIndex = 0;
+	DrawBlockTool(context, DrawModes::Point);
 }
 
 DrawBlockTool::DrawBlockTool(ApplicationContext * context, DrawModes drawMode)
@@ -22,6 +16,41 @@ DrawBlockTool::DrawBlockTool(ApplicationContext * context, DrawModes drawMode)
 	buildState = BuildStates::PlaceFirstBlock;
 	selectedBlockName = "";
 	selectedBlockColorIndex = 0;
+
+	Scene* scene = context->ApplicationScene();
+
+	auto xAxisEntityHandle = scene->CreateEntity();
+	auto xAxis = xAxisEntityHandle->TargetEntity();
+	xAxis->AddProperty(EntityProperty::Temporary, "");
+	xAxis->MeshName("Line");
+	xAxis->MaterialName("Red");
+	xAxis->ObjectTransform()->Position(glm::vec3(0.0f, 0.0f, 0.0f));
+	xAxis->ObjectTransform()->Rotation(glm::vec3(0.0f, 90.0f, 0.0f));
+	xAxis->ObjectTransform()->Scale(glm::vec3(5.0f, 5.0f, 2.0f));
+	scene->RefreshEntityRenderData(xAxisEntityHandle);
+	axisEntities.push_back(xAxisEntityHandle);
+
+	auto yAxisEntityHandle = scene->CreateEntity();
+	auto yAxis = yAxisEntityHandle->TargetEntity();
+	yAxis->AddProperty(EntityProperty::Temporary, "");
+	yAxis->MeshName("Line");
+	yAxis->MaterialName("Green");
+	yAxis->ObjectTransform()->Position(glm::vec3(0.0f, 0.0f, 0.0f));
+	yAxis->ObjectTransform()->Rotation(glm::vec3(-90.0f, 0.0f, 0.0f));
+	yAxis->ObjectTransform()->Scale(glm::vec3(5.0f, 5.0f, 2.0f));
+	scene->RefreshEntityRenderData(yAxisEntityHandle);
+	axisEntities.push_back(yAxisEntityHandle);
+
+	auto zAxisEntityHandle = scene->CreateEntity();
+	auto zAxis = zAxisEntityHandle->TargetEntity();
+	zAxis->AddProperty(EntityProperty::Temporary, "");
+	zAxis->MeshName("Line");
+	zAxis->MaterialName("Blue");
+	zAxis->ObjectTransform()->Position(glm::vec3(0.0f, 0.0f, 0.0f));
+	zAxis->ObjectTransform()->Rotation(glm::vec3(0.0f, 0.0f, 0.0f));
+	zAxis->ObjectTransform()->Scale(glm::vec3(5.0f, 5.0f, 2.0f));
+	scene->RefreshEntityRenderData(zAxisEntityHandle);
+	axisEntities.push_back(zAxisEntityHandle);
 }
 
 void DrawBlockTool::Update(ApplicationContext* context)
@@ -55,6 +84,7 @@ void DrawBlockTool::Update(ApplicationContext* context)
 			{
 				drawStartPosition = newBlockPos;
 				this->RefreshGhostBlocks(context);
+				RefreshAxisPosition(context, newBlockPos);
 			}
 		}
 	}
@@ -77,6 +107,7 @@ void DrawBlockTool::Update(ApplicationContext* context)
 			{
 				drawEndPosition = newBlockPos;
 				this->RefreshGhostBlocks(context);
+				RefreshAxisPosition(context, newBlockPos);
 			}
 		}
 	}
@@ -141,6 +172,19 @@ void DrawBlockTool::DrawGUI(ApplicationContext * context)
 	{
 		drawMode = DrawModes::Rectangle;
 	}
+}
+
+void DrawBlockTool::DisableTool(ApplicationContext * context)
+{
+	PlaceBlockTool::DisableTool(context);
+
+	Scene* scene = context->ApplicationScene();
+	for (auto& axis : axisEntities)
+	{
+		scene->DestroyEntity(axis);
+	}
+
+	axisEntities.clear();
 }
 
 void DrawBlockTool::RefreshGhostBlocks(ApplicationContext * context)
@@ -230,4 +274,15 @@ bool DrawBlockTool::GetNewGhostBlockPosition(ApplicationContext * context, glm::
 	}
 
 	return false;
+}
+
+void DrawBlockTool::RefreshAxisPosition(ApplicationContext * context, glm::vec3 & newPosition)
+{
+	Scene* scene = context->ApplicationScene();
+
+	for (auto axis : axisEntities)
+	{
+		axis->TargetEntity()->ObjectTransform()->Position(newPosition);
+		scene->RefreshEntityRenderModelMatrix(axis);
+	}
 }

@@ -17,6 +17,7 @@ public:
 	DrawBlockTool(ApplicationContext* context, DrawModes drawMode);
 	void Update(ApplicationContext* context);
 	void DrawGUI(ApplicationContext* context);
+	void DisableTool(ApplicationContext* context);
 	std::string Name() { return "Draw"; }
 
 private:
@@ -31,6 +32,7 @@ private:
 	void RefreshGhostBlocks(ApplicationContext* context);
 	void RotateGhostBlocks(ApplicationContext* context, glm::vec3 axis, float angleDegrees);
 	bool GetNewGhostBlockPosition(ApplicationContext* context, glm::vec3& newBlockPosition);
+	void RefreshAxisPosition(ApplicationContext* context, glm::vec3& newPosition);
 
 	DrawModes drawMode;
 	BuildStates buildState;
@@ -38,6 +40,7 @@ private:
 	int selectedDrawModeIndex;
 	std::string selectedBlockName;
 	int selectedBlockColorIndex;
+	std::vector<std::shared_ptr<EntityHandle>> axisEntities;
 
 	glm::vec3 drawStartPosition;
 	glm::vec3 drawEndPosition;
