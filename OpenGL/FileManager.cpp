@@ -9,6 +9,8 @@ FileManager::FileManager()
 	if (result == S_OK)
 	{
 		this->applicationFolderPath = std::string(my_documents) + "/" + applicationFolderName;
+		CreateDirectoryAtPath(this->applicationFolderPath);
+
 		this->blockFolderPath = this->applicationFolderPath + "/Blocks";
 		CreateDirectoryAtPath(blockFolderPath);
 
