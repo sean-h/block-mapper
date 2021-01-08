@@ -21,22 +21,22 @@ FileManager::FileManager()
 		this->brushFolderPath = this->applicationFolderPath + "/Brushes";
 		CreateDirectoryAtPath(brushFolderPath);
 
-		for (auto &file : std::experimental::filesystem::directory_iterator(this->blockFolderPath))
+		for (auto &file : std::filesystem::directory_iterator(this->blockFolderPath))
 		{
 			this->blockPaths.push_back(file.path());
 		}
 
-		for (auto &file : std::experimental::filesystem::directory_iterator(this->textureFolderPath))
+		for (auto &file : std::filesystem::directory_iterator(this->textureFolderPath))
 		{
 			this->texturePaths.push_back(file.path());
 		}
 
-		for (auto &file : std::experimental::filesystem::directory_iterator(this->materialFolderPath))
+		for (auto &file : std::filesystem::directory_iterator(this->materialFolderPath))
 		{
 			this->materialPaths.push_back(file.path());
 		}
 
-		for (auto &file : std::experimental::filesystem::directory_iterator(this->brushFolderPath))
+		for (auto &file : std::filesystem::directory_iterator(this->brushFolderPath))
 		{
 			this->brushPaths.push_back(file.path());
 		}
@@ -128,7 +128,7 @@ std::vector<std::string> FileManager::SavedSceneFilenames() const
 {
 	std::vector<std::string> sceneFilenames;
 
-	for (auto &file : std::experimental::filesystem::directory_iterator(this->saveFolderPath))
+	for (auto &file : std::filesystem::directory_iterator(this->saveFolderPath))
 	{
 		sceneFilenames.push_back(file.path().filename().string());
 	}
@@ -138,13 +138,13 @@ std::vector<std::string> FileManager::SavedSceneFilenames() const
 
 bool FileManager::FileExists(std::string filePath) const
 {
-	return std::experimental::filesystem::exists(filePath);
+	return std::filesystem::exists(filePath);
 }
 
 void FileManager::CreateDirectoryAtPath(std::string directory)
 {
-	if (!std::experimental::filesystem::exists(directory))
+	if (!std::filesystem::exists(directory))
 	{
-		std::experimental::filesystem::create_directory(directory);
+		std::filesystem::create_directory(directory);
 	}
 }
