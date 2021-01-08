@@ -29,15 +29,15 @@ A BlockEditor folder is created in your "My Documents" folder which contains sub
 - **Textures** contains the textures used by the materials.
 
 ## Controls
-Camera: Scroll to zoom, click scroll wheel to rotate, Shift+click scroll wheel to pan
-Sets camera orbit point to select block: Delete
-Set camera mode to FPS controls: Shift+F
-Grid plane controls: +/-
-Rotate block brush: W/A/S/D/Q/E
-Delete selected block: X
-Undo: Ctrl+Z
-Save: Ctrl+S
-Open Merge Group Window: M
+- Camera: Scroll to zoom, click scroll wheel to rotate, Shift+click scroll wheel to pan
+- Sets camera orbit point to select block: Delete
+- Set camera mode to FPS controls: Shift+F
+- Grid plane controls: +/-
+- Rotate block brush: W/A/S/D/Q/E
+- Delete selected block: X
+- Undo: Ctrl+Z
+- Save: Ctrl+S
+- Open Merge Group Window: M
 
 ## Tools
 - **Select Single** Selects a single block. Click empty space to deselect the block. Shift click to add a block to the selection.
